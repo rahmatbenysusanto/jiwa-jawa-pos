@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OutletController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,4 +45,15 @@ Route::prefix('/outlet')->controller(OutletController::class)->group(function ()
 Route::prefix('/user')->controller(UserController::class)->group(function () {
     Route::get('/', 'index')->name('user.index');
     Route::get('/create', 'create')->name('user.create');
+});
+
+Route::prefix('/pos')->controller(PosController::class)->group(function () {
+    Route::get('/', 'index')->name('pos.index');
+
+    // JSON Response
+    Route::get('/menu', 'menu')->name('pos.menu');
+    Route::get('/menu/find', 'findProduct')->name('pos.product.find');
+    Route::get('/addon', 'addon')->name('pos.addon');
+    Route::get('/addon/find', 'findAddon')->name('pos.addon.find');
+    Route::get('/addon/variant', 'findAddonVariant')->name('pos.addon.variant');
 });

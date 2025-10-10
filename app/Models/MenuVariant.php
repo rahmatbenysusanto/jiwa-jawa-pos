@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MenuVariant extends Model
 {
@@ -12,4 +13,9 @@ class MenuVariant extends Model
         'name',
         'required'
     ];
+
+    public function menuVariantOptions(): HasMany
+    {
+        return $this->hasMany(MenuVariantOption::class, 'menu_variant_id');
+    }
 }

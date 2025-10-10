@@ -12,22 +12,55 @@
     <meta name="robots" content="index, follow">
     <title>@yield('title') - Jiwa Jawa Coffe</title>
 
-    <script src="{{ asset('assets/js/theme-script.js') }}" type="ac11519a377c42295ce2c902-text/javascript"></script>
+    <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.png') }}">
+
+    <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
+
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+
+    <!-- Datetimepicker CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
+
+    <!-- Animation CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/animate.css') }}">
+
+    <!-- Select2 CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/select2/css/select2.min.css') }}">
+
+    <!-- Daterangepicker CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/daterangepicker/daterangepicker.css') }}">
+
+    <!-- Tabler Icon CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/tabler-icons/tabler-icons.min.css') }}">
+
+    <!-- Summernote CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/summernote/summernote-bs4.min.css') }}">
+
+    <!-- Bootstrap Tagsinput CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css') }}">
+
+    <!-- Datatable CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/dataTables.bootstrap5.min.css') }}">
+
+    <!-- Fontawesome CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
+
+    <!-- Owl Carousel CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/plugins/owlcarousel/owl.carousel.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/owlcarousel/owl.theme.default.min.css') }}">
+
+    <!-- Color Picker CSS -->
     <link rel="stylesheet" href="{{ asset('assets/plugins/%40simonwep/pickr/themes/nano.min.css') }}">
+
+    <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+    <!-- Theme Script -->
+    <script src="{{ asset('assets/js/theme-script.js') }}"></script>
 
 </head>
 
@@ -487,8 +520,8 @@
                                             <span>Dashboard</span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="#">
+                                    <li class="{{ $title == 'POS' ? 'active' : '' }}">
+                                        <a href="{{ route('pos.index') }}">
                                             <i class="ti ti-device-laptop fs-16 me-2"></i>
                                             <span>Point Of Sale (POS)</span>
                                         </a>
@@ -1939,22 +1972,57 @@
     </div>
 </div>
 
+<!-- jQuery -->
 <script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}"></script>
+
+<!-- Feather Icons -->
 <script src="{{ asset('assets/js/feather.min.js') }}"></script>
+
+<!-- Slimscroll -->
 <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
+
+<!-- Bootstrap Core JS -->
 <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+
+<!-- ApexCharts -->
 <script src="{{ asset('assets/plugins/apexchart/apexcharts.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/apexchart/chart-data.js') }}"></script>
+
+<!-- ChartJS -->
 <script src="{{ asset('assets/plugins/chartjs/chart.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/chartjs/chart-data.js') }}"></script>
+
+<!-- Datatables -->
+<script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/js/dataTables.bootstrap5.min.js') }}"></script>
+
+<!-- Moment & Daterangepicker -->
 <script src="{{ asset('assets/js/moment.min.js') }}"></script>
 <script src="{{ asset('assets/plugins/daterangepicker/daterangepicker.js') }}"></script>
+
+<!-- Owl Carousel -->
+<script src="{{ asset('assets/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
+
+<!-- Select2 -->
 <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
+
+<!-- Sticky Sidebar -->
+<script src="{{ asset('assets/plugins/theia-sticky-sidebar/ResizeSensor.js') }}"></script>
+<script src="{{ asset('assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js') }}"></script>
+
+<!-- Color Picker -->
 <script src="{{ asset('assets/plugins/%40simonwep/pickr/pickr.es5.min.js') }}"></script>
-<script src="{{ asset('assets/js/theme-colorpicker.js') }}"></script>
-<script src="{{ asset('assets/js/script.js') }}"></script>
+
+<!-- SweetAlert -->
 <script src="{{ asset('assets/plugins/sweetalert/sweetalert2.all.min.js') }}"></script>
-<script src="https://preadmin.dreamstechnologies.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="ac11519a377c42295ce2c902-|49" defer></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"97f796c549061dad","version":"2025.8.0","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"token":"3ca157e612a14eccbb30cf6db6691c29","b":1}' crossorigin="anonymous"></script>
+
+<!-- Custom Scripts -->
+<script src="{{ asset('assets/js/theme-colorpicker.js') }}"></script>
+<script src="{{ asset('assets/js/calculator.js') }}"></script> <!-- optional -->
+<script src="{{ asset('assets/js/script.js') }}"></script>
+
+<!-- Theme Script -->
+<script src="{{ asset('assets/js/theme-script.js') }}"></script>
 
 @yield('js')
 

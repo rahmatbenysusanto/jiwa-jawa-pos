@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Menu extends Model
 {
@@ -19,8 +21,13 @@ class Menu extends Model
         'image',
     ];
 
-    public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(MenuCategory::class, 'category_id');
+    }
+
+    public function menuVariant(): HasMany
+    {
+        return $this->hasMany(MenuVariant::class, 'menu_id');
     }
 }
