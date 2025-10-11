@@ -108,54 +108,24 @@
                     <div class="row gx-2">
                         <div class="col-sm-4">
                             <a class="btn btn-teal d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-percentage me-2"></i>Discount</a>
-                            <a class="btn btn-orange d-flex align-items-center justify-content-center w-100 mb-2" onclick="addNote()"><i  class="ti ti-file-description me-2"></i>Note</a>
+                            <a class="btn btn-indigo d-flex align-items-center justify-content-center w-100 mb-2" onclick="addNote()"><i  class="ti ti-file-description me-2"></i>Note</a>
                         </div>
                         <div class="col-sm-4">
-                            <a class="btn btn-purple d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-receipt-tax me-2"></i>Split Payment</a>
-                            <a class="btn btn-info d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-map-pin-check me-2"></i>Delivery</a>
+                            <a class="btn btn-purple d-flex align-items-center justify-content-center w-100 mb-2" onclick="splitPayment()"><i  class="ti ti-receipt-tax me-2"></i>Split Payment</a>
+                            <a class="btn btn-info d-flex align-items-center justify-content-center w-100 mb-2" onclick="delivery()"><i class="ti ti-map-pin-check me-2"></i>Delivery</a>
                         </div>
                         <div class="col-sm-4">
-                            <a class="btn btn-indigo d-flex align-items-center justify-content-center w-100 mb-2"><i class="ti ti-reload me-2"></i>Reset</a>
+                            <a class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2" onclick="resetTransaction()"><i class="ti ti-reload me-2"></i>Reset</a>
                             <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-cash-banknote me-2"></i>Payment</a>
                         </div>
                     </div>
                 </div>
-                <div class="block-section payment-method">
-                    <h5 class="mb-2">Select Payment</h5>
-                    <div class="row align-items-center justify-content-center methods g-2 mb-4">
-                        <div class="col-sm-6 col-md-4 col-xl d-flex">
-                            <a href="javascript:void(0);" class="payment-item flex-fill" data-bs-toggle="modal" data-bs-target="#payment-cash">
-                                <img src="assets/img/icons/cash-icon.svg" alt="img">
-                                <p class="fw-medium">Cash</p>
-                            </a>
-                        </div>
-                        <div class="col-sm-6 col-md-4 col-xl d-flex">
-                            <a href="javascript:void(0);" class="payment-item flex-fill" data-bs-toggle="modal" data-bs-target="#payment-card">
-                                <img src="assets/img/icons/card.svg" alt="img">
-                                <p class="fw-medium">Card</p>
-                            </a>
-                        </div>
-                        <div class="col-sm-6 col-md-4 col-xl d-flex">
-                            <a href="javascript:void(0);" class="payment-item flex-fill" data-bs-toggle="modal" data-bs-target="#payment-points">
-                                <img src="assets/img/icons/points.svg" alt="img">
-                                <p class="fw-medium">Points</p>
-                            </a>
-                        </div>
-                        <div class="col-sm-6 col-md-4 col-xl d-flex">
-                            <a href="javascript:void(0);" class="payment-item flex-fill" data-bs-toggle="modal" data-bs-target="#payment-deposit">
-                                <img src="assets/img/icons/deposit.svg" alt="img">
-                                <p class="fw-medium">Deposit</p>
-                            </a>
-                        </div>
-                        <div class="col-sm-6 col-md-4 col-xl d-flex">
-                            <a href="javascript:void(0);" class="payment-item flex-fill" data-bs-toggle="modal" data-bs-target="#payment-cheque">
-                                <img src="assets/img/icons/cheque.svg" alt="img">
-                                <p class="fw-medium">Cheque</p>
-                            </a>
-                        </div>
-                    </div>
+                <div class="block-section payment-method mt-3">
                     <div class="btn-block m-0">
-                        <a class="btn btn-teal w-100" onclick="paymentProcess()">
+                        <a class="btn btn-secondary w-100 mb-2" onclick="paymentProcess()">
+                            <i class="ti ti-printer me-2"></i>Print Invoice
+                        </a>
+                        <a class="btn btn-success w-100" id="buttonPay" onclick="paymentProcess()">
                             Pay : Rp 0
                         </a>
                     </div>
@@ -371,6 +341,49 @@
             </div>
         </div>
     </div>
+
+    <div id="splitPaymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Split Payment</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="additem-info">
+                        <div class="bg-light p-3 add-info" id="listSplitPayment">
+
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <a class="btn btn-primary btn-md" onclick="addSplitPayment()">Add More</a>
+                    </div>
+                </div>
+                <div class="modal-footer gap-2">
+                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="splitPaymentProcess()">Split Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="deliveryModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Delivery Transaction</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-control" id="delivery">
+                        <option selected>Dine In</option>
+                        <option>Take Away</option>
+                        <option>Delivery</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
@@ -499,7 +512,7 @@
                         let option = '';
                         (variant.menu_variant_options).forEach((item) => {
                             option += `
-                                <option value=${item.id} ${item.is_default === 1 ? 'selected' : ''}>${item.name} | ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price_delta)}</option>
+                                <option value=${item.id} ${item.is_default === 1 ? 'selected' : ''}>${item.name} | Rp ${rupiah(item.price_delta)}</option>
                             `
 
                             valueVariant.push({
@@ -534,7 +547,7 @@
                     document.getElementById('product-detail-id').value = product.id;
                     document.getElementById('product-detail-name').value = product.name;
                     document.getElementById('product-detail-sku').value = product.sku;
-                    document.getElementById('product-detail-base-price').value =(new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(product.price));
+                    document.getElementById('product-detail-base-price').value = 'Rp '+rupiah(product.price);
                     document.getElementById('product-detail-category').value = product.category.name;
                     viewListAddon();
                     $('#productDetailModal').modal('show');
@@ -588,7 +601,7 @@
                     let html = '<option value="">-- Choose Variant --</option>';
 
                     data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name} | Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}</option>`;
+                        html += `<option value="${item.id}">${item.name} | Rp ${rupiah(item.price)}).format()}</option>`;
                     });
 
                     document.getElementById('addon-variant').innerHTML = html;
@@ -645,7 +658,7 @@
                 html += `
                     <tr>
                         <td>${item.name}</td>
-                        <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}</td>
+                        <td>Rp ${rupiah(item.price)}</td>
                         <td class="text-center">
                             <div class="qty-item m-0">
                                 <a onclick="changeQtyAddon(${index}, 'kurang')" class="dec d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="minus" data-bs-original-title="minus">
@@ -664,7 +677,7 @@
                                 </a>
                             </div>
                         </td>
-                        <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total)}</td>
+                        <td>Rp ${rupiah(item.total)}</td>
                         <td><a class="btn btn-danger btn-sm" onclick="deleteAddon(${index})"><i class="fa fa-trash"></a></td>
                     </tr>
                 `;
@@ -760,7 +773,7 @@
                                     <h6 class="fs-16 fw-medium"><a onclick="editProductCart(${index})">${item.name}</a></h6>
                                     <a class="ms-2 edit-icon" onclick="editProductCart(${index})"><i class="ti ti-edit"></i></a>
                                 </div>
-                                Price : ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.totalPrice)}
+                                Price : Rp ${rupiah(item.totalPrice)}
                             </td>
                             <td>
                                 <div class="qty-item m-0">
@@ -780,7 +793,7 @@
                                     </a>
                                 </div>
                             </td>
-                            <td class="fw-bold">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.grandTotal)}</td>
+                            <td class="fw-bold">Rp ${rupiah(item.grandTotal)}</td>
                             <td class="text-end">
                                 <a class="btn-icon delete-icon" onclick="deleteCart(${index})">
                                     <i class="ti ti-trash"></i>
@@ -842,7 +855,7 @@
                 let variantOptionHtml = '';
 
                 (item.option).forEach((option) => {
-                    variantOptionHtml += `<option value="${option.id}" ${option.select === 1 ? 'selected' : ''}>${option.name} | ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(option.price)}</option>`;
+                    variantOptionHtml += `<option value="${option.id}" ${option.select === 1 ? 'selected' : ''}>${option.name} | Rp ${rupiah(option.price)}</option>`;
                 });
 
                 variantHtml += `
@@ -874,7 +887,7 @@
                 html += `
                     <tr>
                         <td>${item.name}</td>
-                        <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}</td>
+                        <td>Rp ${rupiah(item.price)}</td>
                         <td class="text-center">
                             <div class="qty-item m-0">
                                 <a onclick="changeQtyAddonEdit(${index}, 'kurang')" class="dec d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="minus" data-bs-original-title="minus">
@@ -893,7 +906,7 @@
                                 </a>
                             </div>
                         </td>
-                        <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total)}</td>
+                        <td>Rp ${rupiah(item.total)}</td>
                         <td><a class="btn btn-danger btn-sm" onclick="deleteAddon(${index})"><i class="fa fa-trash"></a></td>
                     </tr>
                 `;
@@ -933,7 +946,7 @@
                     let html = '<option value="">-- Choose Variant --</option>';
 
                     data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name} | Rp ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.price)}</option>`;
+                        html += `<option value="${item.id}">${item.name} | Rp ${rupiah(item.price)}</option>`;
                     });
 
                     document.getElementById('addon-edit-variant').innerHTML = html;
@@ -1075,10 +1088,10 @@
 
             grandTotal = subTotal + totalTax;
 
-            document.getElementById('subTotal').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(subTotal);
-            document.getElementById('totalTax').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalTax);
-            document.getElementById('grandTotal').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(grandTotal);
-            document.getElementById('buttonPay').innerText = 'Pay : '+new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(grandTotal);
+            document.getElementById('subTotal').innerText = 'Rp '+rupiah(subTotal);
+            document.getElementById('totalTax').innerText = 'Rp '+rupiah(totalTax);
+            document.getElementById('grandTotal').innerText = 'Rp '+rupiah(grandTotal);
+            document.getElementById('buttonPay').innerText = 'Pay : Rp '+ rupiah(grandTotal);
         }
 
         function calculateJumlahCart() {
@@ -1108,6 +1121,18 @@
             }).then((i) => {
                 if (i.value) {
 
+                    // Validation
+
+                    $.ajax({
+                        url: '',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: (res) => {
+
+                        }
+                    });
                 }
             });
         }
@@ -1124,6 +1149,80 @@
             const note = document.getElementById('note').value;
             localStorage.setItem('note', JSON.stringify(note));
             $('#noteModal').modal('hide');
+        }
+
+        function splitPayment() {
+            viewSplitPayment();
+            $('#splitPaymentModal').modal('show');
+        }
+
+        function viewSplitPayment() {
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+            let html = '';
+
+            splitPayment.forEach((item, index) => {
+                html += `
+                    <div class="row align-items-center g-2 mb-3">
+                        <div class="col-lg-2">
+                            <h6 class="fs-14 fw-semibold">Payment ${index + 1}</h6>
+                        </div>
+                        <div class="col-lg-4">
+                            <select class="form-control">
+                                <option>Cash</option>
+                                <option>Card</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-4">
+                            <input type="text" class="form-control" placeholder="Enter Amount">
+                        </div>
+                        <div class="col-lg-2">
+                            <button class="btn btn-dark w-100">Charge</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('listSplitPayment').innerHTML = html;
+        }
+
+        function addSplitPayment() {
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+
+            splitPayment.push({
+                paymentMethod: '',
+                amount: 0
+            });
+
+            localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
+            viewSplitPayment();
+        }
+
+        function splitPaymentProcess() {
+            $('#splitPaymentModal').modal('hide');
+        }
+
+        function resetTransaction() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Reset Transaction",
+                icon: "warning",
+                showCancelButton: true,
+                customClass: {
+                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
+                    cancelButton: "btn btn-danger w-xs mt-2"
+                },
+                confirmButtonText: "Yes, Reset it!",
+                buttonsStyling: false,
+                showCloseButton: true
+            }).then((i) => {
+                if (i.value) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function delivery() {
+            $('#deliveryModal').modal('show');
         }
     </script>
 
