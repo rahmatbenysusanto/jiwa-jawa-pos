@@ -6,6 +6,7 @@ use App\Models\Addon;
 use App\Models\AddonVariant;
 use App\Models\Menu;
 use App\Models\MenuCategory;
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -70,6 +71,15 @@ class PosController extends Controller
 
         return response()->json([
             'data'  => $addon
+        ]);
+    }
+
+    public function paymentMethod(): \Illuminate\Http\JsonResponse
+    {
+        $payment = PaymentMethod::all();
+
+        return response()->json([
+            'data'  => $payment
         ]);
     }
 }

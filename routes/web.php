@@ -56,4 +56,5 @@ Route::prefix('/pos')->controller(PosController::class)->group(function () {
     Route::get('/addon', 'addon')->name('pos.addon');
     Route::get('/addon/find', 'findAddon')->name('pos.addon.find');
     Route::get('/addon/variant', 'findAddonVariant')->name('pos.addon.variant');
+    Route::get('/payment-method', 'paymentMethod')->name('pos.payment.method');
 });

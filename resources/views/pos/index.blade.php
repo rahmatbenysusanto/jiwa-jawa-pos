@@ -116,7 +116,7 @@
                         </div>
                         <div class="col-sm-4">
                             <a class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2" onclick="resetTransaction()"><i class="ti ti-reload me-2"></i>Reset</a>
-                            <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-cash-banknote me-2"></i>Payment</a>
+                            <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2" onclick="payment()"><i  class="ti ti-cash-banknote me-2"></i>Payment</a>
                         </div>
                     </div>
                 </div>
@@ -379,6 +379,22 @@
                         <option selected>Dine In</option>
                         <option>Take Away</option>
                         <option>Delivery</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Payment</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-control" id="paymentMethod" onchange="changePaymentMethod(this.value)">
+
                     </select>
                 </div>
             </div>
@@ -1167,22 +1183,43 @@
                             <h6 class="fs-14 fw-semibold">Payment ${index + 1}</h6>
                         </div>
                         <div class="col-lg-4">
-                            <select class="form-control">
-                                <option>Cash</option>
-                                <option>Card</option>
+                            <select class="form-control" onchange="changeSplitPayment(${index}, 'paymentMethod', this.value)">
+                                <option value="">-- Choose Payment Method --</option>
+                                <option ${item.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                                <option ${item.paymentMethod === 'QRIS' ? 'selected' : ''}>QRIS</option>
+                                <option ${item.paymentMethod === 'Debit' ? 'selected' : ''}>Debit</option>
+                                <option ${item.paymentMethod === 'Transfer' ? 'selected' : ''}>Transfer</option>
                             </select>
                         </div>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control" placeholder="Enter Amount">
+                        <div class="col-lg-5">
+                            <input type="number" class="form-control" placeholder="Enter Amount" oninput="changeSplitPayment(${index}, 'amount', this.value)">
                         </div>
-                        <div class="col-lg-2">
-                            <button class="btn btn-dark w-100">Charge</button>
-                        </div>
+                        <div class="col-lg-1"><a class="btn btn-danger btn-sm" onclick="deleteSplitPayment('${index}')"><i class="fa fa-trash"></i></a></div>
                     </div>
                 `;
             });
 
             document.getElementById('listSplitPayment').innerHTML = html;
+        }
+
+        function deleteSplitPayment(index) {
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+            splitPayment.splice(index, 1);
+            localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
+            viewSplitPayment();
+        }
+
+        function changeSplitPayment(index, type, value) {
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+            const find = splitPayment[index];
+
+            if (type === 'paymentMethod') {
+                find.paymentMethod = value;
+            } else {
+                find.amount = parseInt(value);
+            }
+
+            localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
         }
 
         function addSplitPayment() {
@@ -1223,6 +1260,46 @@
 
         function delivery() {
             $('#deliveryModal').modal('show');
+        }
+
+        function payment() {
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+            const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? '';
+
+            console.info(splitPayment);
+            if (splitPayment.length === 0) {
+                $.ajax({
+                    url: '{{ route('pos.payment.method') }}',
+                    method: 'GET',
+                    success: (res) => {
+                        const data = res.data;
+                        let html = '<option>-- Choose Payment --</option>';
+
+                        data.forEach((item) => {
+                            html += `<option value="${item.name}" ${paymentMethod === item.name ? 'selected' : ''}>${item.name}</option>`;
+                        });
+
+                        document.getElementById('paymentMethod').innerHTML = html;
+                    }
+                });
+            } else {
+                const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+
+                let html = '<option>-- Choose Payment --</option>';
+
+                splitPayment.forEach((item) => {
+                    html += `<option value="${item.paymentMethod}" ${paymentMethod === item.paymentMethod ? 'selected' : ''}>${item.paymentMethod}</option>`;
+                });
+
+                document.getElementById('paymentMethod').innerHTML = html;
+            }
+
+            $('#paymentModal').modal('show');
+        }
+
+        function changePaymentMethod(value) {
+            localStorage.setItem('paymentMethod', JSON.stringify(value));
+            $('#paymentModal').modal('hide');
         }
     </script>
 
