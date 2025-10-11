@@ -41513,7 +41513,6 @@ th.fixed-width {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  display: none;
 }
 .product-wrap .product-list {
   border: 1px solid #E6EAED;
