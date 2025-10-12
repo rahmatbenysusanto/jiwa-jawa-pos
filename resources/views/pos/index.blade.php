@@ -838,6 +838,41 @@
                 document.getElementById('cartNull').style.display = 'none';
 
                 cart.forEach((item, index) => {
+                    let variantHtml = '';
+                    let addonHtml = 'Addon: <br>';
+
+                    // Variant
+                    (item.data.variant).forEach((variant) => {
+                        (variant.option).forEach((option) => {
+                            if (option.select === 1) {
+                                variantHtml += variant.name + ': ' + option.name + ' - Rp ' + rupiah(option.price) +'<br>';
+                            }
+                        });
+                    });
+
+                    // Addon
+                    (item.data.addon).forEach((addon) => {
+                        addonHtml += addon.name + ': Rp ' + addon.total + '<br>';
+                    });
+
+                    let price = '';
+                    let discountProductHtml = '';
+                    if (item.priceDiscount === 0) {
+                        price = `<div>Rp ${rupiah(item.grandTotal)}</div>`;
+                    } else {
+                        price = `
+                            <div class="text-decoration-line-through">Rp ${rupiah((item.totalPrice + item.priceDelta) * item.qty)}</div>
+                            ${item.priceDiscount !== 0 ? `<div class="text-danger">- Rp ${rupiah(item.priceDiscount * item.qty)}</div>` : ''}
+                            <div>Rp ${rupiah(item.grandTotal)}</div>
+                        `;
+
+                        (item.data.discountProduct).forEach((discount) => {
+                            if (discount.select === 1) {
+                                discountProductHtml = `<div class="text-danger">Disc: ${discount.name}</div>`;
+                            }
+                        });
+                    }
+
                     html += `
                          <tr>
                             <td>
@@ -845,7 +880,10 @@
                                     <h6 class="fs-16 fw-medium"><a onclick="editProductCart(${index})">${item.name}</a></h6>
                                     <a class="ms-2 edit-icon" onclick="editProductCart(${index})"><i class="ti ti-edit"></i></a>
                                 </div>
-                                Price : Rp ${rupiah(item.totalPrice)}
+                                <div>Base Price : Rp ${rupiah(item.basePrice)}</div>
+                                ${variantHtml}
+                                ${item.priceAddon !== 0 ? addonHtml : ''}
+                                ${discountProductHtml}
                             </td>
                             <td>
                                 <div class="qty-item m-0">
@@ -865,7 +903,9 @@
                                     </a>
                                 </div>
                             </td>
-                            <td class="fw-bold">Rp ${rupiah(item.grandTotal)}</td>
+                            <td class="fw-bold">
+                                ${price}
+                            </td>
                             <td class="text-end">
                                 <a class="btn-icon delete-icon" onclick="deleteCart(${index})">
                                     <i class="ti ti-trash"></i>
@@ -1487,6 +1527,10 @@
 
         updateWaktuIndonesia();
         setInterval(updateWaktuIndonesia, 1000 * 30);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.classList.add('mini-sidebar');
+        });
     </script>
 @endsection
 

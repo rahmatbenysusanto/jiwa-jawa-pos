@@ -41504,7 +41504,7 @@ th.fixed-width {
 }
 
 .product-wrap {
-  height: 311px;
+  min-height: 311px;
   overflow: auto;
 }
 .product-wrap .empty-cart {
