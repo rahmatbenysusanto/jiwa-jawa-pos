@@ -53,6 +53,36 @@ class InventoryController extends Controller
 
         return back()->with('success', 'Category updated successfully');
     }
+
+    public function indexMaterial(Request $request): View
+    {
+        $title = 'Material';
+        return view('inventory.material.index', compact('title'));
+    }
+
+    public function indexPurchaseOrder(Request $request): View
+    {
+        $title = 'Purchase Order';
+        return view('inventory.purchaseOrder.index', compact('title'));
+    }
+
+    public function indexManageStock(Request $request): View
+    {
+        $title = 'Manage Stock';
+        return view('inventory.manageStock.index', compact('title'));
+    }
+
+    public function indexStockAdjusment(Request $request): View
+    {
+        $title = 'Stock Adjustment';
+        return view('inventory.stockAdjusment.index', compact('title'));
+    }
+
+    public function indexTransferStock(Request $request): View
+    {
+        $title = 'Transfer Stock';
+        return view('inventory.transferStock.index', compact('title'));
+    }
 }
 
 

@@ -83,4 +83,24 @@ Route::prefix('/inventory')->controller(InventoryController::class)->group(funct
         Route::get('/find', 'findCategory')->name('inventory.category.find');
         Route::post('/edit', 'editCategory')->name('inventory.category.edit');
     });
+
+    Route::prefix('/material')->group(function () {
+        Route::get('/', 'indexMaterial')->name('inventory.material');
+    });
+
+    Route::prefix('/purchase-order')->group(function () {
+        Route::get('/', 'indexPurchaseOrder')->name('inventory.purchase.order');
+    });
+
+    Route::prefix('/manage-stock')->group(function () {
+        Route::get('/', 'indexManageStock')->name('inventory.manage.stock');
+    });
+
+    Route::prefix('/stock-adjusment')->group(function () {
+        Route::get('/', 'indexStockAdjusment')->name('inventory.stock.adjustment');
+    });
+
+    Route::prefix('/transfer-stock')->group(function () {
+        Route::get('/', 'indexTransferStock')->name('inventory.transfer.stock');
+    });
 });

@@ -190,6 +190,13 @@
 
                         </tbody>
                     </table>
+
+                    <div class="mt-3">
+                        <h4 class="modal-title mb-1">Discount</h4>
+                        <select class="form-control" id="discountProduct" onchange="changeDiscountProduct(this.value)">
+
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer gap-2">
                     <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
@@ -284,6 +291,13 @@
 
                         </tbody>
                     </table>
+
+                    <div class="mt-3">
+                        <h4 class="modal-title mb-1">Discount</h4>
+                        <select class="form-control" id="discountProductEdit" onchange="changeDiscountProductEdit(this.value)">
+
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer gap-2">
                     <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
@@ -510,6 +524,7 @@
                 },
                 success: (res) => {
                     const product = res.data;
+                    const discount = res.discount;
 
                     localStorage.setItem('product', JSON.stringify({
                         id: product.id,
@@ -519,6 +534,12 @@
                         category: product.category.name,
                         combo: product.is_combo
                     }));
+
+                    const discountWithSelect = discount.map(item => ({
+                        ...item,
+                        select: 0
+                    }));
+                    localStorage.setItem('discountProduct', JSON.stringify(discountWithSelect));
 
                     // Variant Product
                     let dataVariant = [];
@@ -558,6 +579,13 @@
                     });
 
                     localStorage.setItem('variant', JSON.stringify(dataVariant));
+
+                    // Discount
+                    let htmlDiscount = '<option value="">-- Choose Discount --</option>';
+                    discount.forEach((item) => {
+                        htmlDiscount += `<option value="${item.id}">${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
+                    });
+                    document.getElementById('discountProduct').innerHTML = htmlDiscount;
 
                     document.getElementById('listVariantProduct').innerHTML = html;
                     document.getElementById('product-detail-id').value = product.id;
@@ -732,6 +760,7 @@
             const product = JSON.parse(localStorage.getItem('product')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
 
             let priceDelta = 0;
             variant.forEach((item) => {
@@ -747,7 +776,18 @@
                 priceAddon += item.total;
             });
 
-            const totalPrice = parseInt(product.price) + priceDelta + priceAddon;
+            let priceDiscount = 0;
+            discountProduct.forEach((item) => {
+                if (parseInt(item.select) === 1) {
+                    if (item.type === 'nominal') {
+                        priceDiscount = item.value;
+                    } else {
+                        priceDiscount = (parseInt(product.price) + priceDelta + priceAddon) * item.value / 100;
+                    }
+                }
+            });
+
+            const totalPrice = parseInt(product.price) + priceDelta + priceAddon - parseInt(priceDiscount);
 
             cart.push({
                 menuId: product.id,
@@ -756,12 +796,14 @@
                 basePrice: parseInt(product.price),
                 priceDelta: priceDelta,
                 priceAddon: priceAddon,
+                priceDiscount: priceDiscount,
                 totalPrice: totalPrice,
                 grandTotal: totalPrice,
                 data: {
                     product: product,
                     variant: variant,
                     addon: addon,
+                    discountProduct: discountProduct
                 }
             });
 
@@ -857,6 +899,7 @@
             const product = find.data.product;
             const variant = find.data.variant;
             const addon = find.data.addon;
+            const discountProduct = find.data.discountProduct;
 
             // Data Product
             document.getElementById('product-edit-id').value = product.id;
@@ -891,6 +934,14 @@
             // Data Addon
             localStorage.setItem('addon', JSON.stringify(addon));
             viewAddonEdit();
+
+            // Discount Produc
+            localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
+            let htmlDiscount = '<option value="">-- Choose Discount --</option>';
+            discountProduct.forEach((item) => {
+                htmlDiscount += `<option value="${item.id}" ${item.select === 1 ? 'selected' : ''}>${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
+            });
+            document.getElementById('discountProductEdit').innerHTML = htmlDiscount;
 
             $('#editProductCartModal').modal('show');
         }
@@ -1055,6 +1106,7 @@
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
             const productId = document.getElementById('product-edit-id').value;
             const product = cart.find((item) => item.menuId === parseInt(productId));
 
@@ -1072,21 +1124,62 @@
                 priceAddon += item.total;
             });
 
-            const totalPrice = parseInt(product.basePrice) + priceDelta + priceAddon;
+            let priceDiscount = 0;
+            discountProduct.forEach((item) => {
+                if (parseInt(item.select) === 1) {
+                    if (item.type === 'nominal') {
+                        priceDiscount = parseInt(item.value);
+                    } else {
+                        priceDiscount = (parseInt(product.price) + priceDelta + priceAddon) * item.value / 100;
+                    }
+                }
+            });
+
+            const totalPrice = parseInt(product.basePrice) + priceDelta + priceAddon - parseInt(priceDiscount);
 
             product.priceDelta = priceDelta;
+            product.priceDiscount = priceDiscount;
             product.priceAddon = priceAddon;
             product.totalPrice = totalPrice;
             product.grandTotal = totalPrice * product.qty;
             product.data = {
                 variant: variant,
                 addon: addon,
-                product: product.data.product
+                product: product.data.product,
+                discountProduct: discountProduct
             }
 
             localStorage.setItem('cart', JSON.stringify(cart));
             $('#editProductCartModal').modal('hide');
             viewChartList();
+        }
+
+        function changeDiscountProduct(value) {
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
+
+            discountProduct.forEach((item) => {
+                if (parseInt(item.id) === parseInt(value)) {
+                    item.select = 1;
+                } else {
+                    item.select = 0;
+                }
+            });
+
+            localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
+        }
+
+        function changeDiscountProductEdit(value) {
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
+
+            discountProduct.forEach((item) => {
+                if (parseInt(item.id) === parseInt(value)) {
+                    item.select = 1;
+                } else {
+                    item.select = 0;
+                }
+            });
+
+            localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
         }
 
         function calculatePrice() {
@@ -1098,6 +1191,7 @@
 
             cart.forEach((item) => {
                 subTotal += item.totalPrice * item.qty;
+                discount += item.priceDiscount * item.qty;
             });
 
             totalTax = (subTotal - discount) * 0.11;
@@ -1105,6 +1199,7 @@
             grandTotal = subTotal + totalTax;
 
             document.getElementById('subTotal').innerText = 'Rp '+rupiah(subTotal);
+            document.getElementById('discount').innerText = 'Rp '+rupiah(discount);
             document.getElementById('totalTax').innerText = 'Rp '+rupiah(totalTax);
             document.getElementById('grandTotal').innerText = 'Rp '+rupiah(grandTotal);
             document.getElementById('buttonPay').innerText = 'Pay : Rp '+ rupiah(grandTotal);

@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\MenuCategory;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -43,8 +44,15 @@ class PosController extends Controller
     {
         $product = Menu::with('menuVariant', 'menuVariant.menuVariantOptions', 'category')->where('id', $request->get('id'))->first();
 
+        $discount = DB::table('discount')
+            ->leftJoin('discount_menu', 'discount.id', '=', 'discount_menu.discount_id')
+            ->where('discount_menu.menu_id', $request->get('id'))
+            ->where('discount.status', 'active')
+            ->get();
+
         return response()->json([
-            'data'  => $product
+            'data'      => $product,
+            'discount'  => $discount
         ]);
     }
 
