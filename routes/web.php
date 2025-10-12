@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +38,15 @@ Route::prefix('/menu')->controller(MenuController::class)->group(function () {
     Route::get('/list', 'list')->name('menu.list');
     Route::get('/create', 'createMenu')->name('menu.create');
     Route::post('/store', 'storeMenu')->name('menu.store');
+
+    // JSON Response
+    Route::get('/find-all', 'findAllMenu')->name('menu.find.all');
+});
+
+Route::prefix('/discount')->controller(DiscountController::class)->group(function () {
+    Route::get('/', 'index')->name('discount');
+    Route::get('/create', 'create')->name('discount.create');
+    Route::post('/store', 'store')->name('discount.store');
 });
 
 Route::prefix('/outlet')->controller(OutletController::class)->group(function () {
@@ -57,4 +69,18 @@ Route::prefix('/pos')->controller(PosController::class)->group(function () {
     Route::get('/addon/find', 'findAddon')->name('pos.addon.find');
     Route::get('/addon/variant', 'findAddonVariant')->name('pos.addon.variant');
     Route::get('/payment-method', 'paymentMethod')->name('pos.payment.method');
+});
+
+Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
+    Route::get('/', 'index')->name('transaction.index');
+});
+
+Route::prefix('/inventory')->controller(InventoryController::class)->group(function () {
+    Route::prefix('/category')->group(function () {
+        Route::get('/', 'indexCategory')->name('inventory.category');
+        Route::post('/', 'storeCategory')->name('inventory.category.store');
+        Route::get('/delete', 'deleteCategory')->name('inventory.category.delete');
+        Route::get('/find', 'findCategory')->name('inventory.category.find');
+        Route::post('/edit', 'editCategory')->name('inventory.category.edit');
+    });
 });

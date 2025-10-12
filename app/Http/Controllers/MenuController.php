@@ -212,6 +212,17 @@ class MenuController extends Controller
             ]);
         }
     }
+
+    // JSON Response
+
+    public function findAllMenu(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $menu = Menu::with('category')->where('outlet_id', 1)->where('deleted_at', null)->get();
+
+        return response()->json([
+            'data' => $menu
+        ]);
+    }
 }
 
 

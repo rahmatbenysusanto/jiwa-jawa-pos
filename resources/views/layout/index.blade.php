@@ -514,16 +514,10 @@
                         <ul>
                             <li class="submenu-open">
                                 <ul>
-                                    <li>
-                                        <a href="#">
+                                    <li class="{{ $title == 'Dashboard' ? 'active' : '' }}">
+                                        <a href="{{ route('dashboard') }}">
                                             <i class="ti ti-layout-grid fs-16 me-2"></i>
                                             <span>Dashboard</span>
-                                        </a>
-                                    </li>
-                                    <li class="{{ $title == 'POS' ? 'active' : '' }}">
-                                        <a href="{{ route('pos.index') }}">
-                                            <i class="ti ti-device-laptop fs-16 me-2"></i>
-                                            <span>Point Of Sale (POS)</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -540,7 +534,7 @@
                                     </li>
                                     <li class="{{ in_array($title, ['Menu List', 'Create Menu']) ? 'active' : '' }}">
                                         <a href="{{ route('menu.list') }}">
-                                            <i class="fa-solid fa-book fs-16 me-2"></i>
+                                            <i class="ti ti-book fs-16 me-2"></i>
                                             <span>List Menu</span>
                                         </a>
                                     </li>
@@ -550,22 +544,74 @@
                                             <span>Add on</span>
                                         </a>
                                     </li>
+                                    <li class="{{ $title == 'Discount' ? 'active' : '' }}">
+                                        <a href="{{ route('discount') }}">
+                                            <i class="ti ti-discount-check fs-16 me-2"></i>
+                                            <span>Discount</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="submenu-open mt-2">
+                                <h6 class="submenu-hdr">Transaction</h6>
+                                <ul>
+                                    <li class="{{ $title == 'POS' ? 'active' : '' }}">
+                                        <a href="{{ route('pos.index') }}">
+                                            <i class="ti ti-device-laptop fs-16 me-2"></i>
+                                            <span>Point Of Sale (POS)</span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ $title == 'Transaction' ? 'active' : '' }}">
+                                        <a href="{{ route('transaction.index') }}">
+                                            <i class="ti ti-device-analytics fs-16 me-2"></i>
+                                            <span>List</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
 
                             <li class="submenu-open mt-2">
                                 <h6 class="submenu-hdr">Inventory</h6>
                                 <ul>
-                                    <li class="{{ $title == '' ? 'active' : '' }}">
-                                        <a href="{{ route('menu.category') }}">
-                                            <i class="ti ti-list-details fs-16 me-2"></i>
-                                            <span>Stock</span>
+                                    <li class="{{ $title == 'Material Category' ? 'active' : '' }}">
+                                        <a href="{{ route('inventory.category') }}">
+                                            <i class="ti ti-carousel-vertical fs-16 me-2"></i>
+                                            <span>Category</span>
                                         </a>
                                     </li>
-                                    <li class="{{ $title == '' ? 'active' : '' }}">
+                                    <li class="{{ $title == 'Material' ? 'active' : '' }}">
+                                        <a href="{{ route('menu.category') }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box">
+                                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                            </svg>
+                                            <span>Material</span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ $title == 'Material' ? 'active' : '' }}">
+                                        <a href="{{ route('menu.category') }}">
+                                            <i class="ti ti-file-unknown fs-16 me-2"></i>
+                                            <span>Purchase Order</span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ $title == 'Manage Stock' ? 'active' : '' }}">
+                                        <a href="{{ route('menu.category') }}">
+                                            <i class="ti ti-stack-3 fs-16 me-2"></i>
+                                            <span>Manage Stock</span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ $title == 'Stock Adjusment' ? 'active' : '' }}">
                                         <a href="{{ route('menu.list') }}">
-                                            <i class="ti ti-list-details fs-16 me-2"></i>
-                                            <span>Products</span>
+                                            <i class="ti ti-stairs-up fs-16 me-2"></i>
+                                            <span>Stock Adjusment</span>
+                                        </a>
+                                    </li>
+                                    <li class="{{ $title == 'Transfer Stock' ? 'active' : '' }}">
+                                        <a href="{{ route('menu.list') }}">
+                                            <i class="ti ti-stack-pop fs-16 me-2"></i>
+                                            <span>Transfer Stock</span>
                                         </a>
                                     </li>
                                 </ul>
