@@ -64,16 +64,42 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Invoice</th>
-                                    <th>Order No</th>
-                                    <th>QTY Item</th>
+                                    <th class="text-center">Order No</th>
+                                    <th class="text-center">QTY Item</th>
                                     <th>Total Price</th>
-                                    <th>Payment Method</th>
-                                    <th>Payment Status</th>
+                                    <th class="text-center">Payment Method</th>
+                                    <th class="text-center">Payment Status</th>
                                     <th>Date</th>
-                                    <th>Download</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
+                            <tbody>
+                            @foreach($transaction as $index => $item)
+                                <tr>
+                                    <td>{{ $transaction->firstItem() + $index }}</td>
+                                    <td>{{ $item->invoice_number }}</td>
+                                    <td class="text-center">{{ $item->order_number }}</td>
+                                    <td class="text-center">{{ number_format($item->qty) }}</td>
+                                    <td>Rp {{ number_format($item->total) }}</td>
+                                    <td class="text-center">{{ $item->paymentMethod->name }}</td>
+                                    <td class="text-center">
+                                        @if($item->payment_status == 'pending')
+                                            <span class="badge bg-danger">Unpaid</span>
+                                        @elseif($item->status_payment == 'paid')
+                                            <span class="badge bg-success">Paid</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ \Carbon\Carbon::parse($item->transaction_date)->translatedFormat('d F Y H:i') }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a class="btn btn-info btn-sm">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
                         </table>
                     </div>
                 </div>

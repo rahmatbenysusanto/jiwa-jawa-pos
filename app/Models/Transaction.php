@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Transaction extends Model
 {
@@ -10,6 +11,7 @@ class Transaction extends Model
     protected $fillable = [
         'outlet_id',
         'invoice_number',
+        'order_number',
         'qty',
         'subtotal',
         'discount',
@@ -22,4 +24,9 @@ class Transaction extends Model
         'transaction_date',
         'created_by',
     ];
+
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
+    }
 }

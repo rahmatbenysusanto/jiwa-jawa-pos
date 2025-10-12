@@ -122,9 +122,9 @@
                 </div>
                 <div class="block-section payment-method mt-3">
                     <div class="btn-block m-0">
-                        <a class="btn btn-secondary w-100 mb-2" onclick="paymentProcess()">
-                            <i class="ti ti-printer me-2"></i>Print Invoice
-                        </a>
+                        <div class="d-flex gap-2" id="buttonAfterProcess">
+
+                        </div>
                         <a class="btn btn-success w-100" id="buttonPay" onclick="paymentProcess()">
                             Pay : Rp 0
                         </a>
@@ -428,9 +428,31 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="modalQris" tabindex="-1" aria-labelledby="modalQrisLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius:15px; padding:20px;">
+                <div class="modal-body text-center">
+                    <h5 class="fw-bold mb-2" id="storeName">Kedai Selvin</h5>
+                    <p class="mb-1 text-muted" id="storeLocation">Bekasi Indonesia</p>
+                    <hr>
+
+                    <canvas id="qrisCanvas" width="250" height="250" style="margin:auto; display:block;"></canvas>
+
+                    <p class="mt-3 mb-1 fw-semibold">Total Bayar:</p>
+                    <h4 class="fw-bold text-dark mb-3" id="qrisAmount">Rp 0</h4>
+
+                    <p class="text-muted mb-1" style="font-size:13px;">Scan menggunakan aplikasi e-wallet Anda</p>
+                    <img src="{{ asset('assets/img/qris.webp') }}" alt="QRIS" width="80" class="mt-2">
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script>
         localStorage.clear();
         loadAllMenu();
@@ -1265,11 +1287,18 @@
 
             grandTotal = subTotal - discount + totalTax;
 
+            localStorage.setItem('subTotal', JSON.stringify(subTotal));
+            localStorage.setItem('totalTax', JSON.stringify(totalTax));
+            localStorage.setItem('discount', JSON.stringify(discount));
+            localStorage.setItem('grandTotal', JSON.stringify(grandTotal));
+
             document.getElementById('subTotal').innerText = 'Rp '+rupiah(subTotal);
             document.getElementById('discount').innerText = 'Rp '+rupiah(discount);
             document.getElementById('totalTax').innerText = 'Rp '+rupiah(totalTax);
             document.getElementById('grandTotal').innerText = 'Rp '+rupiah(grandTotal);
             document.getElementById('buttonPay').innerText = 'Pay : Rp '+ rupiah(grandTotal);
+
+            localStorage.setItem('grandTotal', JSON.stringify(grandTotal));
         }
 
         function calculateJumlahCart() {
@@ -1492,19 +1521,148 @@
                 if (i.value) {
 
                     // Validation
+                    const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
+                    if (cart.length === 0) {
+                        Swal.fire({
+                           title: 'Warning!',
+                           text: 'Cart cannot be empty, please select the product',
+                           icon: 'warning',
+                        });
+                        return true;
+                    }
+
+                    const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? ''
+                    if (paymentMethod === '') {
+                        Swal.fire({
+                            title: 'Warning!',
+                            text: 'Payment method cannot be empty',
+                            icon: 'warning',
+                        });
+                        return true;
+                    }
+
+                    const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+                    if (splitPayment.length !== 0) {
+                        // Split Payment
+                        const grandTotal = parseInt(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
+                        let totalSplit = 0;
+                        splitPayment.forEach((item) => {
+                            totalSplit += item.amount;
+                        });
+
+                        if (grandTotal !== totalSplit) {
+                            Swal.fire({
+                                title: 'Warning!',
+                                text: 'The nominal split payment does not match the total transaction.',
+                                icon: 'warning',
+                            });
+                            return true;
+                        }
+                    }
 
                     $.ajax({
-                        url: '',
+                        url: '{{ route('transaction.store') }}',
                         method: 'POST',
                         data: {
-                            _token: '{{ csrf_token() }}'
+                            _token: '{{ csrf_token() }}',
+                            cart: cart,
+                            discountTransaction: JSON.parse(localStorage.getItem('discountTransaction')) ?? [],
+                            note: JSON.parse(localStorage.getItem('note')) ?? '',
+                            paymentMethod: paymentMethod,
+                            splitPayment: splitPayment,
+                            invoice: '{{ $invoiceNumber }}',
+                            delivery: document.getElementById('delivery').value,
+                            subTotal: JSON.parse(localStorage.getItem('subTotal')) ?? 0,
+                            totalTax: JSON.parse(localStorage.getItem('totalTax')) ?? 0,
+                            discount: JSON.parse(localStorage.getItem('discount')) ?? 0,
+                            grandTotal: JSON.parse(localStorage.getItem('grandTotal')) ?? 0,
+                        },
+                        beforeSend: function () {
+                            Swal.fire({
+                                title: 'Processing Payment...',
+                                text: 'Please wait a moment',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                         },
                         success: (res) => {
+                            Swal.close(); // close loading
 
+                            if (res.status) {
+                                if (paymentMethod === 'Debit') {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Debit payment has been created successfully.',
+                                        icon: 'success',
+                                    });
+                                } else if (paymentMethod === 'QRIS') {
+                                    const midtrans = res.data.raw;
+                                    localStorage.setItem('midtrans', JSON.stringify(midtrans));
+
+                                    document.getElementById('buttonAfterProcess').innerHTML = `
+                                        <a class="btn btn-secondary w-100 mb-2">
+                                            <i class="ti ti-printer me-2"></i>Print Invoice
+                                        </a>
+                                        <a class="btn btn-orange w-100 mb-2" onclick="viewQrisModal()">
+                                            <i class="ti ti-printer me-2"></i> QRIS Status
+                                        </a>
+                                    `;
+
+                                    viewQrisModal();
+                                } else {
+                                    Swal.fire({
+                                        title: 'Success!',
+                                        text: 'Transaction has been created successfully.',
+                                        icon: 'success',
+                                    });
+                                }
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: 'Failed to create transaction.',
+                                    icon: 'error',
+                                });
+                            }
+                        },
+                        error: (xhr, status, error) => {
+                            Swal.close();
+                            Swal.fire({
+                                title: 'Unexpected Error!',
+                                text: error || 'Server did not respond properly.',
+                                icon: 'error',
+                            });
                         }
                     });
                 }
             });
+        }
+
+        function viewQrisModal() {
+            const midtrans = JSON.parse(localStorage.getItem('midtrans')) ?? [];
+
+            const qrString = midtrans.qr_string ?? null;
+            const nominal = JSON.parse(localStorage.getItem('grandTotal')) ?? 0;
+
+            if (qrString) {
+                const modal = new bootstrap.Modal(document.getElementById('modalQris'));
+                modal.show();
+
+                document.getElementById('qrisAmount').innerText = 'Rp ' + rupiah(nominal);
+                const canvas = document.getElementById('qrisCanvas');
+                new QRious({
+                    element: canvas,
+                    value: qrString,
+                    size: 250
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'QRIS data is not available. Please check API response.',
+                    icon: 'error',
+                });
+            }
         }
     </script>
 
