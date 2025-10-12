@@ -47,6 +47,9 @@ Route::prefix('/discount')->controller(DiscountController::class)->group(functio
     Route::get('/', 'index')->name('discount');
     Route::get('/create', 'create')->name('discount.create');
     Route::post('/store', 'store')->name('discount.store');
+
+    // JSON Response
+    Route::get('/find/transaction', 'findDiscountTransaction')->name('discount.find.transaction');
 });
 
 Route::prefix('/outlet')->controller(OutletController::class)->group(function () {

@@ -62,4 +62,13 @@ class DiscountController extends Controller
             return back()->with('error', 'Discount create failed');
         }
     }
+
+    public function findDiscountTransaction(): \Illuminate\Http\JsonResponse
+    {
+        $discount = Discount::where('outlet_id', 1)->where('scope', 'transaction')->get();
+
+        return response()->json([
+            'data' => $discount
+        ]);
+    }
 }

@@ -107,7 +107,7 @@
                     </div>
                     <div class="row gx-2">
                         <div class="col-sm-4">
-                            <a class="btn btn-teal d-flex align-items-center justify-content-center w-100 mb-2"><i  class="ti ti-percentage me-2"></i>Discount</a>
+                            <a class="btn btn-teal d-flex align-items-center justify-content-center w-100 mb-2" onclick="discountTransaction()"><i  class="ti ti-percentage me-2"></i>Discount</a>
                             <a class="btn btn-indigo d-flex align-items-center justify-content-center w-100 mb-2" onclick="addNote()"><i  class="ti ti-file-description me-2"></i>Note</a>
                         </div>
                         <div class="col-sm-4">
@@ -410,6 +410,20 @@
                     <select class="form-control" id="paymentMethod" onchange="changePaymentMethod(this.value)">
 
                     </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="discountTransactionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Discount Transaction</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-control" id="discountTransaction" onchange="changeDiscountTransaction(this.value)"></select>
                 </div>
             </div>
         </div>
@@ -1184,6 +1198,9 @@
 
         function calculatePrice() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
+            const discountTransaction = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
+            console.log(discountTransaction);
+
             let subTotal = 0;
             let totalTax = 0;
             let discount = 0;
@@ -1194,9 +1211,19 @@
                 discount += item.priceDiscount * item.qty;
             });
 
+            const findDiskonTrans = Array.isArray(discountTransaction) ? discountTransaction.find((item) => item.select === 1) : undefined;
+
+            if (findDiskonTrans) {
+                if (findDiskonTrans.type === 'nominal') {
+                    discount += findDiskonTrans.value;
+                } else {
+                    discount += (subTotal - discount) * (findDiskonTrans.value / 100);
+                }
+            }
+
             totalTax = (subTotal - discount) * 0.11;
 
-            grandTotal = subTotal + totalTax;
+            grandTotal = subTotal - discount + totalTax;
 
             document.getElementById('subTotal').innerText = 'Rp '+rupiah(subTotal);
             document.getElementById('discount').innerText = 'Rp '+rupiah(discount);
@@ -1216,40 +1243,6 @@
             document.getElementById('jumlahCart').innerText = items;
         }
 
-        function paymentProcess() {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Process this order",
-                icon: "warning",
-                showCancelButton: true,
-                customClass: {
-                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
-                    cancelButton: "btn btn-danger w-xs mt-2"
-                },
-                confirmButtonText: "Yes, Process it!",
-                buttonsStyling: false,
-                showCloseButton: true
-            }).then((i) => {
-                if (i.value) {
-
-                    // Validation
-
-                    $.ajax({
-                        url: '',
-                        method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: (res) => {
-
-                        }
-                    });
-                }
-            });
-        }
-    </script>
-
-    <script>
         function addNote() {
             document.getElementById('note').value = JSON.parse(localStorage.getItem('note')) ?? '';
 
@@ -1395,6 +1388,83 @@
         function changePaymentMethod(value) {
             localStorage.setItem('paymentMethod', JSON.stringify(value));
             $('#paymentModal').modal('hide');
+        }
+
+        function discountTransaction() {
+            $.ajax({
+                url: '{{ route('discount.find.transaction') }}',
+                method: 'GET',
+                success: (res) => {
+                    const data = res.data;
+                    const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
+
+                    if (discount.length === 0) {
+                        const result = data.map(item => ({
+                            ...item,
+                            select: 0
+                        }));
+                        localStorage.setItem('discountTransaction', JSON.stringify(result));
+                    }
+
+                    viewDiscountTransaction();
+                    $('#discountTransactionModal').modal('show');
+                }
+            });
+        }
+
+        function viewDiscountTransaction() {
+            const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
+            let html = '<option>-- Choose Discount Transaction --</option>';
+
+            discount.forEach((item) => {
+                html += `<option value="${item.id}" ${item.select === 1 ? 'selected' : ''}>${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
+            });
+            document.getElementById('discountTransaction').innerHTML = html;
+        }
+
+        function changeDiscountTransaction(value) {
+            const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
+            discount.forEach((item) => {
+                if (parseInt(value) === parseInt(item.id)) {
+                    item.select = 1;
+                } else {
+                    item.select = 0;
+                }
+            });
+            localStorage.setItem('discountTransaction', JSON.stringify(discount));
+            calculatePrice();
+        }
+
+        function paymentProcess() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Process this order",
+                icon: "warning",
+                showCancelButton: true,
+                customClass: {
+                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
+                    cancelButton: "btn btn-danger w-xs mt-2"
+                },
+                confirmButtonText: "Yes, Process it!",
+                buttonsStyling: false,
+                showCloseButton: true
+            }).then((i) => {
+                if (i.value) {
+
+                    // Validation
+
+                    $.ajax({
+                        url: '',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: (res) => {
+
+                        }
+                    });
+                }
+            });
         }
     </script>
 
