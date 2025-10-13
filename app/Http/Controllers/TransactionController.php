@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
+use App\Models\TransactionData;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDetailVariant;
 use App\Models\TransactionDetailVariantAddon;
@@ -145,5 +146,30 @@ class TransactionController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+    public function dataStore(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $check = TransactionData::where('invoice_number', $request->post('invoiceNumber'))->first();
+        if ($check == null) {
+            TransactionData::create([
+                'invoice_number'        => $request->post('invoiceNumber'),
+                'cart'                  => json_encode($request->post('cart')),
+                'discountTransaction'   => json_encode($request->post('discountTransaction')),
+                'paymentMethod'         => json_encode($request->post('paymentMethod')),
+                'splitPayment'          => json_encode($request->post('splitPayment')),
+            ]);
+        } else {
+            TransactionData::where('invoice_number', $request->post('invoiceNumber'))->update([
+                'cart'                  => json_encode($request->post('cart')),
+                'discountTransaction'   => json_encode($request->post('discountTransaction')),
+                'paymentMethod'         => json_encode($request->post('paymentMethod')),
+                'splitPayment'          => json_encode($request->post('splitPayment')),
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+        ]);
     }
 }

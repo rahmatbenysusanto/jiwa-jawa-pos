@@ -89,6 +89,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
         Route::get('/', 'index')->name('transaction.index');
         Route::post('/', 'store')->name('transaction.store');
+        Route::post('/data', 'dataStore')->name('transaction.data.store');
     });
 
     Route::prefix('/inventory')->controller(InventoryController::class)->group(function () {

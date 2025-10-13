@@ -1299,6 +1299,8 @@
             document.getElementById('buttonPay').innerText = 'Pay : Rp '+ rupiah(grandTotal);
 
             localStorage.setItem('grandTotal', JSON.stringify(grandTotal));
+
+            saveTransactionData();
         }
 
         function calculateJumlahCart() {
@@ -1560,6 +1562,8 @@
                         }
                     }
 
+                    saveTransactionData();
+
                     $.ajax({
                         url: '{{ route('transaction.store') }}',
                         method: 'POST',
@@ -1663,6 +1667,24 @@
                     icon: 'error',
                 });
             }
+        }
+
+        function saveTransactionData() {
+            $.ajax({
+                url: '{{ route('transaction.data.store') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    invoiceNumber: '{{ $invoiceNumber }}',
+                    cart: JSON.parse(localStorage.getItem('cart')) ?? [],
+                    discountTransaction: JSON.parse(localStorage.getItem('discountTransaction')) ?? [],
+                    paymentMethod: JSON.parse(localStorage.getItem('paymentMethod')) ?? [],
+                    splitPayment: JSON.parse(localStorage.getItem('splitPayment')) ?? [],
+                },
+                success: (res) => {
+
+                }
+            });
         }
     </script>
 
