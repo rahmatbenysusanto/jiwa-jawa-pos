@@ -41,23 +41,23 @@
                                 <label for="combo" class="form-label">Combo</label>
                                 <select class="form-control" id="combo" name="combo">
                                     <option value="">Choose Combo</option>
-                                    <option {{ request()->get('combo') == 'Combo' ? 'selected' : '' }}>Combo</option>
-                                    <option {{ request()->get('combo') == 'Not Combo' ? 'selected' : '' }}>Not Combo</option>
+                                    <option value="yes" {{ request()->get('combo') == 'Combo' ? 'selected' : '' }}>Combo</option>
+                                    <option value="no" {{ request()->get('combo') == 'Not Combo' ? 'selected' : '' }}>Not Combo</option>
                                 </select>
                             </div>
                             <div class="col-2">
                                 <label for="status" class="form-label">Status</label>
                                 <select class="form-control" id="status" name="status">
                                     <option value="">Choose Status</option>
-                                    <option {{ request()->get('status') == 'Active' ? 'selected' : '' }}>Active</option>
-                                    <option {{ request()->get('status') == 'InActive' ? 'selected' : '' }}>InActive</option>
+                                    <option value="active" {{ request()->get('status') == 'Active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ request()->get('status') == 'InActive' ? 'selected' : '' }}>InActive</option>
                                 </select>
                             </div>
                             <div class="col-2">
                                 <label class="form-label text-white">-</label>
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    <a class="btn btn-danger">Clear</a>
+                                    <a href="{{ url()->current() }}" class="btn btn-danger">Clear</a>
                                 </div>
                             </div>
                         </div>
@@ -102,13 +102,13 @@
                                     </td>
                                     <td>
                                         <div class="hstack gap-2 fs-15">
-                                            <a href="" class="btn btn-icon btn-sm btn-success">
+                                            <a href="{{ route('menu.detail', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-success">
                                                 <i class="fa-solid fa-eye"></i>
                                             </a>
-                                            <a href="" class="btn btn-icon btn-sm btn-info">
+                                            <a href="{{ route('menu.edit', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-info">
                                                 <i class="fa-solid fa-pencil"></i>
                                             </a>
-                                            <a href="" class="btn btn-icon btn-sm btn-danger">
+                                            <a class="btn btn-icon btn-sm btn-danger" onclick="deleteMenu('{{ $item->id }}')">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
                                         </div>
@@ -156,4 +156,49 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        function deleteMenu(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Delete this menu?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1"
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: '{{ route('menu.delete') }}',
+                        method: 'GET',
+                        data:{
+                            id: id
+                        },
+                        success: (res) => {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Deleted!",
+                                text: "Menu has been deleted.",
+                                confirmButtonText: "Great!",
+                                customClass: {
+                                    confirmButton: "btn btn-success"
+                                },
+                                buttonsStyling: false
+                            }).then((i) => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 @endsection

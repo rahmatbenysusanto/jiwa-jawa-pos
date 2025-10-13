@@ -42,6 +42,10 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/list', 'list')->name('menu.list');
         Route::get('/create', 'createMenu')->name('menu.create');
         Route::post('/store', 'storeMenu')->name('menu.store');
+        Route::get('/detail', 'detailMenu')->name('menu.detail');
+        Route::get('/edit', 'editMenu')->name('menu.edit');
+        Route::post('/update', 'updateMenu')->name('menu.update');
+        Route::get('/delete', 'deleteMenu')->name('menu.delete');
 
         // JSON Response
         Route::get('/find-all', 'findAllMenu')->name('menu.find.all');
