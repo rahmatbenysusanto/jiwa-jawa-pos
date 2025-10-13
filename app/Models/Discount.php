@@ -21,6 +21,7 @@ class Discount extends Model
         'start_date',
         'end_date',
         'usage_limit',
-        'used_count'
+        'used_count',
+        'deleted_at'
     ];
 }

@@ -32,7 +32,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="value">Discount</label>
-                                    <input type="number" class="form-control" value="{{ $discount->value }}" readonly>
+                                    <input type="text" class="form-control" value="{{ $discount->type == 'nominal' ? 'Rp '.number_format($discount->value) : number_format($discount->value).'%' }}" readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="start_date">Start Date</label>

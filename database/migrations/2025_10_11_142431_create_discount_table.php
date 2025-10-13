@@ -27,6 +27,7 @@ return new class extends Migration
             $table->timestamp('end_date')->nullable();
             $table->integer('usage_limit')->default(0);
             $table->integer('used_count')->default(0);
+            $table->timestamp('deleted_at')->nullable();
             $table->timestamps();
         });
     }

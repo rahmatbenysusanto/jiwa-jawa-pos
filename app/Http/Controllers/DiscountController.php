@@ -31,6 +31,7 @@ class DiscountController extends Controller
             ->when($request->query('status'), function ($query) use ($request) {
                 return $query->where('status', $request->query('status'));
             })
+            ->whereNull('deleted_at')
             ->paginate(10)
             ->appends([
                 'code'  => $request->query('code'),
@@ -89,7 +90,7 @@ class DiscountController extends Controller
 
     public function findDiscountTransaction(): \Illuminate\Http\JsonResponse
     {
-        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->where('scope', 'transaction')->get();
+        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->where('scope', 'transaction')->whereNull('deleted_at')->get();
 
         return response()->json([
             'data' => $discount
