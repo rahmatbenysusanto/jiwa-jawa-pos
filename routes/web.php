@@ -55,6 +55,10 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/', 'index')->name('discount');
         Route::get('/create', 'create')->name('discount.create');
         Route::post('/store', 'store')->name('discount.store');
+        Route::get('/detail', 'detail')->name('discount.detail');
+        Route::get('/edit', 'edit')->name('discount.edit');
+        Route::post('/update', 'update')->name('discount.update');
+        Route::get('/delete', 'delete')->name('discount.delete');
 
         // JSON Response
         Route::get('/find/transaction', 'findDiscountTransaction')->name('discount.find.transaction');

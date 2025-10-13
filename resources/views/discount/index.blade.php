@@ -118,10 +118,10 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a class="btn btn-info btn-sm">
+                                            <a href="{{ route('discount.detail', ['id' => $item->id]) }}" class="btn btn-info btn-sm">
                                                 <i class="fa fa-eye"></i>
                                             </a>
-                                            <a class="btn btn-primary btn-sm">
+                                            <a href="{{ route('discount.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
                                             <a class="btn btn-danger btn-sm">
