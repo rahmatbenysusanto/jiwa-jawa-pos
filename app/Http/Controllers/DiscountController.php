@@ -13,9 +13,32 @@ use Illuminate\View\View;
 
 class DiscountController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->paginate(10);
+        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)
+            ->when($request->query('code'), function ($query) use ($request) {
+                return $query->where('code', 'LIKE', '%'.$request->query('code').'%');
+            })
+            ->when($request->query('name'), function ($query) use ($request) {
+                return $query->where('name', 'LIKE', '%'.$request->query('name').'%');
+            })
+            ->when($request->query('scope'), function ($query) use ($request) {
+                return $query->where('scope', $request->query('scope'));
+            })
+            ->when($request->query('type'), function ($query) use ($request) {
+                return $query->where('type', $request->query('type'));
+            })
+            ->when($request->query('status'), function ($query) use ($request) {
+                return $query->where('status', $request->query('status'));
+            })
+            ->paginate(10)
+            ->appends([
+                'code'  => $request->query('code'),
+                'name'  => $request->query('name'),
+                'scope' => $request->query('scope'),
+                'type'  => $request->query('type'),
+                'status'=> $request->query('status'),
+            ]);
 
         $title = 'Discount';
         return view('discount.index', compact('title', 'discount'));

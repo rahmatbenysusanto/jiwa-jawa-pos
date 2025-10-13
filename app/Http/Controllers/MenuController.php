@@ -80,7 +80,14 @@ class MenuController extends Controller
                 return $query->where('category_id', $request->query('category'));
             })
             ->where('deleted_at', null)
-            ->paginate(10);
+            ->paginate(10)
+            ->appends([
+                'sku'       => $request->query('sku'),
+                'name'      => $request->query('name'),
+                'combo'     => $request->query('combo'),
+                'status'    => $request->query('status'),
+                'category'  => $request->query('category'),
+            ]);
 
         $category = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->get();
 
@@ -247,7 +254,15 @@ class MenuController extends Controller
 
     public function addon(Request $request): View
     {
-        $addon = Addon::where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->paginate(10);
+        $addon = Addon::where('outlet_id', Auth::user()->outlet_id)
+            ->when($request->query('name'), function ($query) use ($request) {
+                return $query->where('name', 'like', '%' . $request->query('name') . '%');
+            })
+            ->where('deleted_at', null)
+            ->paginate(10)
+            ->appends([
+                'name' => $request->query('name'),
+            ]);
 
         $title = 'Menu Addon';
         return view('menu.addon.index', compact('title', 'addon'));

@@ -28,7 +28,7 @@
                                 <label class="form-label text-white">-</label>
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary">Search</button>
-                                    <a class="btn btn-danger">Clear</a>
+                                    <a {{ url()->current() }} class="btn btn-danger">Clear</a>
                                 </div>
                             </div>
                         </div>
@@ -59,6 +59,39 @@
                             @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        @if ($addon->hasPages())
+                            <ul class="pagination">
+                                @if ($addon->onFirstPage())
+                                    <li class="disabled"><span>&laquo; Previous</span></li>
+                                @else
+                                    <li><a href="{{ $addon->previousPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="prev">&laquo; Previous</a></li>
+                                @endif
+
+                                @foreach ($addon->links()->elements as $element)
+                                    @if (is_string($element))
+                                        <li class="disabled"><span>{{ $element }}</span></li>
+                                    @endif
+
+                                    @if (is_array($element))
+                                        @foreach ($element as $page => $url)
+                                            @if ($page == $addon->currentPage())
+                                                <li class="active"><span>{{ $page }}</span></li>
+                                            @else
+                                                <li><a href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a></li>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+
+                                @if ($addon->hasMorePages())
+                                    <li><a href="{{ $addon->nextPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="next">Next &raquo;</a></li>
+                                @else
+                                    <li class="disabled"><span>Next &raquo;</span></li>
+                                @endif
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>

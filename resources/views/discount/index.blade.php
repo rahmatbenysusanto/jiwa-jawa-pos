@@ -21,7 +21,49 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-
+                    <form action="{{ url()->current() }}" method="GET">
+                        <div class="row">
+                            <div class="col-2">
+                                <label class="form-label">Code</label>
+                                <input type="text" class="form-control" value="{{ request()->get('code', null) }}" name="code" placeholder="Discount Code ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" value="{{ request()->get('name', null) }}" name="name" placeholder="Discount Name ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Scope</label>
+                                <select class="form-control" name="scope">
+                                    <option value="">-- Choose Scope --</option>
+                                    <option value="transaction" {{ request()->get('scope') == 'transaction' ? 'selected' : '' }}>Transaction</option>
+                                    <option value="product" {{ request()->get('scope') == 'product' ? 'selected' : '' }}>Product</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Type</label>
+                                <select class="form-control" name="type">
+                                    <option value="">-- Choose Type --</option>
+                                    <option value="percentage" {{ request()->get('type') == 'percentage' ? 'selected' : '' }}>Percentage</option>
+                                    <option value="nominal" {{ request()->get('type') == 'nominal' ? 'selected' : '' }}>Nominal</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="">-- Choose Status --</option>
+                                    <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-white">-</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-info">Search</button>
+                                    <a href="{{ url()->current() }}" class="btn btn-danger">Clear</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -91,6 +133,39 @@
                             @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        @if ($discount->hasPages())
+                            <ul class="pagination">
+                                @if ($discount->onFirstPage())
+                                    <li class="disabled"><span>&laquo; Previous</span></li>
+                                @else
+                                    <li><a href="{{ $discount->previousPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="prev">&laquo; Previous</a></li>
+                                @endif
+
+                                @foreach ($discount->links()->elements as $element)
+                                    @if (is_string($element))
+                                        <li class="disabled"><span>{{ $element }}</span></li>
+                                    @endif
+
+                                    @if (is_array($element))
+                                        @foreach ($element as $page => $url)
+                                            @if ($page == $discount->currentPage())
+                                                <li class="active"><span>{{ $page }}</span></li>
+                                            @else
+                                                <li><a href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a></li>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+
+                                @if ($discount->hasMorePages())
+                                    <li><a href="{{ $discount->nextPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="next">Next &raquo;</a></li>
+                                @else
+                                    <li class="disabled"><span>Next &raquo;</span></li>
+                                @endif
+                            </ul>
+                        @endif
                     </div>
                 </div>
             </div>
