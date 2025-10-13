@@ -71,7 +71,6 @@ class DiscountController extends Controller
 
             if ($request->post('scope') == 'Product') {
                 foreach ($request->post('menu') as $menu) {
-                    Log::info($menu);
                     DiscountMenu::create([
                         'discount_id' => $discount->id,
                         'menu_id'     => $menu,
@@ -108,12 +107,38 @@ class DiscountController extends Controller
 
     public function edit(Request $request): View
     {
+        $discount = Discount::find($request->query('id'));
+        $discountMenu = DiscountMenu::with('menu')->where('discount_id', $discount->id)->get();
+
         $title = 'Discount';
-        return view('discount.edit', compact('title'));
+        return view('discount.edit', compact('title', 'discount', 'discountMenu'));
     }
 
     public function update(Request $request): \Illuminate\Http\RedirectResponse
     {
+        Discount::where('id', $request->post('id'))->update([
+            'name'          => $request->post('name'),
+            'code'          => $request->post('code') == null ? 'DISC-'.strtoupper(Str::random(5)) : $request->post('code'),
+            'scope'         => $request->post('scope'),
+            'type'          => $request->post('type'),
+            'value'         => $request->post('value'),
+            'max_value'     => $request->post('max_value') ?? 0,
+            'min_transaction_amount' => $request->post('min_transaction_amount') ?? 0,
+            'start_date'    => $request->post('start_date'),
+            'end_date'      => $request->post('end_date'),
+            'updated_at'    => date('Y-m-d H:i:s')
+        ]);
+
+        if ($request->post('scope') == 'Product') {
+            DiscountMenu::where('discount_id', $request->post('id'))->delete();
+            foreach ($request->post('menu') as $menu) {
+                DiscountMenu::create([
+                    'discount_id' => $request->post('id'),
+                    'menu_id'     => $menu,
+                ]);
+            }
+        }
+
         return redirect()->route('discount')->with('success', 'Discount updated successfully.');
     }
 
