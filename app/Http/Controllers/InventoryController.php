@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\MaterialCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class InventoryController extends Controller
 {
     public function indexCategory(Request $request): View
     {
-        $category = MaterialCategory::where('outlet_id', 1)->whereNull('deleted_at')->paginate(10);
+        $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->paginate(10);
 
         $title = 'Material Category';
         return view('inventory.category.index', compact('title', 'category'));
@@ -19,7 +20,7 @@ class InventoryController extends Controller
     public function storeCategory(Request $request): \Illuminate\Http\RedirectResponse
     {
         MaterialCategory::create([
-            'outlet_id' => 1,
+            'outlet_id' => Auth::user()->outlet_id,
             'name'      => $request->post('category'),
         ]);
 

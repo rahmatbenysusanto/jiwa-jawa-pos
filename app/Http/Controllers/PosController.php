@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\MenuCategory;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -16,7 +17,7 @@ class PosController extends Controller
 {
     public function index(): View
     {
-        $categories = MenuCategory::where('outlet_id', 1)->whereNull('deleted_at')->get();
+        $categories = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
 
         $title = 'POS';
@@ -25,14 +26,14 @@ class PosController extends Controller
 
     public function menu(Request $request): \Illuminate\Http\JsonResponse
     {
-        $categories = MenuCategory::where('outlet_id', 1)->whereNull('deleted_at')->get();
+        $categories = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
 
         foreach ($categories as $category) {
             $category->idName = 'category_' . $category->id;
-            $category->menu = Menu::where('outlet_id', 1)->whereNull('deleted_at')->where('category_id', $category->id)->get();
+            $category->menu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->where('category_id', $category->id)->get();
         }
 
-        $allMenu = Menu::where('outlet_id', 1)->whereNull('deleted_at')->get();
+        $allMenu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
 
         return response()->json([
             'all'       => $allMenu,
@@ -58,7 +59,7 @@ class PosController extends Controller
 
     public function addon(): \Illuminate\Http\JsonResponse
     {
-        $addon = Addon::where('outlet_id', 1)->whereNull('deleted_at')->get();
+        $addon = Addon::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
         return response()->json([
             'data'  => $addon
         ]);

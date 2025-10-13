@@ -17,7 +17,7 @@ class MenuController extends Controller
 {
     public function category(): View
     {
-        $category = MenuCategory::where('outlet_id', 1)->where('deleted_at', null)->paginate(10);
+        $category = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->paginate(10);
 
         $title = 'Menu Category';
         return view('menu.category', compact('title', 'category'));
@@ -26,7 +26,7 @@ class MenuController extends Controller
     public function categoryAdd(Request $request): \Illuminate\Http\RedirectResponse
     {
         MenuCategory::create([
-            'outlet_id' => 1,
+            'outlet_id' => Auth::user()->outlet_id,
             'name'      => $request->post('category')
         ]);
 
@@ -63,7 +63,7 @@ class MenuController extends Controller
     public function list(Request $request): View
     {
         $menu = Menu::with('category')->where('deleted_at', null)->paginate(10);
-        $category = MenuCategory::where('outlet_id', 1)->where('deleted_at', null)->get();
+        $category = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->get();
 
         $title = 'Menu List';
         return view('menu.list', compact('title', 'menu', 'category'));
@@ -83,7 +83,7 @@ class MenuController extends Controller
             DB::beginTransaction();
 
             $menu = Menu::create([
-                'outlet_id'     => 1,
+                'outlet_id'     => Auth::user()->outlet_id,
                 'category_id'   => $request->post('category'),
                 'sku'           => $request->post('sku'),
                 'name'          => $request->post('name'),
@@ -96,14 +96,14 @@ class MenuController extends Controller
                 $menuVariant = MenuVariant::create([
                     'menu_id'   => $menu->id,
                     'name'      => $variant['name'],
-                    'required'  => $variant['required'] == 'true' ? 1 : 0,
+                    'required'  => $variant['required'] == 'true' ? Auth::user()->outlet_id : 0,
                 ]);
 
                 foreach ($variant['options'] as $option) {
                     MenuVariantOption::create([
                         'menu_variant_id'   => $menuVariant->id,
                         'name'              => $option['name'],
-                        'is_default'        => $option['default'] == 'true' ? 1 : 0,
+                        'is_default'        => $option['default'] == 'true' ? Auth::user()->outlet_id : 0,
                         'price_delta'       => $option['price'],
                     ]);
                 }
@@ -124,7 +124,7 @@ class MenuController extends Controller
 
     public function addon(Request $request): View
     {
-        $addon = Addon::where('outlet_id', 1)->where('deleted_at', null)->paginate(10);
+        $addon = Addon::where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->paginate(10);
 
         $title = 'Menu Addon';
         return view('menu.addon.index', compact('title', 'addon'));
@@ -188,7 +188,7 @@ class MenuController extends Controller
             DB::beginTransaction();
 
             $addon = Addon::create([
-                'outlet_id' => 1,
+                'outlet_id' => Auth::user()->outlet_id,
                 'name'      => $request->post('name')
             ]);
 
@@ -217,7 +217,7 @@ class MenuController extends Controller
 
     public function findAllMenu(Request $request): \Illuminate\Http\JsonResponse
     {
-        $menu = Menu::with('category')->where('outlet_id', 1)->where('deleted_at', null)->get();
+        $menu = Menu::with('category')->where('outlet_id', Auth::user()->outlet_id)->where('deleted_at', null)->get();
 
         return response()->json([
             'data' => $menu

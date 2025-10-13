@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Discount;
 use App\Models\DiscountMenu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -14,7 +15,7 @@ class DiscountController extends Controller
 {
     public function index(): View
     {
-        $discount = Discount::where('outlet_id', 1)->paginate(10);
+        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->paginate(10);
 
         $title = 'Discount';
         return view('discount.index', compact('title', 'discount'));
@@ -32,7 +33,7 @@ class DiscountController extends Controller
             DB::beginTransaction();
 
             $discount = Discount::create([
-                'outlet_id'     => 1,
+                'outlet_id'     => Auth::user()->outlet_id,
                 'name'          => $request->post('name'),
                 'code'          => $request->post('code') == null ? 'DISC-'.strtoupper(Str::random(5)) : $request->post('code'),
                 'scope'         => $request->post('scope'),
@@ -65,7 +66,7 @@ class DiscountController extends Controller
 
     public function findDiscountTransaction(): \Illuminate\Http\JsonResponse
     {
-        $discount = Discount::where('outlet_id', 1)->where('scope', 'transaction')->get();
+        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->where('scope', 'transaction')->get();
 
         return response()->json([
             'data' => $discount

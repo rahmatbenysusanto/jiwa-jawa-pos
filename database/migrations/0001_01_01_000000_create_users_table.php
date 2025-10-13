@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->string('no_hp')->nullable();
+            $table->integer('outlet_id')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

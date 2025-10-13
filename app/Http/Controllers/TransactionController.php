@@ -11,6 +11,7 @@ use App\Models\TransactionDiscount;
 use App\Models\TransactionSplitPayment;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -23,7 +24,7 @@ class TransactionController extends Controller
 
     public function index(): View
     {
-        $transaction = Transaction::with('paymentMethod')->where('outlet_id', 1)->latest()->paginate(10);
+        $transaction = Transaction::with('paymentMethod')->where('outlet_id', Auth::user()->outlet_id)->latest()->paginate(10);
 
         $title = 'Transaction';
         return view('transaction.index', compact('title', 'transaction'));
@@ -34,14 +35,14 @@ class TransactionController extends Controller
         try {
             DB::beginTransaction();
 
-            $orderNumber = Transaction::where('outlet_id', 1)
+            $orderNumber = Transaction::where('outlet_id', Auth::user()->outlet_id)
                 ->whereDate('transaction_date', date('Y-m-d'))
                 ->count() + 1;
 
             $paymentMethod = PaymentMethod::where('name', $request->post('paymentMethod'))->first();
 
             $transaction = Transaction::create([
-                'outlet_id'         => 1,
+                'outlet_id'         => Auth::user()->outlet_id,
                 'invoice_number'    => $request->post('invoice'),
                 'order_number'      => str_pad($orderNumber, 2, '0', STR_PAD_LEFT),
                 'qty'               => count($request->post('cart')),
@@ -54,7 +55,7 @@ class TransactionController extends Controller
                 'transaction_type'  => 'sales',
                 'note'              => $request->post('note'),
                 'transaction_date'  => date('Y-m-d H:i:s'),
-                'created_by'        => 1
+                'created_by'        => Auth::id()
             ]);
 
             foreach ($request->post('cart') as $item) {
