@@ -95,4 +95,35 @@ class DiscountController extends Controller
             'data' => $discount
         ]);
     }
+
+    public function detail(Request $request): View
+    {
+        $discount = Discount::find($request->query('id'));
+        $discountMenu = DiscountMenu::with('menu')->where('discount_id', $discount->id)->get();
+
+        $title = 'Discount';
+        return view('discount.detail', compact('title', 'discount', 'discountMenu'));
+    }
+
+    public function edit(Request $request): View
+    {
+        $title = 'Discount';
+        return view('discount.edit', compact('title'));
+    }
+
+    public function update(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        return redirect()->route('discount')->with('success', 'Discount updated successfully.');
+    }
+
+    public function delete(Request $request): \Illuminate\Http\JsonResponse
+    {
+        Discount::where('id', $request->get('id'))->update([
+            'deleted_at' => now(),
+        ]);
+
+        return response()->json([
+            'status' => true
+        ]);
+    }
 }
