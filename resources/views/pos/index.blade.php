@@ -8,7 +8,7 @@
             <div class="pos-categories tabs_wrapper">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                     <div>
-                        <h5 class="mb-1">Welcome,  Wesley Adrian</h5>
+                        <h5 class="mb-1">Welcome,  {{ Auth::user()->name }}</h5>
                         <p id="waktuSekarang"></p>
                     </div>
                     <div class="d-flex align-items-center gap-3">
