@@ -1261,7 +1261,6 @@
         function calculatePrice() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const discountTransaction = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
-            console.log(discountTransaction);
 
             let subTotal = 0;
             let totalTax = 0;

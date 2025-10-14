@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CustomerDisplayController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\InventoryController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\LoginMiddleware;
 use Illuminate\Support\Facades\Route;
+use Pusher\Pusher;
 
 Route::controller(AuthController::class)->group(function () {
     Route::get('/', 'login')->name('login');
@@ -90,6 +92,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/', 'index')->name('transaction.index');
         Route::post('/', 'store')->name('transaction.store');
         Route::post('/data', 'dataStore')->name('transaction.data.store');
+        Route::get('/data', 'findDataCart')->name('transaction.data.find');
     });
 
     Route::prefix('/inventory')->controller(InventoryController::class)->group(function () {
@@ -120,5 +123,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::prefix('/transfer-stock')->group(function () {
             Route::get('/', 'indexTransferStock')->name('inventory.transfer.stock');
         });
+    });
+
+    Route::prefix('/customer-display')->controller(CustomerDisplayController::class)->group(function () {
+        Route::get('/', 'index')->name('customer.display');
     });
 });

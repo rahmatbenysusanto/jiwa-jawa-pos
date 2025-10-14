@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TransactionEvent;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
 use App\Models\TransactionData;
@@ -131,6 +132,14 @@ class TransactionController extends Controller
 
             if ($request->post('paymentMethod') == 'QRIS') {
                 $midtrans = $this->midtransService->createQRIS($transaction->id);
+
+                // Payment QRIS Customer Display
+                TransactionEvent::dispatch([
+                    'username'  => Auth::user()->username,
+                    'type'      => 'payment',
+                    'invoice'   => $request->post('invoice'),
+                    'data'      => $midtrans
+                ]);
             }
 
             DB::commit();
@@ -168,8 +177,25 @@ class TransactionController extends Controller
             ]);
         }
 
+        TransactionEvent::dispatch([
+            'username'  => Auth::user()->username,
+            'type'      => 'transaction-data',
+            'invoice'   => $request->post('invoiceNumber'),
+            'data'      => [],
+        ]);
+
         return response()->json([
             'status' => true,
+        ]);
+    }
+
+    public function findDataCart(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $result = TransactionData::where('invoice_number', $request->get('invoiceNumber'))->first();
+
+        return response()->json([
+            'status' => true,
+            'data'   => $result
         ]);
     }
 }

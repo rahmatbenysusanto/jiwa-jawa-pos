@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TransactionEvent;
 use App\Models\Addon;
 use App\Models\AddonVariant;
 use App\Models\Menu;
@@ -19,6 +20,14 @@ class PosController extends Controller
     {
         $categories = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
         $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+
+        // Reset Customer Display
+        TransactionEvent::dispatch([
+            'username'  => Auth::user()->username,
+            'type'      => 'reset',
+            'invoice'   => $invoiceNumber,
+            'data'      => [],
+        ]);
 
         $title = 'POS';
         return view('pos.index', compact('title', 'categories', 'invoiceNumber'));

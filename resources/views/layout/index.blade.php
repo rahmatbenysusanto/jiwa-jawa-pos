@@ -231,6 +231,12 @@
                                             <span>Point Of Sale (POS)</span>
                                         </a>
                                     </li>
+                                    <li class="{{ $title == 'Customer Display' ? 'active' : '' }}">
+                                        <a href="{{ route('customer.display') }}">
+                                            <i class="ti ti-shopping-bag fs-16 me-2"></i>
+                                            <span>Customer Display</span>
+                                        </a>
+                                    </li>
                                     <li class="{{ $title == 'Transaction' ? 'active' : '' }}">
                                         <a href="{{ route('transaction.index') }}">
                                             <i class="ti ti-device-analytics fs-16 me-2"></i>
