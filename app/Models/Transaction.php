@@ -29,4 +29,9 @@ class Transaction extends Model
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
+
+    public function users(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

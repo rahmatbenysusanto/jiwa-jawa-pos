@@ -9,6 +9,17 @@
                 <h6>Manage your transaction</h6>
             </div>
         </div>
+        <ul class="table-top-head">
+            <li>
+                <a><img src="{{ asset('assets/img/icons/pdf.svg') }}" alt="img"></a>
+            </li>
+            <li>
+                <a><img src="{{ asset('assets/img/icons/excel.svg') }}" alt="img"></a>
+            </li>
+            <li>
+                <a href="{{ url()->current() }}"><i class="ti ti-refresh"></i></a>
+            </li>
+        </ul>
         <div class="page-btn">
             <a href="{{ route('pos.index') }}" class="btn btn-primary">
                 <i class="ti ti-circle-plus me-1"></i>
@@ -77,7 +88,7 @@
                             @foreach($transaction as $index => $item)
                                 <tr>
                                     <td>{{ $transaction->firstItem() + $index }}</td>
-                                    <td>{{ $item->invoice_number }}</td>
+                                    <td><a href="{{ route('transaction.detail', ['invoice' => $item->invoice_number]) }}" class="text-blue-400">{{ $item->invoice_number }}</a></td>
                                     <td class="text-center">{{ $item->order_number }}</td>
                                     <td class="text-center">{{ number_format($item->qty) }}</td>
                                     <td>Rp {{ number_format($item->total) }}</td>

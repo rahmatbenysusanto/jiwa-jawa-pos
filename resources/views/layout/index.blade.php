@@ -240,7 +240,7 @@
                                     <li class="{{ $title == 'Transaction' ? 'active' : '' }}">
                                         <a href="{{ route('transaction.index') }}">
                                             <i class="ti ti-device-analytics fs-16 me-2"></i>
-                                            <span>List</span>
+                                            <span>List Transaction</span>
                                         </a>
                                     </li>
                                 </ul>

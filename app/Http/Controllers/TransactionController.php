@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class TransactionController extends Controller
@@ -24,15 +25,24 @@ class TransactionController extends Controller
         protected MidtransService $midtransService
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        $transaction = Transaction::with('paymentMethod')->where('outlet_id', Auth::user()->outlet_id)->latest()->paginate(10);
+        $transaction = Transaction::with('paymentMethod')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->when($request->query('invoice'), function ($query) use ($request) {
+                return $query->where('invoice_number', $request->query('invoice'));
+            })
+            ->when($request->query('orderNumber'), function ($query) use ($request) {
+                return $query->where('order_number', $request->query('orderNumber'));
+            })
+            ->latest()
+            ->paginate(10);
 
         $title = 'Transaction';
         return view('transaction.index', compact('title', 'transaction'));
     }
 
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(Request $request): JsonResponse
     {
         try {
             DB::beginTransaction();
@@ -157,7 +167,7 @@ class TransactionController extends Controller
         }
     }
 
-    public function dataStore(Request $request): \Illuminate\Http\JsonResponse
+    public function dataStore(Request $request): JsonResponse
     {
         $check = TransactionData::where('invoice_number', $request->post('invoiceNumber'))->first();
         if ($check == null) {
@@ -189,7 +199,7 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function findDataCart(Request $request): \Illuminate\Http\JsonResponse
+    public function findDataCart(Request $request): JsonResponse
     {
         $result = TransactionData::where('invoice_number', $request->get('invoiceNumber'))->first();
 
@@ -197,5 +207,14 @@ class TransactionController extends Controller
             'status' => true,
             'data'   => $result
         ]);
+    }
+
+    public function detail(Request $request): View
+    {
+        $transaction = Transaction::with('paymentMethod', 'users')->where('invoice_number', $request->query('invoice'))->first();
+        $transactionData = TransactionData::where('invoice_number', $request->query('invoice'))->first();
+
+        $title = 'Transaction';
+        return view('transaction.detail', compact('title', 'transaction', 'transactionData'));
     }
 }

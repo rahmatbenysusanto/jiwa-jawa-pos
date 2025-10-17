@@ -90,6 +90,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
         Route::get('/', 'index')->name('transaction.index');
+        Route::get('/detail', 'detail')->name('transaction.detail');
         Route::post('/', 'store')->name('transaction.store');
         Route::post('/data', 'dataStore')->name('transaction.data.store');
         Route::get('/data', 'findDataCart')->name('transaction.data.find');
@@ -106,6 +107,12 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         Route::prefix('/material')->group(function () {
             Route::get('/', 'indexMaterial')->name('inventory.material');
+            Route::get('/create', 'createMaterial')->name('inventory.material.create');
+            Route::post('/', 'storeMaterial')->name('inventory.material.store');
+            Route::get('/detail', 'detailMaterial')->name('inventory.material.detail');
+            Route::get('/edit', 'editMaterial')->name('inventory.material.edit');
+            Route::post('/update', 'updateMaterial')->name('inventory.material.update');
+            Route::get('/delete', 'deleteMaterial')->name('inventory.material.delete');
         });
 
         Route::prefix('/purchase-order')->group(function () {
