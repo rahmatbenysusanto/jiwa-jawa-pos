@@ -458,11 +458,13 @@
         loadAllMenu();
         document.getElementById('cartValue').style.display = 'none';
 
-        function rupiah(angka) {
+        function rupiah(angka)
+        {
             return new Intl.NumberFormat('id-ID').format(angka);
         }
 
-        function viewAllCategory() {
+        function viewAllCategory()
+        {
             document.getElementById('allProduct').classList.add('active');
             document.getElementById('all').classList.add('active');
             document.getElementById('categoryMenuList').classList.remove('active');
@@ -473,7 +475,8 @@
             });
         }
 
-        function loadAllMenu() {
+        function loadAllMenu()
+        {
             $.ajax({
                 url: '{{ route('pos.menu') }}',
                 method: 'GET',
@@ -549,7 +552,8 @@
             });
         }
 
-        function selectProduct(productId) {
+        function selectProduct(productId)
+        {
             localStorage.setItem('addon', JSON.stringify([]));
 
             $.ajax({
@@ -635,7 +639,8 @@
             });
         }
 
-        function changeVariant(index, value) {
+        function changeVariant(index, value)
+        {
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const find = variant[index];
 
@@ -650,7 +655,8 @@
             localStorage.setItem('variant', JSON.stringify(variant));
         }
 
-        function openAddonModal() {
+        function openAddonModal()
+        {
             $.ajax({
                 url: '{{ route('pos.addon') }}',
                 method: 'GET',
@@ -669,7 +675,8 @@
             });
         }
 
-        function changeAddonList(id) {
+        function changeAddonList(id)
+        {
             $.ajax({
                 url: '{{ route('pos.addon.find') }}',
                 method: 'GET',
@@ -689,7 +696,8 @@
             });
         }
 
-        function addProductAddon() {
+        function addProductAddon()
+        {
             const addonVariantId = document.getElementById('addon-variant').value;
             if (addonVariantId === '') {
                 Swal.fire({
@@ -730,7 +738,8 @@
             });
         }
 
-        function viewListAddon() {
+        function viewListAddon()
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             let html = '';
 
@@ -766,7 +775,8 @@
             document.getElementById('viewListAddon').innerHTML = html;
         }
 
-        function changeQtyAddon(index, type) {
+        function changeQtyAddon(index, type)
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             const find = addon[index];
 
@@ -784,14 +794,16 @@
             viewListAddon();
         }
 
-        function deleteAddon(index) {
+        function deleteAddon(index)
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             addon.splice(index, 1);
             localStorage.setItem('addon', JSON.stringify(addon));
             viewListAddon();
         }
 
-        function addProduct() {
+        function addProduct()
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const product = JSON.parse(localStorage.getItem('product')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
@@ -848,7 +860,8 @@
             viewChartList();
         }
 
-        function viewChartList() {
+        function viewChartList()
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             let html = '';
 
@@ -944,7 +957,8 @@
             document.getElementById('listProductCart').innerHTML = html;
         }
 
-        function changeQtyProductCart(index, type) {
+        function changeQtyProductCart(index, type)
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const find = cart[index];
 
@@ -962,14 +976,16 @@
             viewChartList();
         }
 
-        function deleteCart(index) {
+        function deleteCart(index)
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             cart.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
             viewChartList();
         }
 
-        function editProductCart(index) {
+        function editProductCart(index)
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const find = cart[index];
             const product = find.data.product;
@@ -1022,7 +1038,8 @@
             $('#editProductCartModal').modal('show');
         }
 
-        function viewAddonEdit() {
+        function viewAddonEdit()
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             let html = '';
 
@@ -1058,7 +1075,8 @@
             document.getElementById('viewListAddonEdit').innerHTML = html;
         }
 
-        function openAddonEditModal() {
+        function openAddonEditModal()
+        {
             $.ajax({
                 url: '{{ route('pos.addon') }}',
                 method: 'GET',
@@ -1077,7 +1095,8 @@
             });
         }
 
-        function changeAddonEditList(id) {
+        function changeAddonEditList(id)
+        {
             $.ajax({
                 url: '{{ route('pos.addon.find') }}',
                 method: 'GET',
@@ -1097,7 +1116,8 @@
             });
         }
 
-        function addProductAddonEdit() {
+        function addProductAddonEdit()
+        {
             const addonVariantId = document.getElementById('addon-edit-variant').value;
             if (addonVariantId === '') {
                 Swal.fire({
@@ -1138,7 +1158,8 @@
             });
         }
 
-        function changeQtyAddonEdit(index, type) {
+        function changeQtyAddonEdit(index, type)
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             const find = addon[index];
 
@@ -1156,14 +1177,16 @@
             viewAddonEdit();
         }
 
-        function deleteAddonEdit(index) {
+        function deleteAddonEdit(index)
+        {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             addon.splice(index, 1);
             localStorage.setItem('addon', JSON.stringify(addon));
             viewAddonEdit();
         }
 
-        function changeVariantEdit(index, value) {
+        function changeVariantEdit(index, value)
+        {
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const find = variant[index];
 
@@ -1178,7 +1201,8 @@
             localStorage.setItem('variant', JSON.stringify(variant));
         }
 
-        function editProduct() {
+        function editProduct()
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
@@ -1230,7 +1254,8 @@
             viewChartList();
         }
 
-        function changeDiscountProduct(value) {
+        function changeDiscountProduct(value)
+        {
             const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
 
             discountProduct.forEach((item) => {
@@ -1244,7 +1269,8 @@
             localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
         }
 
-        function changeDiscountProductEdit(value) {
+        function changeDiscountProductEdit(value)
+        {
             const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
 
             discountProduct.forEach((item) => {
@@ -1258,7 +1284,8 @@
             localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
         }
 
-        function calculatePrice() {
+        function calculatePrice()
+        {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const discountTransaction = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
 
@@ -1303,6 +1330,7 @@
         }
 
         function calculateJumlahCart() {
+
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             let items = 0;
 
@@ -1313,24 +1341,28 @@
             document.getElementById('jumlahCart').innerText = items;
         }
 
-        function addNote() {
+        function addNote()
+        {
             document.getElementById('note').value = JSON.parse(localStorage.getItem('note')) ?? '';
 
             $('#noteModal').modal('show');
         }
 
-        function saveNote() {
+        function saveNote()
+        {
             const note = document.getElementById('note').value;
             localStorage.setItem('note', JSON.stringify(note));
             $('#noteModal').modal('hide');
         }
 
-        function splitPayment() {
+        function splitPayment()
+        {
             viewSplitPayment();
             $('#splitPaymentModal').modal('show');
         }
 
-        function viewSplitPayment() {
+        function viewSplitPayment()
+        {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             let html = '';
 
@@ -1360,14 +1392,16 @@
             document.getElementById('listSplitPayment').innerHTML = html;
         }
 
-        function deleteSplitPayment(index) {
+        function deleteSplitPayment(index)
+        {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             splitPayment.splice(index, 1);
             localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
             viewSplitPayment();
         }
 
-        function changeSplitPayment(index, type, value) {
+        function changeSplitPayment(index, type, value)
+        {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             const find = splitPayment[index];
 
@@ -1380,7 +1414,8 @@
             localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
         }
 
-        function addSplitPayment() {
+        function addSplitPayment()
+        {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
 
             splitPayment.push({
@@ -1392,11 +1427,13 @@
             viewSplitPayment();
         }
 
-        function splitPaymentProcess() {
+        function splitPaymentProcess()
+        {
             $('#splitPaymentModal').modal('hide');
         }
 
-        function resetTransaction() {
+        function resetTransaction()
+        {
             Swal.fire({
                 title: "Are you sure?",
                 text: "Reset Transaction",
@@ -1416,11 +1453,13 @@
             });
         }
 
-        function delivery() {
+        function delivery()
+        {
             $('#deliveryModal').modal('show');
         }
 
-        function payment() {
+        function payment()
+        {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? '';
 
@@ -1455,12 +1494,14 @@
             $('#paymentModal').modal('show');
         }
 
-        function changePaymentMethod(value) {
+        function changePaymentMethod(value)
+        {
             localStorage.setItem('paymentMethod', JSON.stringify(value));
             $('#paymentModal').modal('hide');
         }
 
-        function discountTransaction() {
+        function discountTransaction()
+        {
             $.ajax({
                 url: '{{ route('discount.find.transaction') }}',
                 method: 'GET',
@@ -1482,7 +1523,8 @@
             });
         }
 
-        function viewDiscountTransaction() {
+        function viewDiscountTransaction()
+        {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
             let html = '<option>-- Choose Discount Transaction --</option>';
 
@@ -1492,7 +1534,8 @@
             document.getElementById('discountTransaction').innerHTML = html;
         }
 
-        function changeDiscountTransaction(value) {
+        function changeDiscountTransaction(value)
+        {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
             discount.forEach((item) => {
                 if (parseInt(value) === parseInt(item.id)) {
@@ -1505,7 +1548,8 @@
             calculatePrice();
         }
 
-        function paymentProcess() {
+        function paymentProcess()
+        {
             Swal.fire({
                 title: "Are you sure?",
                 text: "Process this order",
@@ -1642,7 +1686,8 @@
             });
         }
 
-        function viewQrisModal() {
+        function viewQrisModal() 
+        {
             const midtrans = JSON.parse(localStorage.getItem('midtrans')) ?? [];
 
             const qrString = midtrans.qr_string ?? null;
@@ -1668,7 +1713,8 @@
             }
         }
 
-        function saveTransactionData() {
+        function saveTransactionData()
+        {
             $.ajax({
                 url: '{{ route('transaction.data.store') }}',
                 method: 'POST',

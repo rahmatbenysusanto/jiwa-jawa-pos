@@ -125,6 +125,16 @@ class InventoryController extends Controller
         return view('inventory.material.detail', compact('title', 'material'));
     }
 
+    public function editMaterial(Request $request): View
+    {
+        $material = Material::with('category', 'unit', 'baseUnit')->where('id', $request->query('id'))->first();
+        $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $unit = MaterialUnit::all();
+
+        $title = 'Material';
+        return view('inventory.material.edit', compact('title', 'category', 'unit', 'material'));
+    }
+
     public function indexPurchaseOrder(Request $request): View
     {
         $title = 'Purchase Order';
