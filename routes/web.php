@@ -94,6 +94,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::post('/', 'store')->name('transaction.store');
         Route::post('/data', 'dataStore')->name('transaction.data.store');
         Route::get('/data', 'findDataCart')->name('transaction.data.find');
+        Route::post('/create/transaction-payment', 'createTransactionPayment')->name('transaction.create.payment');
     });
 
     Route::prefix('/inventory')->controller(InventoryController::class)->group(function () {
@@ -117,10 +118,19 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         Route::prefix('/purchase-order')->group(function () {
             Route::get('/', 'indexPurchaseOrder')->name('inventory.purchase.order');
+            Route::get('/detail', 'detailPurchaseOrder')->name('inventory.purchase.order.detail');
+            Route::get('/create', 'createPurchaseOrder')->name('inventory.purchase.order.create');
+            Route::post('/store', 'storePurchaseOrder')->name('inventory.purchase.order.store');
+
+            Route::post('/cancel', 'cancelPurchaseOrder')->name('inventory.purchase.order.cancel');
+
+            // JSON
+            Route::get('/find-material', 'findMaterial')->name('inventory.purchase.order.find.material');
         });
 
         Route::prefix('/manage-stock')->group(function () {
             Route::get('/', 'indexManageStock')->name('inventory.manage.stock');
+            Route::get('/detail', 'detailManageStock')->name('inventory.manage.stock.detail');
         });
 
         Route::prefix('/stock-adjusment')->group(function () {

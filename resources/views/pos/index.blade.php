@@ -114,9 +114,10 @@
                             <a class="btn btn-purple d-flex align-items-center justify-content-center w-100 mb-2" onclick="splitPayment()"><i  class="ti ti-receipt-tax me-2"></i>Split Payment</a>
                             <a class="btn btn-info d-flex align-items-center justify-content-center w-100 mb-2" onclick="delivery()"><i class="ti ti-map-pin-check me-2"></i>Delivery</a>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" id="changePayment">
                             <a class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2" onclick="resetTransaction()"><i class="ti ti-reload me-2"></i>Reset</a>
                             <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2" onclick="payment()"><i  class="ti ti-cash-banknote me-2"></i>Payment</a>
+                            <button id="btnPrint" type="button" class="btn btn-primary">Print</button>
                         </div>
                     </div>
                 </div>
@@ -449,10 +450,89 @@
         </div>
     </div>
 
+    <div id="paymentDebitModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Payment Debit</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Approval Code</label>
+                        <input type="text" class="form-control" id="approvalCode" placeholder="749XXXX">
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-primary" onclick="saveApprovalCode()">Save Approval Code</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('js')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
+    <script>
+        // 0) DEV ONLY: matikan kebutuhan sertifikat & tanda tangan
+        qz.security.setCertificatePromise((resolve, reject) => resolve(null));
+        qz.security.setSignaturePromise((toSign) => (resolve, reject) => resolve(null));
+
+        async function ensureQZ() {
+            if (!qz.websocket.isActive()) {
+                // pakai ws (insecure) di localhost
+                await qz.websocket.connect({ host: 'localhost', usingSecure: false });
+            }
+        }
+
+        async function printNota() {
+            try {
+                await ensureQZ();
+
+                const matches = await qz.printers.find("HaoYin");
+                const printer = matches[0] || await qz.printers.getDefault();
+                if (!printer) throw new Error('Printer tidak ditemukan di macOS');
+
+                // 2) config: ALT PRINTING penting di macOS agar RAW ESC/POS tembus
+                const cfg = qz.configs.create(printer, {
+                    altPrinting: true,              // kunci di macOS
+                    // encoding: 'CP437',           // opsional, sesuai self-test kamu
+                });
+
+                // 3) uji RAW termudah: teks polos + feed
+                const data = ["TEST RAW\nKEDAI SELVIN\n\n\n"]; // dulu tanpa ESC
+                await qz.print(cfg, data);
+
+                // 4) jika barusan berhasil, lanjut ESC/POS
+                const ESC = '\x1B', GS = '\x1D';
+                const escpos = [
+                    ESC+"@", ESC+"a"+"\x01", "KEDAI SELVIN\n", "Solo\n\n",
+                    ESC+"a"+"\x00",
+                    "Americano  x1      18.000\n",
+                    "Croissant  x1      12.000\n",
+                    "---------------------------\n",
+                    "Total               30.000\n",
+                    "Metode: DEBIT\n",
+                    "Approval: 749832\n",
+                    "Last4  : 1234\n",
+                    "\n\n\n"
+                    // GS+"V"+"\x00" // cutter jika ada auto-cutter
+                ];
+                await qz.print(cfg, escpos);
+
+                alert('Print terkirim ✓');
+            } catch (e) {
+                console.error(e);
+                alert('Gagal print: ' + (e.message || e));
+            }
+        }
+
+        document.getElementById('btnPrint').addEventListener('click', printNota);
+    </script>
+
     <script>
         localStorage.clear();
         loadAllMenu();
@@ -1635,7 +1715,7 @@
                             });
                         },
                         success: (res) => {
-                            Swal.close(); // close loading
+                            Swal.close();
 
                             if (res.status) {
                                 if (paymentMethod === 'Debit') {
@@ -1643,13 +1723,23 @@
                                         title: 'Success!',
                                         text: 'Debit payment has been created successfully.',
                                         icon: 'success',
+                                    }).then((i) => {
+                                        document.getElementById('buttonAfterProcess').innerHTML = `
+                                            <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                                <i class="ti ti-printer me-2"></i>Print Invoice
+                                            </a>
+                                            <a class="btn btn-orange w-100 mb-2" onclick="debitPaymentNumber()">
+                                                <i class="ti ti-printer me-2"></i> Debit Payment Number
+                                            </a>
+                                        `;
+                                        $('#paymentDebitModal').modal('show');
                                     });
                                 } else if (paymentMethod === 'QRIS') {
                                     const midtrans = res.data.raw;
                                     localStorage.setItem('midtrans', JSON.stringify(midtrans));
 
                                     document.getElementById('buttonAfterProcess').innerHTML = `
-                                        <a class="btn btn-secondary w-100 mb-2">
+                                        <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
                                             <i class="ti ti-printer me-2"></i>Print Invoice
                                         </a>
                                         <a class="btn btn-orange w-100 mb-2" onclick="viewQrisModal()">
@@ -1659,12 +1749,22 @@
 
                                     viewQrisModal();
                                 } else {
+                                    document.getElementById('buttonAfterProcess').innerHTML = `
+                                        <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                            <i class="ti ti-printer me-2"></i>Print Invoice
+                                        </a>
+                                    `;
                                     Swal.fire({
                                         title: 'Success!',
                                         text: 'Transaction has been created successfully.',
                                         icon: 'success',
                                     });
                                 }
+
+                                document.getElementById('changePayment').innerHTML = `
+                                    <a class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2" onclick="resetTransaction()"><i class="ti ti-reload me-2"></i>Reset</a>
+                                    <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2" onclick="changePayment()"><i  class="ti ti-cash-banknote me-2"></i>Change Payment</a>
+                                `;
                             } else {
                                 Swal.fire({
                                     title: 'Error!',
@@ -1686,7 +1786,7 @@
             });
         }
 
-        function viewQrisModal() 
+        function viewQrisModal()
         {
             const midtrans = JSON.parse(localStorage.getItem('midtrans')) ?? [];
 
@@ -1730,6 +1830,83 @@
 
                 }
             });
+        }
+
+        function debitPaymentNumber()
+        {
+            $('#paymentDebitModal').modal('show');
+        }
+
+        function saveApprovalCode() {
+            const approvalCode = document.getElementById('approvalCode').value;
+
+            $.ajax({
+                url: '{{ route('transaction.create.payment') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    reffId: approvalCode,
+                    invoiceNumber: '{{ $invoiceNumber }}',
+                    data: approvalCode,
+                    paymentMethodId: 3
+                },
+                success: (res) => {
+                    if (res.status) {
+                        document.getElementById('approvalCode').value = '';
+                        $('#paymentDebitModal').modal('hide');
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Payment Transaction Successfully!',
+                            icon: 'success',
+                        });
+                    }
+                }
+            });
+        }
+
+        async function printNota() {
+            try {
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect({host: 'localhost', usingSecure: false});
+                }
+
+                // Pakai nama printer hasil find() atau default
+                const matches = await qz.printers.find("HaoYin"); // atau "CX588"/"POS"/"58"
+                const printerName = matches[0] || await qz.printers.getDefault();
+
+                // PENTING: altPrinting:true untuk macOS (raw pass-through)
+                const cfg = qz.configs.create(printerName, {
+                    altPrinting: true,     // <-- ini kuncinya di Mac
+                    // encoding: 'CP437',  // opsional; CX588 default-nya CP437/GBK
+                });
+
+                const ESC = '\x1B', GS = '\x1D';
+                const lines = [
+                    ESC + "@", ESC + "a" + "\x01", "KEDAI SELVIN\n", "Solo\n\n",
+                    ESC + "a" + "\x00",
+                    "Americano  x1      18.000\n",
+                    "Croissant  x1      12.000\n",
+                    "---------------------------\n",
+                    "Total               30.000\n",
+                    "Metode: DEBIT\n",
+                    "Approval: 749832\n",
+                    "Last4  : 1234\n",
+                    "\n\n\n" // feed beberapa baris (tanpa auto-cutter, kertas perlu didorong)
+                    // GS+"V"+"\x00" // cutter jika ada auto-cutter (banyak 58mm portable tidak)
+                ];
+
+                await qz.print(cfg, lines);
+                alert("Print dikirim (RAW)");
+            } catch (e) {
+                console.error(e);
+                alert("Print gagal: " + (e.message || e));
+            }
+        }
+
+        async function tesPrint() {
+            if (!qz.websocket.isActive()) await qz.websocket.connect();
+            const list = await qz.printers.find();
+            console.log('Printers:', list);
         }
     </script>
 

@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inventory;
+use App\Models\InventoryDetail;
 use App\Models\Material;
 use App\Models\MaterialCategory;
 use App\Models\MaterialUnit;
+use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -137,14 +141,137 @@ class InventoryController extends Controller
 
     public function indexPurchaseOrder(Request $request): View
     {
+        $purchaseOrder = PurchaseOrder::where('outlet_id', Auth::user()->outlet_id)->paginate(10);
+
         $title = 'Purchase Order';
-        return view('inventory.purchaseOrder.index', compact('title'));
+        return view('inventory.purchaseOrder.index', compact('title', 'purchaseOrder'));
+    }
+
+    public function detailPurchaseOrder(Request $request): View
+    {
+        $purchaseOrder = PurchaseOrder::where('id', $request->query('id'))->first();
+        $purchaseOrderDetail = PurchaseOrderDetail::with('material', 'material.unit')->where('purchase_order_id', $purchaseOrder->id)->get();
+
+        $title = 'Purchase Order';
+        return view('inventory.purchaseOrder.detail', compact('title', 'purchaseOrder', 'purchaseOrderDetail'));
+    }
+
+    public function cancelPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        PurchaseOrder::where('id', $request->post('id'))->update([
+            'status' => 'cancel'
+        ]);
+
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
+    public function createPurchaseOrder(): View
+    {
+        $material = Material::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+
+        $title = 'Purchase Order';
+        return view('inventory.purchaseOrder.create', compact('title', 'material'));
+    }
+
+    public function findMaterial(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $material = Material::with('unit')->where('id', $request->get('id'))->first();
+
+        return response()->json([
+            'status' => true,
+            'data' => $material
+        ]);
+    }
+
+    public function storePurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $purchaseOrder = PurchaseOrder::create([
+                'outlet_id'     => Auth::user()->outlet_id,
+                'number'        => 'PO-'.date('Ymd').random_int(100, 999),
+                'qty'           => count($request->post('material')),
+                'status'        => 'new',
+                'warehouse_id'  => 1,
+                'warehouse_name'=> 'Gudang 1',
+                'order_date'    => date('Y-m-d H:i:s'),
+            ]);
+
+            foreach ($request->post('material') as $material) {
+                PurchaseOrderDetail::create([
+                    'purchase_order_id' => $purchaseOrder->id,
+                    'material_id'       => $material['id'],
+                    'qty'               => $material['qty'],
+                    'status'            => 'new'
+                ]);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            Log::error($err->getLine());
+            return response()->json([
+                'status' => false,
+                'message' => $err->getMessage()
+            ]);
+        }
+    }
+
+    public function processPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $purchaseOrderDetail = PurchaseOrderDetail::where('purchase_order_id', $request->get('purchaseOrderId'))->get();
+            foreach ($purchaseOrderDetail as $detail) {
+                PurchaseOrderDetail::where('id', $detail->id)->update([
+                    'status'        => 'completed',
+                    'updated_at'    => date('Y-m-d H:i:s')
+                ]);
+
+                InventoryDetail::create([
+                    'purchase_order_id' => $detail->id,
+                    'material_id'       => $detail->material_id,
+                    'qty'               => $detail->qty,
+                    'price'             => 0
+                ]);
+
+                Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->increment('stock', $detail->qty);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            Log::error($err->getLine());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
     }
 
     public function indexManageStock(Request $request): View
     {
+        $inventory = Inventory::with('material', 'material.unit', 'material.category')->where('outlet_id', Auth::user()->outlet_id)->paginate(10);
+
         $title = 'Manage Stock';
-        return view('inventory.manageStock.index', compact('title'));
+        return view('inventory.manageStock.index', compact('title', 'inventory'));
+    }
+
+    public function detailManageStock(Request $request): View
+    {
+        $title = 'Manage Stock';
+        return view('inventory.manageStock.detail', compact('title'));
     }
 
     public function indexStockAdjusment(Request $request): View

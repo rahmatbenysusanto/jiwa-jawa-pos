@@ -10,6 +10,7 @@ use App\Models\TransactionDetail;
 use App\Models\TransactionDetailVariant;
 use App\Models\TransactionDetailVariantAddon;
 use App\Models\TransactionDiscount;
+use App\Models\TransactionPayment;
 use App\Models\TransactionSplitPayment;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
@@ -192,6 +193,20 @@ class TransactionController extends Controller
             'type'      => 'transaction-data',
             'invoice'   => $request->post('invoiceNumber'),
             'data'      => [],
+        ]);
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function createTransactionPayment(Request $request): JsonResponse
+    {
+        TransactionPayment::create([
+            'invoice_number'        => $request->post('invoiceNumber'),
+            'reff_id'               => $request->post('reffId'),
+            'payment_method_id'     => $request->post('paymentMethodId'),
+            'data'                  => json_encode($request->post('data')),
         ]);
 
         return response()->json([
