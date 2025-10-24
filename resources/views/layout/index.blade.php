@@ -219,6 +219,12 @@
                                             <span>Discount</span>
                                         </a>
                                     </li>
+                                    <li class="{{ $title == 'Recipe' ? 'active' : '' }}">
+                                        <a href="{{ route('menu.recipe') }}">
+                                            <i class="ti ti-book-2 fs-16 me-2"></i>
+                                            <span>Recipe</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
 
@@ -277,10 +283,10 @@
                                             <span>Manage Stock</span>
                                         </a>
                                     </li>
-                                    <li class="{{ $title == 'Stock Adjusment' ? 'active' : '' }}">
-                                        <a href="{{ route('inventory.stock.adjustment') }}">
+                                    <li class="{{ $title == 'Stock Consumption' ? 'active' : '' }}">
+                                        <a href="{{ route('inventory.stock.consumption') }}">
                                             <i class="ti ti-stairs-up fs-16 me-2"></i>
-                                            <span>Stock Adjusment</span>
+                                            <span>Stock Consumption</span>
                                         </a>
                                     </li>
                                     <li class="{{ $title == 'Transfer Stock' ? 'active' : '' }}">

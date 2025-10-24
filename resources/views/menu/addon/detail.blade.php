@@ -46,6 +46,7 @@
                                     <td>Rp {{ number_format($item->price) }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
+                                            <a class="btn btn-success btn-sm">Recipe</a>
                                             <a class="btn btn-info btn-sm" onclick="editVariant('{{ $item->id }}', '{{ $item->name }}', '{{ $item->price }}')">Edit</a>
                                             <a class="btn btn-danger btn-sm" onclick="deleteVariant('{{ $item->id }}')">Delete</a>
                                         </div>

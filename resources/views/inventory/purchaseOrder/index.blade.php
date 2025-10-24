@@ -89,7 +89,7 @@
                                                 <i class="fa fa-eye"></i>
                                             </a>
                                             @if($item->status == 'new')
-                                                <a class="btn btn-info btn-sm">
+                                                <a class="btn btn-info btn-sm" onclick="processPO('{{ $item->id }}')">
                                                     <i class="fa fa-right-from-bracket"></i>
                                                 </a>
                                                 <a class="btn btn-danger btn-sm" onclick="cancelPO('{{ $item->id }}')">
@@ -139,6 +139,46 @@
                                 Swal.fire({
                                     title: 'Success!',
                                     text: 'Cancel Purchase Order Success!',
+                                    icon: 'success',
+                                }).then((i) => {
+                                    window.location.reload();
+                                });
+                            }
+                        }
+                    });
+
+                }
+            });
+        }
+
+        function processPO(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Process Purchase Order?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Yes, process po!",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1"
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.isConfirmed) {
+
+                    $.ajax({
+                        url: '{{ route('inventory.purchase.order.process') }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: (res) => {
+                            if (res.status) {
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Process Purchase Order Success!',
                                     icon: 'success',
                                 }).then((i) => {
                                     window.location.reload();

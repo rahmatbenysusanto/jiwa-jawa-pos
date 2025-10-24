@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Addon;
 use App\Models\AddonVariant;
+use App\Models\Material;
 use App\Models\Menu;
 use App\Models\MenuCategory;
+use App\Models\MenuRecipeMaterial;
 use App\Models\MenuVariant;
 use App\Models\MenuVariantOption;
 use Illuminate\Http\Request;
@@ -351,6 +353,95 @@ class MenuController extends Controller
         }
     }
 
+    public function recipe(Request $request): View
+    {
+        $title = 'Recipe';
+        return view('menu.recipe.index', compact('title'));
+    }
+
+    public function recipeAddonCreate(): View
+    {
+        $addon = Addon::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $material = Material::with('baseUnit')->where('outlet_id', Auth::user()->outlet_id)->get();
+
+        $title = 'Recipe';
+        return view('menu.recipe.create-addon', compact('title', 'addon', 'material'));
+    }
+
+    public function recipeStore(Request $request): \Illuminate\Http\JsonResponse
+    {
+        foreach ($request->post('variantAddon') as $variant) {
+            foreach ($variant['material'] as $material) {
+                MenuRecipeMaterial::create([
+                    'addon_id'      => $variant['id'],
+                    'material_id'   => $material['id'],
+                    'qty'           => $material['qty'],
+                    'unit'          => $material['unit'],
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
+
+    public function recipeMenuCreate(): View
+    {
+        $menu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $material = Material::with('baseUnit')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->whereNull('deleted_at')
+            ->get();
+
+        $title = 'Recipe';
+        return view('menu.recipe.create-menu', compact('title', 'menu', 'material'));
+    }
+
+    public function recipeMenuStore(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $menu = $request->post('menu');
+            $materialBasicMenu = $request->post('materialBasicMenu');
+            $variant = $request->post('variant');
+
+            // Material Basic Menu
+            foreach ($materialBasicMenu as $material) {
+                MenuRecipeMaterial::create([
+                    'menu_id'       => $menu['id'],
+                    'material_id'   => $material['id'],
+                    'qty'           => $material['qty'],
+                    'unit'          => $material['unit'],
+                ]);
+            }
+
+            // Variant
+            foreach ($variant as $item) {
+                foreach ($item['material'] as $material) {
+                    MenuRecipeMaterial::create([
+                        'variant_id'    => $item['optionId'],
+                        'material_id'   => $material['id'],
+                        'qty'           => $material['qty'],
+                        'unit'          => $material['unit'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
+    }
+
     // JSON Response
 
     public function findAllMenu(Request $request): \Illuminate\Http\JsonResponse
@@ -359,6 +450,37 @@ class MenuController extends Controller
 
         return response()->json([
             'data' => $menu
+        ]);
+    }
+
+    public function findMenu(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $menu = Menu::find($request->get('menuId'));
+        $variant = MenuVariant::with('menuVariantOptions')->where('menu_id', $menu->id)->get();
+
+        return response()->json([
+            'data' => [
+                'menu'      => $menu,
+                'variant'   => $variant
+            ]
+        ]);
+    }
+
+    public function findVariantAddon(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $variantAddon = AddonVariant::where('addon_id', $request->get('id'))->get();
+
+        return response()->json([
+            'data' => $variantAddon
+        ]);
+    }
+
+    public function variantAddonFind(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $variantAddon = AddonVariant::find($request->get('id'));
+
+        return response()->json([
+            'data' => $variantAddon
         ]);
     }
 }

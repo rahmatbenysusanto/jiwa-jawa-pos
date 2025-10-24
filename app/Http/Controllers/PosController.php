@@ -8,6 +8,9 @@ use App\Models\AddonVariant;
 use App\Models\Menu;
 use App\Models\MenuCategory;
 use App\Models\PaymentMethod;
+use App\Models\Transaction;
+use App\Models\TransactionPayment;
+use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +19,10 @@ use Illuminate\View\View;
 
 class PosController extends Controller
 {
+    public function __construct(
+        protected MidtransService $midtransService
+    ) {}
+
     public function index(): View
     {
         $categories = MenuCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
@@ -98,6 +105,61 @@ class PosController extends Controller
 
         return response()->json([
             'data'  => $payment
+        ]);
+    }
+
+    public function changePaymentMethod(Request $request): \Illuminate\Http\JsonResponse
+    {
+        switch ($request->post('paymentMethod')) {
+            case 'Cash':
+                Transaction::where('invoice_number', $request->post('invoice'))->update([
+                    'payment_method_id' => 1,
+                    'payment_status'    => 'paid',
+                ]);
+
+                TransactionPayment::where('invoice_number', $request->post('invoice'))->delete();
+                TransactionPayment::create([
+                    'invoice_number'    => $request->post('invoice'),
+                    'payment_method_id' => 1,
+                ]);
+                break;
+            case 'QRIS':
+                $order = Transaction::where('invoice_number', $request->post('invoice'))->first();
+                $qris = $this->midtransService->createQRIS($order->id);
+
+                return response()->json([
+                    'status'    => true,
+                    'data'      => $qris,
+                ]);
+            case 'Debit':
+                Transaction::where('invoice_number', $request->post('invoice'))->update([
+                    'payment_method_id' => 3,
+                    'payment_status'    => 'paid',
+                ]);
+
+                TransactionPayment::where('invoice_number', $request->post('invoice'))->delete();
+                TransactionPayment::create([
+                    'invoice_number'    => $request->post('invoice'),
+                    'payment_method_id' => 3,
+                    'reff_id'           => $request->post('approvalCodeChangePayment'),
+                ]);
+                break;
+            case 'Transfer':
+                Transaction::where('invoice_number', $request->post('invoice'))->update([
+                    'payment_method_id' => 4,
+                    'payment_status'    => 'paid',
+                ]);
+
+                TransactionPayment::where('invoice_number', $request->post('invoice'))->delete();
+                TransactionPayment::create([
+                    'invoice_number'    => $request->post('invoice'),
+                    'payment_method_id' => 4,
+                ]);
+                break;
+        }
+
+        return response()->json([
+            'status' => true
         ]);
     }
 }

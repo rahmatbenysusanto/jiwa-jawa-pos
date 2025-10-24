@@ -117,7 +117,7 @@
                         <div class="col-sm-4" id="changePayment">
                             <a class="btn btn-danger d-flex align-items-center justify-content-center w-100 mb-2" onclick="resetTransaction()"><i class="ti ti-reload me-2"></i>Reset</a>
                             <a class="btn btn-cyan d-flex align-items-center justify-content-center w-100 mb-2" onclick="payment()"><i  class="ti ti-cash-banknote me-2"></i>Payment</a>
-                            <button id="btnPrint" type="button" class="btn btn-primary">Print</button>
+{{--                            <button id="btnPrint" type="button" class="btn btn-primary">Print</button>--}}
                         </div>
                     </div>
                 </div>
@@ -470,6 +470,48 @@
         </div>
     </div>
 
+    <div id="changePaymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Change Payment</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <select class="form-control" id="changePayment">
+                        <option value="">-- Choose Payment Method --</option>
+                        <option>Cash</option>
+                        <option>QRIS</option>
+                        <option>Debit</option>
+                        <option>Transfer</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-primary" onclick="processChangePayment()">Change Payment Method</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="changePaymentDebitModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Payment Debit</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Approval Code</label>
+                        <input type="text" class="form-control" id="approvalCodeChangePayment" placeholder="749XXXX">
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <a class="btn btn-primary" onclick="changePaymentSaveApprovalCode()">Save Approval Code</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
@@ -1782,6 +1824,100 @@
                             });
                         }
                     });
+                }
+            });
+        }
+
+        function changePayment() {
+            $('#changePaymentModal').modal('show');
+        }
+
+        function processChangePayment() {
+            const paymentMethod = document.getElementById('changePayment').value;
+            if (paymentMethod === '') {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'Please select payment method!',
+                    icon: 'warning',
+                });
+
+                return true;
+            }
+
+            switch (paymentMethod) {
+                case 'Cash':
+                case 'Transfer':
+                    $.ajax({
+                        url: '{{ route('pos.payment.method.change') }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            paymentMethod: paymentMethod,
+                            invoice: '{{ $invoiceNumber }}',
+                        },
+                        success: (res) => {
+                            if (res.status) {
+                                $('#changePaymentModal').modal('hide');
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: 'Change Payment Transaction Success',
+                                    icon: 'success',
+                                });
+                            }
+                        }
+                    });
+                    break;
+                case 'QRIS':
+                    $.ajax({
+                        url: '{{ route('pos.payment.method.change') }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            paymentMethod: paymentMethod,
+                            invoice: '{{ $invoiceNumber }}',
+                        },
+                        success: (res) => {
+                            const midtrans = res.data.raw;
+                            localStorage.setItem('midtrans', JSON.stringify(midtrans));
+
+                            document.getElementById('buttonAfterProcess').innerHTML = `
+                                        <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                            <i class="ti ti-printer me-2"></i>Print Invoice
+                                        </a>
+                                        <a class="btn btn-orange w-100 mb-2" onclick="viewQrisModal()">
+                                            <i class="ti ti-printer me-2"></i> QRIS Status
+                                        </a>
+                                    `;
+
+                            viewQrisModal();
+                        }
+                    });
+                    break;
+                case 'Debit':
+                    $('#changePaymentDebitModal').modal('show');
+                    break;
+            }
+        }
+
+        function changePaymentSaveApprovalCode() {
+            $.ajax({
+                url: '{{ route('pos.payment.method.change') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    paymentMethod: 'Debit',
+                    invoice: '{{ $invoiceNumber }}',
+                    approvalCodeChangePayment: document.getElementById('approvalCodeChangePayment').value
+                },
+                success: (res) => {
+                    if (res.status) {
+                        $('#changePaymentModal').modal('hide');
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Change Payment Transaction Success',
+                            icon: 'success',
+                        });
+                    }
                 }
             });
         }

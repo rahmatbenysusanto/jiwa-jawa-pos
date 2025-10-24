@@ -102,8 +102,11 @@
                                     </td>
                                     <td>
                                         <div class="hstack gap-2 fs-15">
-                                            <a href="{{ route('menu.detail', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-success">
+                                            <a href="{{ route('menu.detail', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-secondary">
                                                 <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="" class="btn btn-success btn-sm">
+                                                <i class="fa fa-book"></i>
                                             </a>
                                             <a href="{{ route('menu.edit', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-info">
                                                 <i class="fa-solid fa-pencil"></i>

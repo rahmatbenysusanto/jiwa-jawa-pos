@@ -44,7 +44,7 @@
                                     <td>{{ $item->material->sku }}</td>
                                     <td>{{ $item->material->name }}</td>
                                     <td>{{ $item->material->category->name }}</td>
-                                    <td class="text-center fw-bold">{{ number_format($item->stock) }} {{ $item->material->unit->symbol }}</td>
+                                    <td class="text-center fw-bold">{{ number_format($item->stock, 2) }} {{ $item->material->unit->symbol }}</td>
                                     <td class="text-center">
                                         @if($item->stock < $item->material->min_stock)
                                             <span class="badge bg-danger">Stock Minimum</span>

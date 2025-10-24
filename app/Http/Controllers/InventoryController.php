@@ -95,7 +95,7 @@ class InventoryController extends Controller
                 $file->move(public_path('uploads/material'), $fileName);
             }
 
-            Material::create([
+            $material = Material::create([
                 'outlet_id'     => Auth::user()->outlet_id,
                 'category_id'   => $request->post('category'),
                 'sku'           => $request->post('sku'),
@@ -107,6 +107,12 @@ class InventoryController extends Controller
                 'unit_id'       => $request->post('unit'),
                 'base_unit_id'  => $request->post('base_unit'),
                 'conversion_value'  => $request->post('conversion'),
+            ]);
+
+            Inventory::create([
+                'material_id'   => $material->id,
+                'outlet_id'     => Auth::user()->outlet_id,
+                'stock'         => 0,
             ]);
 
             DB::commit();
@@ -229,21 +235,29 @@ class InventoryController extends Controller
         try {
             DB::beginTransaction();
 
-            $purchaseOrderDetail = PurchaseOrderDetail::where('purchase_order_id', $request->get('purchaseOrderId'))->get();
+            PurchaseOrder::where('id', $request->post('id'))->update([
+                'status'        => 'completed',
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+
+            $purchaseOrderDetail = PurchaseOrderDetail::where('purchase_order_id', $request->post('id'))->get();
             foreach ($purchaseOrderDetail as $detail) {
                 PurchaseOrderDetail::where('id', $detail->id)->update([
                     'status'        => 'completed',
                     'updated_at'    => date('Y-m-d H:i:s')
                 ]);
 
+                $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
+
                 InventoryDetail::create([
+                    'inventory_id'      => $inventory->id,
                     'purchase_order_id' => $detail->id,
                     'material_id'       => $detail->material_id,
                     'qty'               => $detail->qty,
                     'price'             => 0
                 ]);
 
-                Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->increment('stock', $detail->qty);
+                Inventory::where('id', $inventory->id)->increment('stock', $detail->qty);
             }
 
             DB::commit();
@@ -274,10 +288,10 @@ class InventoryController extends Controller
         return view('inventory.manageStock.detail', compact('title'));
     }
 
-    public function indexStockAdjusment(Request $request): View
+    public function indexStockConsumption(Request $request): View
     {
-        $title = 'Stock Adjustment';
-        return view('inventory.stockAdjusment.index', compact('title'));
+        $title = 'Stock Consumption';
+        return view('inventory.stockConsumption.index', compact('title'));
     }
 
     public function indexTransferStock(Request $request): View

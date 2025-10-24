@@ -26,20 +26,32 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     });
 
     Route::prefix('/menu')->controller(MenuController::class)->group(function () {
-        Route::get('/category', 'category')->name('menu.category');
-        Route::post('/category', 'categoryAdd')->name('menu.category.add');
-        Route::get('/category/find', 'findCategory')->name('menu.category.find');
-        Route::post('/category/edit', 'categoryEdit')->name('menu.category.edit');
-        Route::get('/category/delete', 'categoryDelete')->name('menu.category.delete');
+        Route::prefix('/category')->group(function () {
+            Route::get('/', 'category')->name('menu.category');
+            Route::post('/', 'categoryAdd')->name('menu.category.add');
+            Route::get('/find', 'findCategory')->name('menu.category.find');
+            Route::post('/edit', 'categoryEdit')->name('menu.category.edit');
+            Route::get('/delete', 'categoryDelete')->name('menu.category.delete');
+        });
 
-        Route::get('/addon', 'addon')->name('menu.addon');
-        Route::get('/addon/detail', 'addonDetail')->name('menu.addon.detail');
-        Route::post('/addon/detail/variant', 'addonDetailAddVariant')->name('menu.addon.detail.add.variant');
-        Route::get('/addon/detail/delete', 'addonDetailDelete')->name('menu.addon.detail.delete');
-        Route::post('/addon/detail/edit', 'addonDetailEdit')->name('menu.addon.detail.edit');
-        Route::get('/addon/edit/name', 'addonDetailEditName')->name('menu.addon.edit.name');
-        Route::get('/addon/create', 'addonCreate')->name('menu.addon.create');
-        Route::post('/addon', 'addonStore')->name('menu.addon.store');
+        Route::prefix('/addon')->group(function () {
+            Route::get('/', 'addon')->name('menu.addon');
+            Route::get('/detail', 'addonDetail')->name('menu.addon.detail');
+            Route::post('/detail/variant', 'addonDetailAddVariant')->name('menu.addon.detail.add.variant');
+            Route::get('/detail/delete', 'addonDetailDelete')->name('menu.addon.detail.delete');
+            Route::post('/detail/edit', 'addonDetailEdit')->name('menu.addon.detail.edit');
+            Route::get('/edit/name', 'addonDetailEditName')->name('menu.addon.edit.name');
+            Route::get('/create', 'addonCreate')->name('menu.addon.create');
+            Route::post('/', 'addonStore')->name('menu.addon.store');
+        });
+
+        Route::prefix('/recipe')->group(function () {
+            Route::get('/', 'recipe')->name('menu.recipe');
+            Route::get('/create-addon', 'recipeAddonCreate')->name('menu.create.recipe.addon');
+            Route::get('/create-menu', 'recipeMenuCreate')->name('menu.create.recipe.menu');
+            Route::post('/', 'recipeStore')->name('menu.recipe.store');
+            Route::post('/store', 'recipeMenuStore')->name('menu.recipe.menu.store');
+        });
 
         Route::get('/list', 'list')->name('menu.list');
         Route::get('/create', 'createMenu')->name('menu.create');
@@ -51,6 +63,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         // JSON Response
         Route::get('/find-all', 'findAllMenu')->name('menu.find.all');
+        Route::get('/find-variant-addon', 'findVariantAddon')->name('menu.find.variant.addon');
+        Route::get('/variant-addon', 'variantAddonFind')->name('menu.variant.addon.find');
+        Route::get('/find-menu', 'findMenu')->name('menu.find.menu');
     });
 
     Route::prefix('/discount')->controller(DiscountController::class)->group(function () {
@@ -86,6 +101,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/addon/find', 'findAddon')->name('pos.addon.find');
         Route::get('/addon/variant', 'findAddonVariant')->name('pos.addon.variant');
         Route::get('/payment-method', 'paymentMethod')->name('pos.payment.method');
+        Route::post('/change-payment-method', 'changePaymentMethod')->name('pos.payment.method.change');
     });
 
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
@@ -123,6 +139,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
             Route::post('/store', 'storePurchaseOrder')->name('inventory.purchase.order.store');
 
             Route::post('/cancel', 'cancelPurchaseOrder')->name('inventory.purchase.order.cancel');
+            Route::post('/process', 'processPurchaseOrder')->name('inventory.purchase.order.process');
 
             // JSON
             Route::get('/find-material', 'findMaterial')->name('inventory.purchase.order.find.material');
@@ -133,8 +150,8 @@ Route::middleware(LoginMiddleware::class)->group(function () {
             Route::get('/detail', 'detailManageStock')->name('inventory.manage.stock.detail');
         });
 
-        Route::prefix('/stock-adjusment')->group(function () {
-            Route::get('/', 'indexStockAdjusment')->name('inventory.stock.adjustment');
+        Route::prefix('/stock-consumption')->group(function () {
+            Route::get('/', 'indexStockConsumption')->name('inventory.stock.consumption');
         });
 
         Route::prefix('/transfer-stock')->group(function () {
