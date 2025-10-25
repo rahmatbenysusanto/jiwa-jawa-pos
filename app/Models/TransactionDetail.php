@@ -17,4 +17,9 @@ class TransactionDetail extends Model
         'total',
         'note'
     ];
+
+    public function menu(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Menu::class, 'menu_id');
+    }
 }

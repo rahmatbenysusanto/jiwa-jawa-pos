@@ -36,6 +36,14 @@ class TransactionController extends Controller
             ->when($request->query('orderNumber'), function ($query) use ($request) {
                 return $query->where('order_number', $request->query('orderNumber'));
             })
+            ->when($request->query('paymentStatus'), function ($query) use ($request) {
+                return $query->where('payment_status', $request->query('paymentStatus'));
+            })
+            ->whereHas('paymentMethod', function ($query) use ($request) {
+                if ($request->query('paymentMethodId') != null) {
+                    return $query->where('name', $request->query('paymentMethod'));
+                }
+            })
             ->latest()
             ->paginate(10);
 
@@ -231,5 +239,49 @@ class TransactionController extends Controller
 
         $title = 'Transaction';
         return view('transaction.detail', compact('title', 'transaction', 'transactionData'));
+    }
+
+    public function cancelTransaction(Request $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            Transaction::where('invoice_number', $request->post('invoiceNumber'))->update([
+                'transaction_status' => 'canceled'
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
+    }
+
+    public function changeStatusPayment(Request $request): JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            Transaction::where('invoice_number', $request->post('invoiceNumber'))->update([
+                'payment_status' => 'paid'
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
     }
 }

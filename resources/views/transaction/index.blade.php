@@ -46,12 +46,18 @@
                                 <label class="form-label">Payment Method</label>
                                 <select class="form-control" name="paymentMethod">
                                     <option value="">-- Choose Payment Method --</option>
+                                    <option {{ request()->get('paymentMethod') == 'Cash' ? 'selected' : '' }}>Cash</option>
+                                    <option {{ request()->get('paymentMethod') == 'QRIS' ? 'selected' : '' }}>QRIS</option>
+                                    <option {{ request()->get('paymentMethod') == 'Debit' ? 'selected' : '' }}>Debit</option>
+                                    <option {{ request()->get('paymentMethod') == 'Transfer' ? 'selected' : '' }}>Transfer</option>
                                 </select>
                             </div>
                             <div class="col-2">
                                 <label class="form-label">Payment Status</label>
                                 <select class="form-control" name="paymentStatus">
                                     <option value="">-- Choose Payment Status --</option>
+                                    <option value="paid" {{ request()->get('paymentStatus') == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    <option value="pending" {{ request()->get('paymentStatus') == 'pending' ? 'selected' : '' }}>Pending</option>
                                 </select>
                             </div>
                             <div class="col-2">
@@ -80,6 +86,7 @@
                                     <th>Total Price</th>
                                     <th class="text-center">Payment Method</th>
                                     <th class="text-center">Payment Status</th>
+                                    <th class="text-center">Status</th>
                                     <th>Date</th>
                                     <th>Action</th>
                                 </tr>
@@ -96,16 +103,33 @@
                                     <td class="text-center">
                                         @if($item->payment_status == 'pending')
                                             <span class="badge bg-danger">Unpaid</span>
-                                        @elseif($item->status_payment == 'paid')
+                                        @elseif($item->payment_status == 'paid')
                                             <span class="badge bg-success">Paid</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($item->transaction_status == 'canceled')
+                                            <span class="badge bg-danger">Canceled</span>
+                                        @else
+                                            <span class="badge bg-success">Completed</span>
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($item->transaction_date)->translatedFormat('d F Y H:i') }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a class="btn btn-info btn-sm">
+                                            <a href="{{ route('transaction.detail', ['invoice' => $item->invoice_number]) }}" class="btn btn-info btn-sm">
                                                 <i class="fa fa-eye"></i>
                                             </a>
+                                            @if($item->payment_status == 'pending')
+                                                <a class="btn btn-secondary btn-sm" onclick="changeStatusPayment('{{ $item->invoice_number }}')">
+                                                    <i class="fa-solid fa-credit-card"></i>
+                                                </a>
+                                            @endif
+                                            @if($item->transaction_status == 'normal')
+                                                <a class="btn btn-danger btn-sm" onclick="cancelTransaction('{{ $item->invoice_number }}')">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -151,4 +175,100 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        function cancelTransaction(invoiceNumber) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Cancel Transaction ${invoiceNumber} ?`,
+                icon: "warning",
+                showCancelButton: true,
+                customClass: {
+                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
+                    cancelButton: "btn btn-danger w-xs mt-2"
+                },
+                confirmButtonText: "Yes, Cancel!",
+                buttonsStyling: false,
+                showCloseButton: true
+            }).then((i) => {
+                if (i.value) {
+
+                    $.ajax({
+                        url: '{{ route('transaction.cancel') }}',
+                        method: "POST",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            invoiceNumber: invoiceNumber,
+                        },
+                        success: (res) => {
+                            if (res.status) {
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: `Cancel Transaction ${invoiceNumber} Successfully!`,
+                                    icon: "success",
+                                }).then((i) => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Failed',
+                                    text: `Cancel Transaction ${invoiceNumber} Failed!`,
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+
+                }
+            });
+        }
+
+        function changeStatusPayment(invoiceNumber) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: `Change Status Payment Invoice ${invoiceNumber} ?`,
+                icon: "warning",
+                showCancelButton: true,
+                customClass: {
+                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
+                    cancelButton: "btn btn-danger w-xs mt-2"
+                },
+                confirmButtonText: "Yes, Change!",
+                buttonsStyling: false,
+                showCloseButton: true
+            }).then((i) => {
+                if (i.value) {
+
+                    $.ajax({
+                        url: '{{ route('transaction.change.status.payment') }}',
+                        method: "POST",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            invoiceNumber: invoiceNumber,
+                        },
+                        success: (res) => {
+                            if (res.status) {
+                                Swal.fire({
+                                    title: 'Success',
+                                    text: `Change Status Payment Invoice ${invoiceNumber} Successfully!`,
+                                    icon: "success",
+                                }).then((i) => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Failed',
+                                    text: `Change Status Payment Invoice ${invoiceNumber} Failed!`,
+                                    icon: "error",
+                                });
+                            }
+                        }
+                    });
+
+                }
+            });
+        }
+    </script>
 @endsection

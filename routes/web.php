@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\LoginMiddleware;
@@ -111,6 +112,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::post('/data', 'dataStore')->name('transaction.data.store');
         Route::get('/data', 'findDataCart')->name('transaction.data.find');
         Route::post('/create/transaction-payment', 'createTransactionPayment')->name('transaction.create.payment');
+
+        Route::post('/cancel', 'cancelTransaction')->name('transaction.cancel');
+        Route::post('/change/status-payment', 'changeStatusPayment')->name('transaction.change.status.payment');
     });
 
     Route::prefix('/inventory')->controller(InventoryController::class)->group(function () {
@@ -161,5 +165,14 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
     Route::prefix('/customer-display')->controller(CustomerDisplayController::class)->group(function () {
         Route::get('/', 'index')->name('customer.display');
+    });
+
+    Route::prefix('/report')->controller(ReportController::class)->group(function () {
+        Route::get('/sales', 'sales')->name('report.sales');
+        Route::get('/top-selling', 'topSelling')->name('report.top.selling');
+        Route::get('/low-moving', 'lowMoving')->name('report.low.moving');
+        Route::get('/stock', 'stock')->name('report.stock');
+        Route::get('/discount', 'discount')->name('report.discount');
+        Route::get('/store-performance', 'storePerformance')->name('report.store.performance');
     });
 });

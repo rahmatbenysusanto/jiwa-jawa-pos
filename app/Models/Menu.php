@@ -30,4 +30,9 @@ class Menu extends Model
     {
         return $this->hasMany(MenuVariant::class, 'menu_id');
     }
+
+    public function transactionDetail(): HasMany
+    {
+        return $this->hasMany(TransactionDetail::class, 'menu_id');
+    }
 }

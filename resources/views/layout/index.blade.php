@@ -301,16 +301,52 @@
                             <li class="submenu-open mt-2">
                                 <h6 class="submenu-hdr">Report</h6>
                                 <ul>
-                                    <li class="{{ $title == '' ? 'active' : '' }}">
-                                        <a href="{{ route('menu.category') }}">
-                                            <i class="ti ti-list-details fs-16 me-2"></i>
+                                    <li class="{{ $title == 'Sales Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.sales') }}">
+                                            <i class="ti ti-report-money fs-16 me-2"></i>
+                                            <span>Sales Report</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="{{ $title == 'Top Selling Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.top.selling') }}">
+                                            <i class="ti ti-chart-bar fs-16 me-2"></i>
+                                            <span>Top Selling Menu</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="{{ $title == 'Low Moving Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.low.moving') }}">
+                                            <i class="ti ti-trending-down fs-16 me-2"></i>
+                                            <span>Low Moving Menu</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="{{ $title == 'Stock Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.stock') }}">
+                                            <i class="ti ti-box fs-16 me-2"></i>
                                             <span>Stock</span>
                                         </a>
                                     </li>
+
+                                    <li class="{{ $title == 'Discount Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.discount') }}">
+                                            <i class="ti ti-discount-2 fs-16 me-2"></i>
+                                            <span>Discount</span>
+                                        </a>
+                                    </li>
+
                                     <li class="{{ $title == '' ? 'active' : '' }}">
-                                        <a href="{{ route('menu.list') }}">
-                                            <i class="ti ti-list-details fs-16 me-2"></i>
+                                        <a href="#">
+                                            <i class="ti ti-package fs-16 me-2"></i>
                                             <span>Products</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="{{ $title == 'Store Performance Report' ? 'active' : '' }}">
+                                        <a href="{{ route('report.store.performance') }}">
+                                            <i class="ti ti-graph fs-16 me-2"></i>
+                                            <span>Store Performance</span>
                                         </a>
                                     </li>
                                 </ul>

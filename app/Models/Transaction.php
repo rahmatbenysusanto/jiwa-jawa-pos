@@ -17,6 +17,7 @@ class Transaction extends Model
         'discount',
         'tax',
         'total',
+        'transaction_status',
         'payment_method_id',
         'payment_status',
         'transaction_type',
