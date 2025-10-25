@@ -90,6 +90,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     Route::prefix('/user')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('user.index');
         Route::get('/create', 'create')->name('user.create');
+        Route::get('/edit', 'edit')->name('user.edit');
+        Route::post('/store', 'store')->name('user.store');
+        Route::post('/update', 'update')->name('user.update');
     });
 
     Route::prefix('/pos')->controller(PosController::class)->group(function () {
