@@ -402,18 +402,16 @@
     </div>
 
     <div id="deliveryModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Delivery Transaction</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-control" id="delivery">
-                        <option selected>Dine In</option>
-                        <option>Take Away</option>
-                        <option>Delivery</option>
-                    </select>
+                    <div class="row" id="listDelivery">
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -436,14 +434,16 @@
     </div>
 
     <div id="discountTransactionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Discount Transaction</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-control" id="discountTransaction" onchange="changeDiscountTransaction(this.value)"></select>
+                    <div class="row" id="discountTransaction">
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -597,10 +597,28 @@
     <script>
         localStorage.clear();
         loadAllMenu();
+        loadDataDelivery();
         document.getElementById('cartValue').style.display = 'none';
 
         function rupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
+        }
+
+        function loadDataDelivery() {
+            localStorage.setItem('delivery', JSON.stringify([
+                {
+                    name: 'Dine In',
+                    select: 1
+                },
+                {
+                    name: 'Take Away',
+                    select: 0
+                },
+                {
+                    name: 'Delivery',
+                    select: 0
+                },
+            ]));
         }
 
         function viewAllCategory() {
@@ -1663,7 +1681,50 @@
         }
 
         function delivery() {
+            const delivery = JSON.parse(localStorage.getItem('delivery')) ?? [];
+            let html = '';
+
+            delivery.forEach((item, index) => {
+                html += `
+                    <div class="col-4">
+                        <a onclick="changeDelivery(${index})">
+                            <div class="card p-2 text-center ${item.select === 1 ? 'card-discount' : ''}">
+                                <span class="fw-bold">${item.name}</span>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+
+            document.getElementById('listDelivery').innerHTML = html;
+
             $('#deliveryModal').modal('show');
+        }
+
+        function changeDelivery(index) {
+            const delivery = JSON.parse(localStorage.getItem('delivery')) ?? [];
+
+            delivery.forEach((item) => {
+                item.select = 0;
+            });
+
+            delivery[index].select = 1;
+            localStorage.setItem('delivery', JSON.stringify(delivery));
+
+            let html = '';
+            delivery.forEach((item, index) => {
+                html += `
+                    <div class="col-4">
+                        <a onclick="changeDelivery(${index})">
+                            <div class="card p-2 text-center ${item.select === 1 ? 'card-discount' : ''}">
+                                <span class="fw-bold">${item.name}</span>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+
+            document.getElementById('listDelivery').innerHTML = html;
         }
 
         function payment() {
@@ -1730,10 +1791,20 @@
 
         function viewDiscountTransaction() {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
-            let html = '<option>-- Choose Discount Transaction --</option>';
+            let html = '';
 
             discount.forEach((item) => {
-                html += `<option value="${item.id}" ${item.select === 1 ? 'selected' : ''}>${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
+                html += `
+                    <div class="col-3">
+                        <a onclick="changeDiscountTransaction(${item.id})">
+                            <div class="card p-3 ${item.select === 1 ? 'card-discount' : ''}">
+                                <div>${item.code}</div>
+                                <div class="fw-bold">${item.name}</div>
+                                <div class="fw-bold">${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : parseInt(item.value)+'%'}</div>
+                            </div>
+                        </a>
+                    </div>
+                `;
             });
             document.getElementById('discountTransaction').innerHTML = html;
         }
@@ -1741,14 +1812,16 @@
         function changeDiscountTransaction(value) {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
             discount.forEach((item) => {
-                if (parseInt(value) === parseInt(item.id)) {
-                    item.select = 1;
-                } else {
-                    item.select = 0;
+                if (parseInt(item.id) === parseInt(value)) {
+                    if (typeof item.select === 'undefined') {
+                        item.select = 0;
+                    }
+                    item.select = item.select === 1 ? 0 : 1;
                 }
             });
             localStorage.setItem('discountTransaction', JSON.stringify(discount));
             calculatePrice();
+            viewDiscountTransaction();
         }
 
         function paymentProcess() {
