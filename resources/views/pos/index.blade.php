@@ -1,5 +1,50 @@
 @extends('layout.index')
 @section('title', 'POS')
+@section('css')
+    <style>
+        .variant-group-title{
+            font-weight: 600;
+            margin-bottom: .5rem;
+        }
+        .variant-card {
+            border: 1px solid #e5e7eb; /* abu2 tipis */
+            border-radius: .75rem;
+            padding: .6rem .75rem;
+            user-select: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform .05s ease, border-color .15s ease, box-shadow .15s ease;
+            background: #fff;
+        }
+        .variant-card:active { transform: scale(.99); }
+        .variant-card.active {
+            border-color: #7F56D8;
+            box-shadow: 0 0 0 3px rgba(127,86,216,.15);
+            background: #f9f7ff;
+        }
+        .variant-name { font-weight: 600; margin-right: .5rem; }
+        .variant-price { font-size: .9rem; opacity: .8; white-space: nowrap; }
+
+        .addon-group-title{
+            font-weight:700; font-size:1rem; margin-bottom:.5rem;
+            display:flex; align-items:center; gap:.5rem;
+        }
+        .addon-variant-card{
+            border:1px solid #e5e7eb; border-radius:.75rem; padding:.65rem .8rem;
+            cursor:pointer; background:#fff; height:100%;
+        }
+        .addon-variant-card:hover{ background:#f8f9fa; }
+        .addon-variant-name{ font-weight:600; }
+        .addon-variant-price{ font-size:.9rem; opacity:.85; white-space:nowrap; }
+        .card-discount {
+            border-color: #7F56D8;
+            box-shadow: 0 0 0 3px rgba(127,86,216,.15);
+            background: #f9f7ff;
+        }
+    </style>
+@endsection
 
 @section('content')
     <div class="row align-items-start pos-wrapper">
@@ -136,7 +181,7 @@
     </div>
 
     <div id="productDetailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Product Detail</h4>
@@ -173,7 +218,7 @@
 
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <h4 class="modal-title mb-1">Addon</h4>
                         <a class="btn btn-info btn-sm" onclick="openAddonModal()">+ Addon</a>
                     </div>
@@ -194,9 +239,9 @@
 
                     <div class="mt-3">
                         <h4 class="modal-title mb-1">Discount</h4>
-                        <select class="form-control" id="discountProduct" onchange="changeDiscountProduct(this.value)">
+                        <div class="row" id="discountProduct">
 
-                        </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer gap-2">
@@ -208,36 +253,23 @@
     </div>
 
     <div id="addonModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Addon Product</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Addon List</label>
-                        <select class="form-control" id="addon-list" onchange="changeAddonList(this.value)">
-
-                        </select>
+                    <div class="mb-2">
+                        <div id="addon-groups" class="vstack gap-3"></div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Addon Variant</label>
-                        <select class="form-control" id="addon-variant">
-
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer gap-2">
-                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="addProductAddon()">Add</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="editProductCartModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Product Detail</h4>
@@ -274,7 +306,7 @@
 
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
                         <h4 class="modal-title mb-1">Addon</h4>
                         <a class="btn btn-info btn-sm" onclick="openAddonEditModal()">+ Addon</a>
                     </div>
@@ -295,9 +327,9 @@
 
                     <div class="mt-3">
                         <h4 class="modal-title mb-1">Discount</h4>
-                        <select class="form-control" id="discountProductEdit" onchange="changeDiscountProductEdit(this.value)">
+                        <div class="row" id="discountProductEdit">
 
-                        </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer gap-2">
@@ -316,22 +348,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Addon List</label>
-                        <select class="form-control" id="addon-edit-list" onchange="changeAddonEditList(this.value)">
-
-                        </select>
+                    <div class="mb-2">
+                        <div id="addon-edit-list" class="vstack gap-3"></div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Addon Variant</label>
-                        <select class="form-control" id="addon-edit-variant">
-
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer gap-2">
-                    <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="addProductAddonEdit()">Add</button>
                 </div>
             </div>
         </div>
@@ -580,13 +599,11 @@
         loadAllMenu();
         document.getElementById('cartValue').style.display = 'none';
 
-        function rupiah(angka)
-        {
+        function rupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
         }
 
-        function viewAllCategory()
-        {
+        function viewAllCategory() {
             document.getElementById('allProduct').classList.add('active');
             document.getElementById('all').classList.add('active');
             document.getElementById('categoryMenuList').classList.remove('active');
@@ -597,8 +614,7 @@
             });
         }
 
-        function loadAllMenu()
-        {
+        function loadAllMenu() {
             $.ajax({
                 url: '{{ route('pos.menu') }}',
                 method: 'GET',
@@ -615,20 +631,19 @@
 
                     allMenu.forEach((product) => {
                         html += `
-                                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
-                                    <div class="card mb-0" style="padding:10px;">
-                                        <a class="product-image">
-                                            <img src="{{ asset('assets/img/products/pos-product-02.jpg')}}" alt="Products">
-                                        </a>
-                                        <div class="product-content">
-                                            <h6 class="fs-14 fw-bold mb-1"><a>${product.name}</a></h6>
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <h6 class="text-teal fs-14 fw-bold">Rp ${rupiah(product.price)}</h6>
-                                                <p class="text-pink">25 Pcs</p>
-                                            </div>
-                                        </div>
+                            <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
+                                <div class="product-info card mb-0">
+                                    <a onclick="selectProduct('${product.id}')" class="product-image">
+                                        <img src="{{ asset('assets/img/products/pos-product-02.jpg')}}" alt="Products">
+                                    </a>
+                                    <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                                    <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
+                                    <div class="d-flex align-items-center justify-content-between price">
+                                        <span>30 Pcs</span>
+                                        <p>Rp ${rupiah(product.price)}</p>
                                     </div>
                                 </div>
+                            </div>
                         `;
                     });
 
@@ -647,16 +662,15 @@
                         (menuCategory.menu).forEach((product) => {
                             html += `
                                 <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
-                                    <div class="card mb-0" style="padding:10px;">
-                                        <a class="product-image">
+                                    <div class="product-info card mb-0">
+                                        <a onclick="selectProduct('${product.id}')" class="product-image">
                                             <img src="{{ asset('assets/img/products/pos-product-02.jpg')}}" alt="Products">
                                         </a>
-                                        <div class="product-content">
-                                            <h6 class="fs-14 fw-bold mb-1"><a>${product.name}</a></h6>
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <h6 class="text-teal fs-14 fw-bold">Rp ${rupiah(product.price)}</h6>
-                                                <p class="text-pink">25 Pcs</p>
-                                            </div>
+                                        <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                                        <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
+                                        <div class="d-flex align-items-center justify-content-between price">
+                                            <span>30 Pcs</span>
+                                            <p>Rp ${rupiah(product.price)}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -674,19 +688,16 @@
             });
         }
 
-        function selectProduct(productId)
-        {
+        function selectProduct(productId) {
             localStorage.setItem('addon', JSON.stringify([]));
 
             $.ajax({
                 url: '{{ route('pos.product.find') }}',
                 method: 'GET',
-                data:{
-                    id: productId,
-                },
+                data: { id: productId },
                 success: (res) => {
-                    const product = res.data;
-                    const discount = res.discount;
+                    const product  = res.data;
+                    const discount = res.discount || [];
 
                     localStorage.setItem('product', JSON.stringify({
                         id: product.id,
@@ -697,130 +708,160 @@
                         combo: product.is_combo
                     }));
 
-                    const discountWithSelect = discount.map(item => ({
-                        ...item,
-                        select: 0
-                    }));
+                    const discountWithSelect = discount.map(item => ({ ...item, select: 0 }));
                     localStorage.setItem('discountProduct', JSON.stringify(discountWithSelect));
 
-                    // Variant Product
-                    let dataVariant = [];
-                    let html = '';
-                    (product.menu_variant).forEach((variant, indexVariant) => {
-                        let valueVariant = [];
-                        let option = '';
-                        (variant.menu_variant_options).forEach((item) => {
-                            option += `
-                                <option value=${item.id} ${item.is_default === 1 ? 'selected' : ''}>${item.name} | Rp ${rupiah(item.price_delta)}</option>
-                            `
-
+                    const dataVariant = [];
+                    (product.menu_variant || []).forEach((variant, indexVariant) => {
+                        const valueVariant = [];
+                        (variant.menu_variant_options || []).forEach((item) => {
                             valueVariant.push({
-                                id:item.id,
+                                id: item.id,
                                 name: item.name,
-                                price: parseFloat(item.price_delta),
-                                select: item.is_default
+                                price: parseFloat(item.price_delta || 0),
+                                select: item.is_default === 1 ? 1 : 0
                             });
                         });
+
+                        if (!valueVariant.some(v => v.select === 1) && valueVariant.length > 0) {
+                            valueVariant[0].select = 1;
+                        }
 
                         dataVariant.push({
                             id: variant.id,
                             name: variant.name,
                             option: valueVariant,
                         });
-
-                        html += `
-                            <div class="col-6">
-                                <div class="mb-3">
-                                    <label class="form-label">${variant.name}</label>
-                                    <select class="form-control" onchange="changeVariant(${indexVariant}, this.value)">
-                                        ${option}
-                                    </select>
-                                </div>
-                            </div>
-                        `;
                     });
 
                     localStorage.setItem('variant', JSON.stringify(dataVariant));
+                    renderVariantCards();
 
-                    // Discount
-                    let htmlDiscount = '<option value="">-- Choose Discount --</option>';
-                    discount.forEach((item) => {
-                        htmlDiscount += `<option value="${item.id}">${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
-                    });
-                    document.getElementById('discountProduct').innerHTML = htmlDiscount;
+                    localStorage.setItem('discountProduct', JSON.stringify(discount));
+                    viewDiscountProduct();
 
-                    document.getElementById('listVariantProduct').innerHTML = html;
                     document.getElementById('product-detail-id').value = product.id;
                     document.getElementById('product-detail-name').value = product.name;
                     document.getElementById('product-detail-sku').value = product.sku;
-                    document.getElementById('product-detail-base-price').value = 'Rp '+rupiah(product.price);
+                    document.getElementById('product-detail-base-price').value = 'Rp ' + rupiah(product.price);
                     document.getElementById('product-detail-category').value = product.category.name;
+
                     viewListAddon();
+
                     $('#productDetailModal').modal('show');
                 }
             });
         }
 
-        function changeVariant(index, value)
-        {
-            const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
-            const find = variant[index];
+        function renderVariantCards() {
+            const container = document.getElementById('listVariantProduct');
+            const variants  = JSON.parse(localStorage.getItem('variant')) || [];
+            let html = '';
 
-            (find.option).forEach((option) => {
-                if (parseInt(option.id) === parseInt(value)) {
-                    option.select = 1;
-                } else {
-                    option.select = 0;
-                }
+            variants.forEach((variant, idx) => {
+                html += `
+                  <div class="col-12">
+                    <div class="variant-group-title">${variant.name}</div>
+                    <div class="row g-2" data-variant-index="${idx}">
+                      ${variant.option.map(opt => {
+                                const active = opt.select === 1 ? 'active' : '';
+                                const priceText = opt.price > 0 ? `+ Rp ${rupiah(opt.price)}` :
+                                    opt.price < 0 ? `- Rp ${rupiah(Math.abs(opt.price))}` :
+                                        'Rp 0';
+                                return `
+                          <div class="col-6 col-md-4">
+                            <div class="variant-card ${active}"
+                                 data-option-id="${opt.id}"
+                                 onclick="selectVariantOption(${idx}, ${opt.id}, this)">
+                              <span class="variant-name">${opt.name}</span>
+                              <span class="variant-price">${priceText}</span>
+                            </div>
+                          </div>
+            `;
+                        }).join('')}
+                </div>
+              </div>
+            `;
             });
 
-            localStorage.setItem('variant', JSON.stringify(variant));
+            container.innerHTML = html;
         }
 
-        function openAddonModal()
-        {
+        function selectVariantOption(variantIndex, optionId, el) {
+            let variants = JSON.parse(localStorage.getItem('variant')) || [];
+            const v = variants[variantIndex];
+            if (!v) return;
+
+            v.option = v.option.map(o => ({ ...o, select: o.id === optionId ? 1 : 0 }));
+            localStorage.setItem('variant', JSON.stringify(variants));
+
+            if (el) {
+                const row = el.closest(`[data-variant-index="${variantIndex}"]`);
+                row.querySelectorAll('.variant-card').forEach(card => card.classList.remove('active'));
+                el.classList.add('active');
+            } else {
+                renderVariantCards();
+            }
+
+            if (typeof updateCartPreview === 'function') {
+                updateCartPreview();
+            }
+        }
+
+        function changeVariant(indexVariant, value) {
+            const optionId = parseInt(value, 10);
+            const row = document.querySelector(`[data-variant-index="${indexVariant}"]`);
+            const el  = row ? row.querySelector(`.variant-card[data-option-id="${optionId}"]`) : null;
+            selectVariantOption(indexVariant, optionId, el);
+        }
+
+        function openAddonModal() {
             $.ajax({
-                url: '{{ route('pos.addon') }}',
+                url: '{{ route('pos.addon.all') }}',
                 method: 'GET',
                 success: (res) => {
-                    const data = res.data;
-                    let html = '<option value="">-- Choose Addon --</option>';
+                    const groups = Array.isArray(res.data) ? res.data : [];
+                    let html = '';
 
-                    data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name}</option>`;
+                    groups.forEach(g => {
+                        const variants = Array.isArray(g.addon_variant) ? g.addon_variant : [];
+                        let htmlVariant = '';
+                        variants.forEach(variant => {
+                            htmlVariant += `
+                                <div class="col-3" onclick="addProductAddon(${variant.id})">
+                                    <div class="card border border-secondary">
+                                        <div class="card-body">
+                                            <div class="fw-semibold">${variant.name}</div>
+                                            <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+
+                        html += `
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center fw-bold mb-2">
+                                      <span>${g.name}</span>
+                                      <span class="badge bg-secondary">${variants.length}</span>
+                                    </div>
+                                    <div class="row">
+                                        ${htmlVariant}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     });
 
-                    document.getElementById('addon-list').innerHTML = html;
-                    document.getElementById('addon-variant').innerHTML = '<option value="">-- Choose Variant --</option>';
+                    document.getElementById('addon-groups').innerHTML = html;
                     $('#addonModal').modal('show');
                 }
             });
         }
 
-        function changeAddonList(id)
-        {
-            $.ajax({
-                url: '{{ route('pos.addon.find') }}',
-                method: 'GET',
-                data: {
-                    id: id
-                },
-                success: (res) => {
-                    const data = res.data;
-                    let html = '<option value="">-- Choose Variant --</option>';
-
-                    data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name} | Rp ${rupiah(item.price)}).format()}</option>`;
-                    });
-
-                    document.getElementById('addon-variant').innerHTML = html;
-                }
-            });
-        }
-
-        function addProductAddon()
-        {
-            const addonVariantId = document.getElementById('addon-variant').value;
+        function addProductAddon(addonVariantId) {
             if (addonVariantId === '') {
                 Swal.fire({
                     title: 'Warning!',
@@ -860,8 +901,7 @@
             });
         }
 
-        function viewListAddon()
-        {
+        function viewListAddon() {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             let html = '';
 
@@ -897,8 +937,7 @@
             document.getElementById('viewListAddon').innerHTML = html;
         }
 
-        function changeQtyAddon(index, type)
-        {
+        function changeQtyAddon(index, type) {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             const find = addon[index];
 
@@ -916,16 +955,14 @@
             viewListAddon();
         }
 
-        function deleteAddon(index)
-        {
+        function deleteAddon(index) {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             addon.splice(index, 1);
             localStorage.setItem('addon', JSON.stringify(addon));
             viewListAddon();
         }
 
-        function addProduct()
-        {
+        function addProduct() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const product = JSON.parse(localStorage.getItem('product')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
@@ -963,12 +1000,12 @@
                 menuId: product.id,
                 name: product.name,
                 qty: 1,
-                basePrice: parseInt(product.price),
-                priceDelta: priceDelta,
-                priceAddon: priceAddon,
-                priceDiscount: priceDiscount,
-                totalPrice: totalPrice,
-                grandTotal: totalPrice,
+                basePrice: Number(product.price),
+                priceDelta: Number(priceDelta),
+                priceAddon: Number(priceAddon),
+                priceDiscount: Number(priceDiscount),
+                totalPrice: Number(totalPrice),
+                grandTotal: Number(totalPrice),
                 data: {
                     product: product,
                     variant: variant,
@@ -982,8 +1019,7 @@
             viewChartList();
         }
 
-        function viewChartList()
-        {
+        function viewChartList() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             let html = '';
 
@@ -1008,7 +1044,7 @@
                     });
 
                     // Addon
-                    (item.data.addon).forEach((addon) => {
+                    (item.data.addon ?? []).forEach((addon) => {
                         addonHtml += addon.name + ': Rp ' + addon.total + '<br>';
                     });
 
@@ -1023,7 +1059,7 @@
                             <div>Rp ${rupiah(item.grandTotal)}</div>
                         `;
 
-                        (item.data.discountProduct).forEach((discount) => {
+                        (item.data.discountProduct ?? []).forEach((discount) => {
                             if (discount.select === 1) {
                                 discountProductHtml = `<div class="text-danger">Disc: ${discount.name}</div>`;
                             }
@@ -1079,18 +1115,17 @@
             document.getElementById('listProductCart').innerHTML = html;
         }
 
-        function changeQtyProductCart(index, type)
-        {
+        function changeQtyProductCart(index, type) {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const find = cart[index];
 
             if (type === 'tambah') {
-                find.qty += 1;
-                find.grandTotal += find.totalPrice;
+                find.qty++
+                find.grandTotal += parseInt(find.totalPrice);
             } else {
                 if (parseInt(find.qty) !== 1) {
-                    find.qty -= 1;
-                    find.grandTotal -= find.totalPrice;
+                    find.qty--
+                    find.grandTotal -= parseInt(find.totalPrice);
                 }
             }
 
@@ -1098,70 +1133,102 @@
             viewChartList();
         }
 
-        function deleteCart(index)
-        {
+        function deleteCart(index) {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             cart.splice(index, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
             viewChartList();
         }
 
-        function editProductCart(index)
-        {
-            const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
-            const find = cart[index];
+        function editProductCart(index) {
+            const cart  = JSON.parse(localStorage.getItem('cart')) ?? [];
+            const find  = cart[index];
             const product = find.data.product;
             const variant = find.data.variant;
-            const addon = find.data.addon;
-            const discountProduct = find.data.discountProduct;
+            const addon   = find.data.addon;
+            const discountProduct = find.data.discountProduct || [];
 
-            // Data Product
+            window.EDITING_CART_INDEX = index;
+
             document.getElementById('product-edit-id').value = product.id;
             document.getElementById('product-edit-name').value = product.name;
             document.getElementById('product-edit-category').value = product.category;
             document.getElementById('product-edit-sku').value = product.sku;
-            document.getElementById('product-edit-base-price').value = product.price;
+            document.getElementById('product-edit-base-price').value = 'Rp ' + rupiah(product.price);
 
-            // Data Variant
-            let variantHtml = '';
-            variant.forEach((item, indexVariant) => {
-                let variantOptionHtml = '';
-
-                (item.option).forEach((option) => {
-                    variantOptionHtml += `<option value="${option.id}" ${option.select === 1 ? 'selected' : ''}>${option.name} | Rp ${rupiah(option.price)}</option>`;
-                });
-
-                variantHtml += `
-                    <div class="col-6">
-                        <div class="mb-3">
-                            <label class="form-label">${item.name}</label>
-                            <select class="form-control" onchange="changeVariantEdit(${indexVariant}, this.value)">
-                                ${variantOptionHtml}
-                            </select>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('listVariantProductEdit').innerHTML = variantHtml;
             localStorage.setItem('variant', JSON.stringify(variant));
 
-            // Data Addon
-            localStorage.setItem('addon', JSON.stringify(addon));
-            viewAddonEdit();
+            renderVariantCardsEdit('listVariantProductEdit');
 
-            // Discount Produc
+            localStorage.setItem('addon', JSON.stringify(addon));
+            if (typeof viewAddonEdit === 'function') viewAddonEdit();
+
             localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
-            let htmlDiscount = '<option value="">-- Choose Discount --</option>';
-            discountProduct.forEach((item) => {
-                htmlDiscount += `<option value="${item.id}" ${item.select === 1 ? 'selected' : ''}>${item.code} | ${item.name} | ${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : item.value+'%'}</option>`;
-            });
-            document.getElementById('discountProductEdit').innerHTML = htmlDiscount;
+            viewDiscountProductEdit();
+
+            if (typeof updateCartPreview === 'function') updateCartPreview();
 
             $('#editProductCartModal').modal('show');
         }
 
-        function viewAddonEdit()
-        {
+        function renderVariantCardsEdit(containerId) {
+            const container = document.getElementById(containerId);
+            const variants  = JSON.parse(localStorage.getItem('variant')) ?? [];
+            let html = '';
+
+            variants.forEach((variant, idx) => {
+                html += `
+                  <div class="col-12">
+                    <div class="variant-group-title">${variant.name}</div>
+                    <div class="row g-2" data-variant-index-edit="${idx}">
+                      ${variant.option.map(opt=>{
+                                const active = opt.select === 1 ? 'active':'';
+                                const priceText = opt.price>0 ? `+ Rp ${rupiah(opt.price)}` : opt.price<0 ? `- Rp ${rupiah(Math.abs(opt.price))}` : 'Rp 0';
+                                return `
+                                  <div class="col-6 col-md-4">
+                                    <div class="variant-card ${active}" data-option-id="${opt.id}"
+                                      onclick="selectVariantOptionEdit(${idx}, ${opt.id}, this)">
+                                      <span class="variant-name">${opt.name}</span>
+                                      <span class="variant-price">${priceText}</span>
+                                    </div>
+                                  </div>
+                                `;
+                            }).join('')}
+                    </div>
+                  </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectVariantOptionEdit(variantIndex, optionId, el) {
+            let variants = JSON.parse(localStorage.getItem('variant')) ?? [];
+            const v = variants[variantIndex];
+            if (!v) return;
+
+            v.option = v.option.map(o => ({ ...o, select: o.id === optionId ? 1 : 0 }));
+            localStorage.setItem('variant', JSON.stringify(variants));
+
+            if (el) {
+                const row = el.closest(`[data-variant-index-edit="${variantIndex}"]`);
+                row.querySelectorAll('.variant-card').forEach(card => card.classList.remove('active'));
+                el.classList.add('active');
+            } else {
+                renderVariantCardsEdit('listVariantProductEdit');
+            }
+
+            if (typeof updateCartPreview === 'function') updateCartPreview();
+        }
+
+        function changeVariantEdit(indexVariant, value) {
+            const optionId = parseInt(value, 10);
+            const row = document.querySelector(`[data-variant-index-edit="${indexVariant}"]`);
+            const el  = row ? row.querySelector(`.variant-card[data-option-id="${optionId}"]`) : null;
+            selectVariantOptionEdit(indexVariant, optionId, el);
+        }
+
+        function viewAddonEdit() {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             let html = '';
 
@@ -1197,50 +1264,53 @@
             document.getElementById('viewListAddonEdit').innerHTML = html;
         }
 
-        function openAddonEditModal()
-        {
+        function openAddonEditModal() {
             $.ajax({
-                url: '{{ route('pos.addon') }}',
+                url: '{{ route('pos.addon.all') }}',
                 method: 'GET',
                 success: (res) => {
-                    const data = res.data;
-                    let html = '<option value="">-- Choose Addon --</option>';
+                    const groups = Array.isArray(res.data) ? res.data : [];
+                    let html = '';
 
-                    data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name}</option>`;
+                    groups.forEach(g => {
+                        const variants = Array.isArray(g.addon_variant) ? g.addon_variant : [];
+                        let htmlVariant = '';
+                        variants.forEach(variant => {
+                            htmlVariant += `
+                                <div class="col-3" onclick="addProductAddonEdit(${variant.id})">
+                                    <div class="card border border-secondary">
+                                        <div class="card-body">
+                                            <div class="fw-semibold">${variant.name}</div>
+                                            <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+
+                        html += `
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center fw-bold mb-2">
+                                      <span>${g.name}</span>
+                                      <span class="badge bg-secondary">${variants.length}</span>
+                                    </div>
+                                    <div class="row">
+                                        ${htmlVariant}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
                     });
 
                     document.getElementById('addon-edit-list').innerHTML = html;
-                    document.getElementById('addon-edit-variant').innerHTML = '<option value="">-- Choose Variant --</option>';
                     $('#addonEditModal').modal('show');
                 }
             });
         }
 
-        function changeAddonEditList(id)
-        {
-            $.ajax({
-                url: '{{ route('pos.addon.find') }}',
-                method: 'GET',
-                data: {
-                    id: id
-                },
-                success: (res) => {
-                    const data = res.data;
-                    let html = '<option value="">-- Choose Variant --</option>';
-
-                    data.forEach((item) => {
-                        html += `<option value="${item.id}">${item.name} | Rp ${rupiah(item.price)}</option>`;
-                    });
-
-                    document.getElementById('addon-edit-variant').innerHTML = html;
-                }
-            });
-        }
-
-        function addProductAddonEdit()
-        {
-            const addonVariantId = document.getElementById('addon-edit-variant').value;
+        function addProductAddonEdit(addonVariantId) {
             if (addonVariantId === '') {
                 Swal.fire({
                     title: 'Warning!',
@@ -1280,8 +1350,7 @@
             });
         }
 
-        function changeQtyAddonEdit(index, type)
-        {
+        function changeQtyAddonEdit(index, type) {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             const find = addon[index];
 
@@ -1299,32 +1368,14 @@
             viewAddonEdit();
         }
 
-        function deleteAddonEdit(index)
-        {
+        function deleteAddonEdit(index) {
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             addon.splice(index, 1);
             localStorage.setItem('addon', JSON.stringify(addon));
             viewAddonEdit();
         }
 
-        function changeVariantEdit(index, value)
-        {
-            const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
-            const find = variant[index];
-
-            (find.option).forEach((option) => {
-                if (parseInt(option.id) === parseInt(value)) {
-                    option.select = 1;
-                } else {
-                    option.select = 0;
-                }
-            });
-
-            localStorage.setItem('variant', JSON.stringify(variant));
-        }
-
-        function editProduct()
-        {
+        function editProduct() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
@@ -1376,38 +1427,83 @@
             viewChartList();
         }
 
-        function changeDiscountProduct(value)
-        {
-            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
+        function changeDiscountProduct(value) {
+            let discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
 
             discountProduct.forEach((item) => {
                 if (parseInt(item.id) === parseInt(value)) {
-                    item.select = 1;
-                } else {
-                    item.select = 0;
+                    if (typeof item.select === 'undefined') {
+                        item.select = 0;
+                    }
+
+                    item.select = item.select === 1 ? 0 : 1;
                 }
             });
 
             localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
+            viewDiscountProduct();
         }
 
-        function changeDiscountProductEdit(value)
-        {
+        function viewDiscountProduct() {
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
+
+            let htmlDiscount = '';
+            discountProduct.forEach((item) => {
+                const labelVal = item.type === 'nominal' ? 'Rp ' + rupiah(item.value) : (item.value + '%');
+                htmlDiscount += `
+                    <div class="col-3">
+                        <a onclick="changeDiscountProduct(${item.id})">
+                            <div class="card p-3 ${item.select === 1 ? 'card-discount' : ''}">
+                                <div>${item.code}</div>
+                                <div class="fw-bold">${item.name}</div>
+                                <div class="fw-bold">${labelVal}</div>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            document.getElementById('discountProduct').innerHTML = htmlDiscount;
+        }
+
+        function changeDiscountProductEdit(value) {
             const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
 
             discountProduct.forEach((item) => {
                 if (parseInt(item.id) === parseInt(value)) {
-                    item.select = 1;
-                } else {
-                    item.select = 0;
+                    if (typeof item.select === 'undefined') {
+                        item.select = 0;
+                    }
+
+                    item.select = item.select === 1 ? 0 : 1;
                 }
             });
 
             localStorage.setItem('discountProduct', JSON.stringify(discountProduct));
+            viewDiscountProductEdit();
         }
 
-        function calculatePrice()
-        {
+        function viewDiscountProductEdit() {
+            const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
+
+            let htmlDiscount = '';
+            discountProduct.forEach((item) => {
+                const labelVal = item.type === 'nominal' ? 'Rp ' + rupiah(item.value) : (item.value + '%');
+                htmlDiscount += `
+                    <div class="col-3">
+                        <a onclick="changeDiscountProductEdit(${item.id})">
+                            <div class="card p-3 ${item.select === 1 ? 'card-discount' : ''}">
+                                <div>${item.code}</div>
+                                <div class="fw-bold">${item.name}</div>
+                                <div class="fw-bold">${labelVal}</div>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            document.getElementById('discountProductEdit').innerHTML = htmlDiscount;
+        }
+
+        function calculatePrice() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
             const discountTransaction = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
 
@@ -1463,28 +1559,24 @@
             document.getElementById('jumlahCart').innerText = items;
         }
 
-        function addNote()
-        {
+        function addNote() {
             document.getElementById('note').value = JSON.parse(localStorage.getItem('note')) ?? '';
 
             $('#noteModal').modal('show');
         }
 
-        function saveNote()
-        {
+        function saveNote() {
             const note = document.getElementById('note').value;
             localStorage.setItem('note', JSON.stringify(note));
             $('#noteModal').modal('hide');
         }
 
-        function splitPayment()
-        {
+        function splitPayment() {
             viewSplitPayment();
             $('#splitPaymentModal').modal('show');
         }
 
-        function viewSplitPayment()
-        {
+        function viewSplitPayment() {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             let html = '';
 
@@ -1514,16 +1606,14 @@
             document.getElementById('listSplitPayment').innerHTML = html;
         }
 
-        function deleteSplitPayment(index)
-        {
+        function deleteSplitPayment(index) {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             splitPayment.splice(index, 1);
             localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
             viewSplitPayment();
         }
 
-        function changeSplitPayment(index, type, value)
-        {
+        function changeSplitPayment(index, type, value) {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             const find = splitPayment[index];
 
@@ -1536,8 +1626,7 @@
             localStorage.setItem('splitPayment', JSON.stringify(splitPayment));
         }
 
-        function addSplitPayment()
-        {
+        function addSplitPayment() {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
 
             splitPayment.push({
@@ -1549,13 +1638,11 @@
             viewSplitPayment();
         }
 
-        function splitPaymentProcess()
-        {
+        function splitPaymentProcess() {
             $('#splitPaymentModal').modal('hide');
         }
 
-        function resetTransaction()
-        {
+        function resetTransaction() {
             Swal.fire({
                 title: "Are you sure?",
                 text: "Reset Transaction",
@@ -1575,13 +1662,11 @@
             });
         }
 
-        function delivery()
-        {
+        function delivery() {
             $('#deliveryModal').modal('show');
         }
 
-        function payment()
-        {
+        function payment() {
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? '';
 
@@ -1616,14 +1701,12 @@
             $('#paymentModal').modal('show');
         }
 
-        function changePaymentMethod(value)
-        {
+        function changePaymentMethod(value) {
             localStorage.setItem('paymentMethod', JSON.stringify(value));
             $('#paymentModal').modal('hide');
         }
 
-        function discountTransaction()
-        {
+        function discountTransaction() {
             $.ajax({
                 url: '{{ route('discount.find.transaction') }}',
                 method: 'GET',
@@ -1645,8 +1728,7 @@
             });
         }
 
-        function viewDiscountTransaction()
-        {
+        function viewDiscountTransaction() {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
             let html = '<option>-- Choose Discount Transaction --</option>';
 
@@ -1656,8 +1738,7 @@
             document.getElementById('discountTransaction').innerHTML = html;
         }
 
-        function changeDiscountTransaction(value)
-        {
+        function changeDiscountTransaction(value) {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
             discount.forEach((item) => {
                 if (parseInt(value) === parseInt(item.id)) {
@@ -1670,8 +1751,7 @@
             calculatePrice();
         }
 
-        function paymentProcess()
-        {
+        function paymentProcess() {
             Swal.fire({
                 title: "Are you sure?",
                 text: "Process this order",
@@ -1922,8 +2002,7 @@
             });
         }
 
-        function viewQrisModal()
-        {
+        function viewQrisModal() {
             const midtrans = JSON.parse(localStorage.getItem('midtrans')) ?? [];
 
             const qrString = midtrans.qr_string ?? null;
@@ -1949,8 +2028,7 @@
             }
         }
 
-        function saveTransactionData()
-        {
+        function saveTransactionData() {
             $.ajax({
                 url: '{{ route('transaction.data.store') }}',
                 method: 'POST',
@@ -1968,8 +2046,7 @@
             });
         }
 
-        function debitPaymentNumber()
-        {
+        function debitPaymentNumber() {
             $('#paymentDebitModal').modal('show');
         }
 

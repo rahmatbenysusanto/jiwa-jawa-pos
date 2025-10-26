@@ -31,6 +31,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <script src="{{ asset('assets/js/theme-script.js') }}"></script>
 
+    @yield('css')
+
 </head>
 
 <body>

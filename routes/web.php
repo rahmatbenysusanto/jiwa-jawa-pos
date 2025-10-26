@@ -85,6 +85,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     Route::prefix('/outlet')->controller(OutletController::class)->group(function () {
         Route::get('/', 'index')->name('outlet.index');
         Route::post('/', 'store')->name('outlet.store');
+
+        // JSON
+        Route::get('/show', 'show')->name('outlet.show');
     });
 
     Route::prefix('/user')->controller(UserController::class)->group(function () {
@@ -106,6 +109,8 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/addon/variant', 'findAddonVariant')->name('pos.addon.variant');
         Route::get('/payment-method', 'paymentMethod')->name('pos.payment.method');
         Route::post('/change-payment-method', 'changePaymentMethod')->name('pos.payment.method.change');
+
+        Route::get('/addon-all', 'listAddon')->name('pos.addon.all');
     });
 
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {

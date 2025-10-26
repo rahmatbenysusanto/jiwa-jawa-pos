@@ -41449,9 +41449,9 @@ th.fixed-width {
   color: #0E9384;
   font-weight: 700;
 }
-.pos-products .product-info:hover, .pos-products .product-info.active {
-  border-color: #3EB780;
-}
+/*.pos-products .product-info:hover, .pos-products .product-info.active {*/
+/*  border-color: #3EB780;*/
+/*}*/
 .pos-products .product-info:hover .pro-img img, .pos-products .product-info.active .pro-img img {
   transform: scale(1.2);
 }

@@ -52,15 +52,49 @@
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a class="btn btn-info btn-sm">Detail</a>
-                                            <a class="btn btn-secondary btn-sm">Edit</a>
-                                            <a class="btn btn-danger btn-sm">Delete</a>
+                                            <a class="btn btn-info btn-sm" onclick="detailOutlet('{{ $item->id }}')">Detail</a>
+                                            <a class="btn btn-secondary btn-sm" onclick="editOutlet('{{ $item->id }}')">Edit</a>
+                                            <a class="btn btn-danger btn-sm" onclick="deleteOutlet('{{ $item->id }}')">Delete</a>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        @if ($outlets->hasPages())
+                            <ul class="pagination">
+                                @if ($outlets->onFirstPage())
+                                    <li class="disabled"><span>&laquo; Previous</span></li>
+                                @else
+                                    <li><a href="{{ $outlets->previousPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="prev">&laquo; Previous</a></li>
+                                @endif
+
+                                @foreach ($outlets->links()->elements as $element)
+                                    @if (is_string($element))
+                                        <li class="disabled"><span>{{ $element }}</span></li>
+                                    @endif
+
+                                    @if (is_array($element))
+                                        @foreach ($element as $page => $url)
+                                            @if ($page == $outlets->currentPage())
+                                                <li class="active"><span>{{ $page }}</span></li>
+                                            @else
+                                                <li><a href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a></li>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                @endforeach
+
+                                @if ($outlets->hasMorePages())
+                                    <li><a href="{{ $outlets->nextPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="next">Next &raquo;</a></li>
+                                @else
+                                    <li class="disabled"><span>Next &raquo;</span></li>
+                                @endif
+                            </ul>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -100,4 +134,53 @@
             </div>
         </div>
     </div>
+
+    <div id="detailOutletModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="standard-modalLabel">Detail Outlet</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <td class="fw-bold">Name</td>
+                            <td class="fw-bold ps-2">:</td>
+                            <td class="ps-1" id="outletName"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('js')
+    <script>
+        function detailOutlet(id) {
+            $.ajax({
+                url: '{{ route('outlet.show') }}',
+                method: 'GET',
+                data: {
+                    id: id
+                },
+                success: (res) => {
+                    const outlet = res.data;
+
+                    document.getElementById('outletName').innerText = outlet.name;
+
+                    $('#detailOutletModal').modal('show');
+                }
+            });
+        }
+
+        function editOutlet(id) {
+
+        }
+
+        function deleteOutlet(id) {
+
+        }
+    </script>
 @endsection

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\TransactionDetail;
+use App\Models\TransactionDiscount;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -78,8 +80,15 @@ class ReportController extends Controller
 
     public function discount(): View
     {
+        $discount = TransactionDiscount::with('transaction', 'transactionDetail', 'transactionDetail.menu', 'discount')
+            ->whereHas('transaction', function ($query) {
+                return $query->where('outlet_id', Auth::user()->outlet_id);
+            })
+            ->latest()
+            ->paginate(10);
+
         $title = 'Discount Report';
-        return view('report.discount', compact('title'));
+        return view('report.discount', compact('title', 'discount'));
     }
 
     public function storePerformance(): View

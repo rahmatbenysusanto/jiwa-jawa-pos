@@ -26,4 +26,13 @@ class OutletController extends Controller
 
         return back()->with('success', 'Outlet created successfully');
     }
+
+    public function show(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $outlet = Outlet::find($request->query('id'));
+
+        return response()->json([
+            'data' => $outlet,
+        ]);
+    }
 }

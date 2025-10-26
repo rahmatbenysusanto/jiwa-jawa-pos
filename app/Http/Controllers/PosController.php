@@ -46,10 +46,10 @@ class PosController extends Controller
 
         foreach ($categories as $category) {
             $category->idName = 'category_' . $category->id;
-            $category->menu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->where('category_id', $category->id)->get();
+            $category->menu = Menu::with('category:id,name')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->where('category_id', $category->id)->get();
         }
 
-        $allMenu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $allMenu = Menu::with('category:id,name')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
 
         return response()->json([
             'all'       => $allMenu,
@@ -84,6 +84,18 @@ class PosController extends Controller
     public function findAddon(Request $request): \Illuminate\Http\JsonResponse
     {
         $addon = AddonVariant::where('addon_id', $request->get('id'))->get();
+
+        return response()->json([
+            'data'  => $addon
+        ]);
+    }
+
+    public function listAddon(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $addon = Addon::with('addonVariant')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->whereNull('deleted_at')
+            ->get();
 
         return response()->json([
             'data'  => $addon
