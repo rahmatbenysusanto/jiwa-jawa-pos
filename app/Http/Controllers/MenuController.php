@@ -419,7 +419,7 @@ class MenuController extends Controller
 
             // Variant
             foreach ($variant as $item) {
-                foreach ($item['material'] as $material) {
+                foreach ($item['material'] ?? [] as $material) {
                     MenuRecipeMaterial::create([
                         'variant_id'    => $item['optionId'],
                         'material_id'   => $material['id'],
@@ -436,6 +436,7 @@ class MenuController extends Controller
         } catch (\Exception $err) {
             DB::rollBack();
             Log::error($err->getMessage());
+            Log::error($err->getLine());
             return response()->json([
                 'status' => false,
             ]);

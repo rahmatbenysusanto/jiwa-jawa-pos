@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Events\TransactionEvent;
 use App\Models\Addon;
 use App\Models\AddonVariant;
+use App\Models\Inventory;
+use App\Models\Material;
 use App\Models\Menu;
 use App\Models\MenuCategory;
+use App\Models\MenuRecipeMaterial;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
 use App\Models\TransactionPayment;
@@ -14,6 +17,7 @@ use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -46,15 +50,40 @@ class PosController extends Controller
 
         foreach ($categories as $category) {
             $category->idName = 'category_' . $category->id;
-            $category->menu = Menu::with('category:id,name')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->where('category_id', $category->id)->get();
+
+            $menu = Menu::with('category:id,name')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->where('category_id', $category->id)->get();
+            foreach ($menu as $m) {
+                $m->stock = $this->calculateStock($m->id);
+            }
+
+            $category->menu = $menu;
         }
 
         $allMenu = Menu::with('category:id,name')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        foreach ($allMenu as $menu) {
+            $menu->stock = $this->calculateStock($menu->id);
+        }
 
         return response()->json([
             'all'       => $allMenu,
             'category'  =>  $categories
         ]);
+    }
+
+    private function calculateStock($menuId): int
+    {
+        $menuRecipeMaterial = MenuRecipeMaterial::where('menu_id', $menuId)->get();
+        $dataStock = [];
+
+        foreach ($menuRecipeMaterial as $recipe) {
+            $material = Material::find($recipe->material_id);
+            $inventory = Inventory::where('material_id', $recipe->material_id)->where('outlet_id', Auth::user()->outlet_id)->first();
+
+            $stockInventory = $inventory->stock * (int)$material->conversion_value;
+            $dataStock[] = $stockInventory / $recipe->qty;
+        }
+
+        return !empty($dataStock) ? min($dataStock) : 0;
     }
 
     public function findProduct(Request $request): \Illuminate\Http\JsonResponse

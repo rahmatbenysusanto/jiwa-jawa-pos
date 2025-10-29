@@ -658,7 +658,7 @@
                                     <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                                     <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
                                     <div class="d-flex align-items-center justify-content-between price">
-                                        <span>30 Pcs</span>
+                                        <span>${product.stock} Pcs</span>
                                         <p>Rp ${rupiah(product.price)}</p>
                                     </div>
                                 </div>
@@ -688,7 +688,7 @@
                                         <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                                         <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
                                         <div class="d-flex align-items-center justify-content-between price">
-                                            <span>30 Pcs</span>
+                                            <span>${product.stock} Pcs</span>
                                             <p>Rp ${rupiah(product.price)}</p>
                                         </div>
                                     </div>
