@@ -418,16 +418,17 @@
     </div>
 
     <div id="paymentModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="standard-modalLabel">Payment</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-control" id="paymentMethod" onchange="changePaymentMethod(this.value)">
+                    <div class="row" id="paymentMethod"></div>
+{{--                    <select class="form-control" id="paymentMethod" onchange="changePaymentMethod(this.value)">--}}
 
-                    </select>
+{{--                    </select>--}}
                 </div>
             </div>
         </div>
@@ -1731,22 +1732,31 @@
             const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
             const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? '';
 
-            console.info(splitPayment);
             if (splitPayment.length === 0) {
-                $.ajax({
-                    url: '{{ route('pos.payment.method') }}',
-                    method: 'GET',
-                    success: (res) => {
-                        const data = res.data;
-                        let html = '<option>-- Choose Payment --</option>';
+                const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
+                if (paymentMethod.length === 0) {
+                    $.ajax({
+                        url: '{{ route('pos.payment.method') }}',
+                        method: 'GET',
+                        success: (res) => {
+                            const data = res.data;
+                            const paymentMethod = [];
 
-                        data.forEach((item) => {
-                            html += `<option value="${item.name}" ${paymentMethod === item.name ? 'selected' : ''}>${item.name}</option>`;
-                        });
+                            data.forEach((item) => {
+                                paymentMethod.push({
+                                    id: item.id,
+                                    name: item.name,
+                                    select: 0
+                                });
+                            });
 
-                        document.getElementById('paymentMethod').innerHTML = html;
-                    }
-                });
+                            localStorage.setItem('paymentMethod', JSON.stringify(paymentMethod));
+                            viewPaymentMethod();
+                        }
+                    });
+                } else {
+                    viewPaymentMethod();
+                }
             } else {
                 const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
 
@@ -1762,8 +1772,39 @@
             $('#paymentModal').modal('show');
         }
 
-        function changePaymentMethod(value) {
-            localStorage.setItem('paymentMethod', JSON.stringify(value));
+        function viewPaymentMethod() {
+            const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
+            let html = '';
+
+            paymentMethod.forEach((item) => {
+                html += `
+                    <div class="col-3">
+                        <a onclick="changePaymentMethod(${item.id})">
+                            <div class="card p-2 ${item.select === 1 ? 'card-discount' : ''}">
+                                <span class="fw-bold text-center">${item.name}</span>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+
+            document.getElementById('paymentMethod').innerHTML = html;
+        }
+
+        function changePaymentMethod(id) {
+            const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
+
+            paymentMethod.forEach((item) => {
+                if (parseInt(item.id) === parseInt(id)) {
+                    item.select = 1;
+                } else {
+                    item.select = 0;
+                }
+            });
+
+            localStorage.setItem('paymentMethod', JSON.stringify(paymentMethod));
+            viewPaymentMethod();
+
             $('#paymentModal').modal('hide');
         }
 
@@ -1851,7 +1892,13 @@
                         return true;
                     }
 
-                    const paymentMethod = JSON.parse(localStorage.getItem('paymentMethod')) ?? ''
+                    const paymentMethodData = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
+                    let paymentMethod = '';
+                    paymentMethodData.forEach((item) => {
+                        if (parseInt(item.select) === 1) {
+                            paymentMethod = item.name;
+                        }
+                    });
                     if (paymentMethod === '') {
                         Swal.fire({
                             title: 'Warning!',
@@ -1880,6 +1927,14 @@
                         }
                     }
 
+                    let delivery = '';
+                    const dataDelivery = JSON.parse(localStorage.getItem('delivery')) ?? [];
+                    dataDelivery.forEach((item) => {
+                        if (parseInt(item.select) === 1) {
+                            delivery = item.name;
+                        }
+                    });
+
                     saveTransactionData();
 
                     $.ajax({
@@ -1893,7 +1948,7 @@
                             paymentMethod: paymentMethod,
                             splitPayment: splitPayment,
                             invoice: '{{ $invoiceNumber }}',
-                            delivery: document.getElementById('delivery').value,
+                            delivery: delivery,
                             subTotal: JSON.parse(localStorage.getItem('subTotal')) ?? 0,
                             totalTax: JSON.parse(localStorage.getItem('totalTax')) ?? 0,
                             discount: JSON.parse(localStorage.getItem('discount')) ?? 0,
