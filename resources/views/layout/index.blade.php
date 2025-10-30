@@ -221,11 +221,16 @@
                                             <span>Discount</span>
                                         </a>
                                     </li>
-                                    <li class="{{ $title == 'Recipe' ? 'active' : '' }}">
-                                        <a href="{{ route('menu.recipe') }}">
+                                    <li class="submenu">
+                                        <a href="javascript:void(0);" class="{{ in_array($title, ['Recipe Menu', 'Recipe Addon']) ? 'active subdrop' : '' }}">
                                             <i class="ti ti-book-2 fs-16 me-2"></i>
                                             <span>Recipe</span>
+                                            <span class="menu-arrow"></span>
                                         </a>
+                                        <ul style="display: none;">
+                                            <li><a href="{{ route('menu.recipe.menu') }}" class="{{ $title == 'Recipe Menu' ? 'active' : '' }}">Menu</a></li>
+                                            <li><a href="{{ route('menu.recipe.addon') }}" class="{{ $title == 'Recipe Addon' ? 'active' : '' }}">Addon</a></li>
+                                        </ul>
                                     </li>
                                 </ul>
                             </li>

@@ -364,7 +364,7 @@ class MenuController extends Controller
         $addon = Addon::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
         $material = Material::with('baseUnit')->where('outlet_id', Auth::user()->outlet_id)->get();
 
-        $title = 'Recipe';
+        $title = 'Recipe Addon';
         return view('menu.recipe.create-addon', compact('title', 'addon', 'material'));
     }
 
@@ -394,7 +394,7 @@ class MenuController extends Controller
             ->whereNull('deleted_at')
             ->get();
 
-        $title = 'Recipe';
+        $title = 'Recipe Menu';
         return view('menu.recipe.create-menu', compact('title', 'menu', 'material'));
     }
 
@@ -441,6 +441,43 @@ class MenuController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+    public function recipeMenu(): View
+    {
+        $recipeMenu = DB::table('menu_recipe_material')
+            ->leftJoin('menu', 'menu_recipe_material.menu_id', '=', 'menu.id')
+            ->whereNotNull('menu_recipe_material.menu_id')
+            ->where('menu.outlet_id', Auth::user()->outlet_id)
+            ->select([
+                'menu_recipe_material.menu_id',
+            ])
+            ->groupBy('menu_recipe_material.menu_id')
+            ->paginate(10);
+
+        foreach ($recipeMenu as $recipe) {
+            $recipe->menu = Menu::with('category')->where('id', $recipe->menu_id)->first();
+            $recipe->total = MenuRecipeMaterial::where('menu_id', $recipe->menu_id)->count();
+        }
+
+        $title = 'Recipe Menu';
+        return view('menu.recipe.menu', compact('title', 'recipeMenu'));
+    }
+
+    public function recipeAddon(): View
+    {
+        $addon = MenuRecipeMaterial::whereNotNull('addon_id')
+            ->select('addon_id')
+            ->groupBy('addon_id')
+            ->paginate(10);
+
+        foreach ($addon as $item) {
+            $item->addon = AddonVariant::with('addon')->where('id', $item->addon_id)->first();
+            $item->total = MenuRecipeMaterial::where('addon_id', $item->addon_id)->count();
+        }
+
+        $title = 'Recipe Addon';
+        return view('menu.recipe.addon', compact('title', 'addon'));
     }
 
     // JSON Response

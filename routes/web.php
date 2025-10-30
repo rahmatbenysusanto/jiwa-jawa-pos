@@ -52,6 +52,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
             Route::get('/create-menu', 'recipeMenuCreate')->name('menu.create.recipe.menu');
             Route::post('/', 'recipeStore')->name('menu.recipe.store');
             Route::post('/store', 'recipeMenuStore')->name('menu.recipe.menu.store');
+
+            Route::get('/menu', 'recipeMenu')->name('menu.recipe.menu');
+            Route::get('/addon', 'recipeAddon')->name('menu.recipe.addon');
         });
 
         Route::get('/list', 'list')->name('menu.list');
@@ -85,6 +88,14 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     Route::prefix('/outlet')->controller(OutletController::class)->group(function () {
         Route::get('/', 'index')->name('outlet.index');
         Route::post('/', 'store')->name('outlet.store');
+
+        Route::prefix('/slider')->group(function () {
+            Route::get('/', 'slider')->name('outlet.slider');
+            Route::post('/', 'storeSlider')->name('outlet.slider.store');
+            Route::get('/delete', 'deleteSlider')->name('outlet.delete.slider');
+        });
+
+        Route::post('/wifi', 'wifi')->name('outlet.wifi');
 
         // JSON
         Route::get('/show', 'show')->name('outlet.show');
