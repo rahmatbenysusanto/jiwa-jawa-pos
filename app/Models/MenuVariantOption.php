@@ -13,4 +13,9 @@ class MenuVariantOption extends Model
         'price_delta',
         'is_default'
     ];
+
+    public function variant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(MenuVariant::class, 'menu_variant_id');
+    }
 }

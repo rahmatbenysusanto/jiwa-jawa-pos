@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\TransactionEvent;
+use App\Models\Inventory;
+use App\Models\MaterialUsage;
+use App\Models\MenuRecipeMaterial;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
 use App\Models\TransactionData;
@@ -46,6 +49,8 @@ class TransactionController extends Controller
             })
             ->latest()
             ->paginate(10);
+
+        $this->calculateMaterialUsage(27);
 
         $title = 'Transaction';
         return view('transaction.index', compact('title', 'transaction'));
@@ -161,6 +166,8 @@ class TransactionController extends Controller
                 ]);
             }
 
+            $this->calculateMaterialUsage($transaction->id);
+
             DB::commit();
             return response()->json([
                 'status' => true,
@@ -173,6 +180,77 @@ class TransactionController extends Controller
             return response()->json([
                 'status' => false,
             ]);
+        }
+    }
+
+    private function calculateMaterialUsage($transactionId): void
+    {
+        // Base Menu
+        $transactionDetail = TransactionDetail::where('transaction_id', $transactionId)->get();
+        foreach ($transactionDetail as $detail) {
+            $recipe = MenuRecipeMaterial::where('menu_id', $detail->menu_id)->get();
+            foreach ($recipe as $item) {
+                MaterialUsage::create([
+                    'outlet_id'             => Auth::user()->outlet_id,
+                    'menu_id'               => $detail->menu_id,
+                    'material_id'           => $item->material_id,
+                    'transaction_id'        => $transactionId,
+                    'transaction_detail_id' => $detail->id,
+                    'qty'                   => $detail->qty * $item->qty,
+                    'type'                  => 'transaction',
+                    'note'                  => 'Material Usage Transaction base menu',
+                ]);
+
+                Inventory::where('outlet_id', Auth::user()->outlet_id)
+                    ->where('material_id', $item->material_id)
+                    ->decrement('stock', $detail->qty * $item->qty);
+            }
+
+            // Variant
+            $transactionDetailVariant = TransactionDetailVariant::where('transaction_detail_id', $detail->id)->get();
+            foreach ($transactionDetailVariant ?? [] as $variant) {
+                $recipe = MenuRecipeMaterial::where('variant_id', $variant->menu_variant_option_id)->get();
+                foreach ($recipe as $item) {
+                    MaterialUsage::create([
+                        'outlet_id'             => Auth::user()->outlet_id,
+                        'menu_id'               => $detail->menu_id,
+                        'material_id'           => $item->material_id,
+                        'transaction_id'        => $transactionId,
+                        'transaction_detail_id' => $detail->id,
+                        'variant_detail_id'     => $variant->menu_variant_option_id,
+                        'qty'                   => $detail->qty * $item->qty,
+                        'type'                  => 'transaction',
+                        'note'                  => 'Material Usage Transaction variant menu',
+                    ]);
+
+                    Inventory::where('outlet_id', Auth::user()->outlet_id)
+                        ->where('material_id', $item->material_id)
+                        ->decrement('stock', $detail->qty * $item->qty);
+                }
+            }
+
+            // Addon
+            $transactionDetailAddon = TransactionDetailVariantAddon::where('transaction_detail_id', $detail->id)->get();
+            foreach ($transactionDetailAddon ?? [] as $addon) {
+                $recipe = MenuRecipeMaterial::where('addon_id', $addon->addon_variant_id)->get();
+                foreach ($recipe as $item) {
+                    MaterialUsage::create([
+                        'outlet_id'             => Auth::user()->outlet_id,
+                        'menu_id'               => $detail->menu_id,
+                        'material_id'           => $item->material_id,
+                        'transaction_id'        => $transactionId,
+                        'transaction_detail_id' => $detail->id,
+                        'addon_detail_id'       => $addon->addon_variant_id,
+                        'qty'                   => $detail->qty * $item->qty,
+                        'type'                  => 'transaction',
+                        'note'                  => 'Material Usage Transaction Addon',
+                    ]);
+
+                    Inventory::where('outlet_id', Auth::user()->outlet_id)
+                        ->where('material_id', $item->material_id)
+                        ->decrement('stock', $detail->qty * $item->qty);
+                }
+            }
         }
     }
 

@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/all.min.css') }}">
     <style>
         :root{ --brand:#7F56D8; --brand-50:#efe9fb; --ink:#0f172a; --muted:#64748b; --bg:#f8fafc; }
         body{background:var(--bg); color:var(--ink)}
@@ -38,6 +40,41 @@
 
         /* Empty state keranjang */
         .empty-cart img{ width:130px; opacity:.9 }
+
+        #promoSwiper, #promoSwiper .swiper-wrapper, #promoSwiper .swiper-slide {
+            width: 100%;
+            height: 100%;
+            border-radius: 1rem;          /* opsional */
+        }
+
+        /* Slide dengan latar adaptif berbasis gambar */
+        .promo-slide{
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Layer blur dari gambar yang sama untuk nutup sisi-sisi */
+        .promo-slide::before{
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: var(--bg);  /* diisi inline style pada elemen slide */
+            background-size: cover;
+            background-position: center;
+            filter: blur(24px) saturate(1.1) brightness(0.9);
+            transform: scale(1.1);        /* agar blur menutup tanpa pinggiran */
+        }
+
+        /* Gambar utama selalu utuh */
+        .slide-img{
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
 
         @media (max-width: 991.98px){ .min-h-100{ min-height:auto; } }
     </style>
@@ -93,10 +130,16 @@
                                     <tr class="border-top"><td class="fw-bold">Grand Total</td><td class="text-end price-lg" id="grandTotal">Rp 0</td></tr>
                                 </table>
                             </div>
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('logout') }}" class="btn btn-sm btn-danger"><i data-feather="log-out" class="me-1"></i> Exit</a>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFullscreen"><i data-feather="maximize"></i></button>
-                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('logout') }}" class="btn btn-sm btn-danger">
+                                <i class="fa fa-arrow-left"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnFullscreen">
+                                <i class="fa fa-display"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -112,10 +155,12 @@
                             <div id="layerPromo" class="display-layer">
                                 <div class="swiper" id="promoSwiper">
                                     <div class="swiper-wrapper">
-                                        <!-- GANTI POSTER PROMO DI SINI (gambar saja) -->
-                                        <div class="swiper-slide"><img class="slide-img" src="https://images.unsplash.com/photo-1498804103079-a6351b050096?q=80&w=1600&auto=format&fit=crop" alt="Promo"></div>
-                                        <div class="swiper-slide"><img class="slide-img" src="https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1600&auto=format&fit=crop" alt="Promo"></div>
-                                        <div class="swiper-slide"><img class="slide-img" src="https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=1600&auto=format&fit=crop" alt="Promo"></div>
+                                        @foreach($slider as $item)
+                                            @php $src = asset('images/slider/'.$item->image); @endphp
+                                            <div class="swiper-slide promo-slide" style="--bg: url('{{ $src }}')">
+                                                <img class="slide-img" src="{{ $src }}" alt="Promo {{ $loop->iteration }}">
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>

@@ -76,10 +76,9 @@ class PosController extends Controller
         $dataStock = [];
 
         foreach ($menuRecipeMaterial as $recipe) {
-            $material = Material::find($recipe->material_id);
             $inventory = Inventory::where('material_id', $recipe->material_id)->where('outlet_id', Auth::user()->outlet_id)->first();
 
-            $stockInventory = $inventory->stock * (int)$material->conversion_value;
+            $stockInventory = $inventory->stock;
             $dataStock[] = $stockInventory / $recipe->qty;
         }
 

@@ -33,6 +33,7 @@
                                     <th>Name</th>
                                     <th>Category</th>
                                     <th class="text-center">Live Stock</th>
+                                    <th class="text-center">Stock Conversion</th>
                                     <th class="text-center">Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -44,7 +45,8 @@
                                     <td>{{ $item->material->sku }}</td>
                                     <td>{{ $item->material->name }}</td>
                                     <td>{{ $item->material->category->name }}</td>
-                                    <td class="text-center fw-bold">{{ number_format($item->stock, 2) }} {{ $item->material->unit->symbol }}</td>
+                                    <td class="text-center fw-bold">{{ number_format($item->stock / $item->material->conversion_value, 2) }} {{ $item->material->unit->symbol }}</td>
+                                    <td class="text-center fw-bold">{{ number_format($item->stock) }} {{ $item->material->baseUnit->symbol }}</td>
                                     <td class="text-center">
                                         @if($item->stock < $item->material->min_stock)
                                             <span class="badge bg-danger">Stock Minimum</span>

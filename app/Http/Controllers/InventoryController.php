@@ -7,6 +7,7 @@ use App\Models\InventoryDetail;
 use App\Models\Material;
 use App\Models\MaterialCategory;
 use App\Models\MaterialUnit;
+use App\Models\MaterialUsage;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use Illuminate\Http\Request;
@@ -249,15 +250,17 @@ class InventoryController extends Controller
 
                 $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
 
+                $material = Material::find($detail->material_id);
+
                 InventoryDetail::create([
                     'inventory_id'      => $inventory->id,
                     'purchase_order_id' => $detail->id,
                     'material_id'       => $detail->material_id,
-                    'qty'               => $detail->qty,
+                    'qty'               => $detail->qty * $material->conversion_value,
                     'price'             => 0
                 ]);
 
-                Inventory::where('id', $inventory->id)->increment('stock', $detail->qty);
+                Inventory::where('id', $inventory->id)->increment('stock', $detail->qty * $material->conversion_value);
             }
 
             DB::commit();
@@ -290,8 +293,13 @@ class InventoryController extends Controller
 
     public function indexStockConsumption(Request $request): View
     {
+        $materialUsage = MaterialUsage::with('material', 'material.baseUnit', 'transaction', 'menu', 'variantDetail', 'variantDetail.variant', 'addOnDetail', 'addOnDetail.addon')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->latest()
+            ->paginate(10);
+
         $title = 'Stock Consumption';
-        return view('inventory.stockConsumption.index', compact('title'));
+        return view('inventory.stockConsumption.index', compact('title', 'materialUsage'));
     }
 
     public function indexTransferStock(Request $request): View
