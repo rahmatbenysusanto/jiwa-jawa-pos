@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="page-btn">
-            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category">
+            <a href="{{ route('inventory.stock.consumption.create') }}" class="btn btn-primary">
                 <i class="ti ti-circle-plus me-1"></i>
                 Create Stock Consumption
             </a>

@@ -302,6 +302,12 @@ class InventoryController extends Controller
         return view('inventory.stockConsumption.index', compact('title', 'materialUsage'));
     }
 
+    public function createStockConsumption(): View
+    {
+        $title = 'Stock Consumption';
+        return view('inventory.stockConsumption.create', compact('title'));
+    }
+
     public function indexTransferStock(Request $request): View
     {
         $title = 'Transfer Stock';

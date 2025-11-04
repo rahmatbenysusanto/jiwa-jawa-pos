@@ -21,6 +21,7 @@ class Transaction extends Model
         'payment_method_id',
         'payment_status',
         'transaction_type',
+        'transaction_delivery',
         'note',
         'transaction_date',
         'created_by',

@@ -653,7 +653,7 @@
                             <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
                                 <div class="product-info card mb-0">
                                     <a onclick="selectProduct('${product.id}')" class="product-image">
-                                        <img src="{{ asset('assets/img/products/pos-product-02.jpg')}}" alt="Products">
+                                        <img src="images/menu/${product.image}" alt="Products">
                                     </a>
                                     <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                                     <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
@@ -683,7 +683,7 @@
                                 <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
                                     <div class="product-info card mb-0">
                                         <a onclick="selectProduct('${product.id}')" class="product-image">
-                                            <img src="{{ asset('assets/img/products/pos-product-02.jpg')}}" alt="Products">
+                                            <img src="images/menu/${product.image}" alt="Products">
                                         </a>
                                         <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                                         <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
@@ -721,7 +721,7 @@
                     localStorage.setItem('product', JSON.stringify({
                         id: product.id,
                         name: product.name,
-                        price: parseInt(product.price),
+                        price: Number(product.price),
                         sku: product.sku,
                         category: product.category.name,
                         combo: product.is_combo
@@ -737,7 +737,7 @@
                             valueVariant.push({
                                 id: item.id,
                                 name: item.name,
-                                price: parseFloat(item.price_delta || 0),
+                                price: Number(item.price_delta || 0),
                                 select: item.is_default === 1 ? 1 : 0
                             });
                         });
@@ -992,28 +992,28 @@
             variant.forEach((item) => {
                 item.option.forEach((option) => {
                     if (option.select === 1) {
-                        priceDelta += option.price;
+                        priceDelta += Number(option.price);
                     }
                 });
             });
 
             let priceAddon = 0;
             addon.forEach((item) => {
-                priceAddon += item.total;
+                priceAddon += Number(item.total);
             });
 
             let priceDiscount = 0;
             discountProduct.forEach((item) => {
                 if (parseInt(item.select) === 1) {
                     if (item.type === 'nominal') {
-                        priceDiscount = item.value;
+                        priceDiscount = Number(item.value);
                     } else {
-                        priceDiscount = (parseInt(product.price) + priceDelta + priceAddon) * item.value / 100;
+                        priceDiscount = (Number(product.price) + priceDelta + priceAddon) * Number(item.value) / 100;
                     }
                 }
             });
 
-            const totalPrice = parseInt(product.price) + priceDelta + priceAddon - parseInt(priceDiscount);
+            const totalPrice = Number(product.price) + priceDelta + priceAddon - Number(priceDiscount);
 
             cart.push({
                 menuId: product.id,
@@ -1054,7 +1054,7 @@
                     let addonHtml = 'Addon: <br>';
 
                     // Variant
-                    (item.data.variant).forEach((variant) => {
+                    (item.data.variant ?? []).forEach((variant) => {
                         (variant.option).forEach((option) => {
                             if (option.select === 1) {
                                 variantHtml += variant.name + ': ' + option.name + ' - Rp ' + rupiah(option.price) +'<br>';
@@ -1140,11 +1140,11 @@
 
             if (type === 'tambah') {
                 find.qty++
-                find.grandTotal += parseInt(find.totalPrice);
+                find.grandTotal += Number(find.totalPrice);
             } else {
                 if (parseInt(find.qty) !== 1) {
                     find.qty--
-                    find.grandTotal -= parseInt(find.totalPrice);
+                    find.grandTotal -= Number(find.totalPrice);
                 }
             }
 

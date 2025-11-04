@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Models\Outlet;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDiscount;
 use Illuminate\Http\Request;
@@ -93,7 +94,9 @@ class ReportController extends Controller
 
     public function storePerformance(): View
     {
+        $outlet = Outlet::all();
+
         $title = 'Store Performance Report';
-        return view('report.store-performance', compact('title'));
+        return view('report.store-performance', compact('title', 'outlet'));
     }
 }

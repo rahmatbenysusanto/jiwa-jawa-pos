@@ -175,6 +175,8 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         Route::prefix('/stock-consumption')->group(function () {
             Route::get('/', 'indexStockConsumption')->name('inventory.stock.consumption');
+            Route::get('/create', 'createStockConsumption')->name('inventory.stock.consumption.create');
+            Route::post('/', 'storeStockConsumption')->name('inventory.stock.consumption.store');
         });
 
         Route::prefix('/transfer-stock')->group(function () {

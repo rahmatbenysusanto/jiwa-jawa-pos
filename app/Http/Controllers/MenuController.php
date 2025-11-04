@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class MenuController extends Controller
@@ -113,21 +114,21 @@ class MenuController extends Controller
             $menu = Menu::create([
                 'outlet_id'     => Auth::user()->outlet_id,
                 'category_id'   => $request->post('category'),
-                'sku'           => $request->post('sku'),
+                'sku'           => $request->post('sku') ?? 'MN-' . strtoupper(Str::random(6)),
                 'name'          => $request->post('name'),
                 'price'         => $request->post('price'),
                 'description'   => $request->post('description'),
                 'image'         => $request->post('image'),
             ]);
 
-            foreach ($request->post('variants') as $variant) {
+            foreach ($request->post('variants') ?? [] as $variant) {
                 $menuVariant = MenuVariant::create([
                     'menu_id'   => $menu->id,
                     'name'      => $variant['name'],
                     'required'  => $variant['required'] == 'true' ? Auth::user()->outlet_id : 0,
                 ]);
 
-                foreach ($variant['options'] as $option) {
+                foreach ($variant['options'] ?? [] as $option) {
                     MenuVariantOption::create([
                         'menu_variant_id'   => $menuVariant->id,
                         'name'              => $option['name'],
@@ -183,7 +184,7 @@ class MenuController extends Controller
 
             $updatedAt = now();
 
-            foreach ($request->post('variants') as $variant) {
+            foreach ($request->post('variants') ?? [] as $variant) {
                 if (isset($variant['id'])) {
                     // Variant Lama
                     MenuVariant::where('id', $variant['id'])->update([
@@ -204,19 +205,19 @@ class MenuController extends Controller
                     $variantId = $createVariant->id;
                 }
 
-                foreach ($variant['options'] as $option) {
+                foreach ($variant['options'] ?? [] as $option) {
                     if (isset($option['id'])) {
                         MenuVariantOption::where('id', $option['id'])->update([
                             'name'          => $option['name'],
                             'price_delta'   => $option['price'],
-                            'is_default'    => $option['default'],
+                            'is_default'    => $option['default'] == 'true' ? 1 : 0,
                             'updated_at'    => $updatedAt
                         ]);
                     } else {
                         MenuVariantOption::create([
                             'menu_variant_id'   => $variantId,
                             'name'              => $option['name'],
-                            'is_default'        => $option['default'],
+                            'is_default'        => $option['default'] == 'true' ? 1 : 0,
                             'price_delta'       => $option['price'],
                             'created_at'        => $updatedAt,
                             'updated_at'        => $updatedAt

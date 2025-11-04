@@ -106,19 +106,19 @@
                             <tr>
                                 <th>#</th>
                                 <th>Product</th>
-                                <th>QTY</th>
+                                <th class="text-center">QTY</th>
                                 <th>Price</th>
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach(json_decode($transactionData->cart) as $data)
+                        @foreach(json_decode($transactionData->cart) ?? [] as $data)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="fw-bold">{{ $data->name }}</div>
                                     <div>Base Price : Rp {{ number_format($data->basePrice) }}</div>
                                     <div>Variant :</div>
-                                    @foreach($data->data->variant as $variant)
+                                    @foreach($data->data->variant ?? [] as $variant)
                                         <div>{{ $variant->name }} :
                                             @foreach($variant->option as $option)
                                                 {{ $option->select == 1 ? $option->name.' - Rp '.number_format($option->price) : '' }}
@@ -127,16 +127,16 @@
                                     @endforeach
                                     @if(isset($data->data->addon))
                                         <div>Addon : </div>
-                                        @foreach($data->data->addon as $addon)
+                                        @foreach($data->data->addon ?? [] as $addon)
                                             <div>{{ $addon->name }} : 1 : Rp {{ number_format($addon->total) }}</div>
                                         @endforeach
                                     @endif
                                     <div>Discount : </div>
                                     @foreach($data->data->discountProduct ?? [] as $discount)
-                                        <div class="text-danger">{{ $discount->select == 1 ? $discount->name.' - Rp '.number_format($data->priceDiscount) : '' }}</div>
+                                        <div class="text-danger">{{ $discount->select ?? 0 == 1 ? $discount->name.' - Rp '.number_format($data->priceDiscount) : '' }}</div>
                                     @endforeach
                                 </td>
-                                <td class="fw-bold">{{ $data->qty }}</td>
+                                <td class="text-center fw-bold">{{ $data->qty }}</td>
                                 <td>
                                     Rp {{ number_format($data->grandTotal) }}
                                 </td>

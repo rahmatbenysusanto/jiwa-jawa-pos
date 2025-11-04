@@ -25,7 +25,7 @@
                                     <th>Invoice Number</th>
                                     <th>Menu</th>
                                     <th>Discount Name</th>
-                                    <th>Discount Type</th>
+                                    <th class="text-center">Discount Type</th>
                                     <th>Discount Total</th>
                                     <th>Transaction Date</th>
                                     <th>Action</th>
@@ -38,18 +38,18 @@
                                     <td>{{ $item->transaction->invoice_number }}</td>
                                     <td>{{ $item->transaction_detail_id != null ? $item->transactionDetail->menu->name : '' }}</td>
                                     <td>{{ $item->discount->name }}</td>
-                                    <td>
+                                    <td class="text-center">
                                         @if($item->discount->scope == 'product')
-                                            Product
+                                            <span class="badge bg-success">Product</span>
                                         @else
-                                            Transaction
+                                            <span class="badge bg-info">Transaction</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($item->discount->type == 'nominal')
-                                            Rp {{ number_format($item->price) }}
+                                            <b>Rp {{ number_format($item->price) }}</b>
                                         @else
-                                            {{ number_format($item->price) }}% | Rp {{ $item->transaction_detail_id == null ? number_format($item->transaction->discount) : number_format($item->transactionDetail->discount) }}
+                                            {{ number_format($item->price) }}% | <b>Rp {{ $item->transaction_detail_id == null ? number_format($item->transaction->discount) : number_format($item->transactionDetail->discount) }}</b>
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->translatedFormat('d F Y H:i') }}</td>

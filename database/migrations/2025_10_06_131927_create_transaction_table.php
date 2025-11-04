@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('tax', 12, 2);
             $table->decimal('total', 12, 2);
             $table->enum('transaction_status', ['normal', 'canceled'])->default('normal');
+            $table->enum('transaction_delivery', ['dine in', 'takeaway', 'delivery'])->default('dine in');
             $table->integer('payment_method_id');
             $table->enum('payment_status', ['pending', 'paid', 'refunded'])->default('pending');
             $table->enum('transaction_type', ['sales', 'return', 'void'])->default('sales');
