@@ -20,7 +20,21 @@
         <div class="col-6">
             <div class="card">
                 <div class="card-header">
-
+                    <form action="{{ url()->current() }}" method="GET">
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" class="form-control" name="name" value="{{ request()->get('name', null) }}" placeholder="Category Name ...">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-white">-</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                    <a href="{{ url()->current() }}" class="btn btn-danger">Clear</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -198,6 +212,8 @@
                                     confirmButton: "btn btn-success"
                                 },
                                 buttonsStyling: false
+                            }).then((i) => {
+                                window.location.reload();
                             });
                         }
                     });

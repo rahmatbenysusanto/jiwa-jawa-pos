@@ -20,7 +20,42 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-
+                    <form action="{{ url()->current() }}" method="GET">
+                        <div class="row">
+                            <div class="col-2">
+                                <label class="form-label">SKU</label>
+                                <input type="text" class="form-control" name="sku" value="{{ request()->get('sku', null) }}" placeholder="Sku ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" name="name" value="{{ request()->get('name', null) }}" placeholder="Name ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Category</label>
+                                <select class="form-control" name="category">
+                                    <option value="">-- Choose Category --</option>
+                                    @foreach($category as $item)
+                                        <option value="{{ $item->id }}" {{ request()->get('category') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" name="status">
+                                    <option value="">-- Choose Status --</option>
+                                    <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-white">-</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-info">Search</button>
+                                    <a href="{{ url()->current() }}" class="btn btn-danger">Clear</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

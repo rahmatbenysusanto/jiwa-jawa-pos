@@ -20,7 +20,10 @@ class InventoryController extends Controller
 {
     public function indexCategory(Request $request): View
     {
-        $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->paginate(10);
+        $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)
+            ->where('name', 'LIKE', '%'.$request->query('name').'%')
+            ->whereNull('deleted_at')
+            ->paginate(10);
 
         $title = 'Material Category';
         return view('inventory.category.index', compact('title', 'category'));
@@ -66,10 +69,33 @@ class InventoryController extends Controller
 
     public function indexMaterial(Request $request): View
     {
-        $material = Material::with('category', 'unit')->where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->paginate(10);
+        $material = Material::with('category', 'unit')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->when($request->query('sku'), function ($q) use ($request) {
+                return $q->where('sku', $request->query('sku'));
+            })
+            ->when($request->query('name'), function ($q) use ($request) {
+                return $q->where('name', $request->query('name'));
+            })
+            ->when($request->query('category'), function ($q) use ($request) {
+                return $q->where('category_id', $request->query('category'));
+            })
+            ->when($request->query('status'), function ($q) use ($request) {
+                return $q->where('status', $request->query('status'));
+            })
+            ->whereNull('deleted_at')
+            ->paginate(10)
+            ->appends([
+                'sku'       => $request->query('sku'),
+                'name'      => $request->query('name'),
+                'category'  => $request->query('category'),
+                'status'    => $request->query('status'),
+            ]);
+
+        $category = MaterialCategory::all();
 
         $title = 'Material';
-        return view('inventory.material.index', compact('title', 'material'));
+        return view('inventory.material.index', compact('title', 'material', 'category'));
     }
 
     public function createMaterial(Request $request): View
@@ -146,6 +172,23 @@ class InventoryController extends Controller
         return view('inventory.material.edit', compact('title', 'category', 'unit', 'material'));
     }
 
+    public function updateMaterial(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        Material::where('id', $request->post('id'))->update([
+            'category_id'       => $request->post('category'),
+            'sku'               => $request->post('sku'),
+            'name'              => $request->post('name'),
+            'unit_id'           => $request->post('unit'),
+            'base_unit_id'      => $request->post('base_unit'),
+            'conversion_value'   => $request->post('conversion'),
+            'min_stock'         => $request->post('min_stock'),
+            'price'             => $request->post('price') ?? 0,
+            'description'       => $request->post('desc'),
+        ]);
+
+        return back()->with('success', 'Material updated successfully');
+    }
+
     public function indexPurchaseOrder(Request $request): View
     {
         $purchaseOrder = PurchaseOrder::where('outlet_id', Auth::user()->outlet_id)->paginate(10);
@@ -216,6 +259,9 @@ class InventoryController extends Controller
                 ]);
             }
 
+            // Create PO WMS
+            $this->createPoWMS($purchaseOrder->id);
+
             DB::commit();
             return response()->json([
                 'status' => true,
@@ -229,6 +275,29 @@ class InventoryController extends Controller
                 'message' => $err->getMessage()
             ]);
         }
+    }
+
+    private function createPoWMS($id): void
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'localhost:8000/api/outbound',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>'{
+                "name": ""
+            }',
+            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
+        ));
+
+        $response = curl_exec($curl);
+        curl_close($curl);
     }
 
     public function processPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
