@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\UserHasMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,12 @@ class AuthController extends Controller
             Session::put('user', $user);
 
             // User Has Menu
+            $userHasMenu = UserHasMenu::with('accessMenu')->where('user_id', $user->id)->get();
+            $menu = [];
+            foreach ($userHasMenu as $item) {
+                $menu[] = $item->accessMenu->name;
+            }
+            Session::put('menu', $menu);
 
             return redirect()->route('dashboard');
         }

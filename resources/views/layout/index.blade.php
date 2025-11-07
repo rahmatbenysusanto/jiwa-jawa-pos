@@ -296,12 +296,12 @@
                                             <span>Stock Consumption</span>
                                         </a>
                                     </li>
-                                    <li class="{{ $title == 'Transfer Stock' ? 'active' : '' }}">
-                                        <a href="{{ route('inventory.transfer.stock') }}">
-                                            <i class="ti ti-stack-pop fs-16 me-2"></i>
-                                            <span>Transfer Stock</span>
-                                        </a>
-                                    </li>
+{{--                                    <li class="{{ $title == 'Transfer Stock' ? 'active' : '' }}">--}}
+{{--                                        <a href="{{ route('inventory.transfer.stock') }}">--}}
+{{--                                            <i class="ti ti-stack-pop fs-16 me-2"></i>--}}
+{{--                                            <span>Transfer Stock</span>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
                                 </ul>
                             </li>
 

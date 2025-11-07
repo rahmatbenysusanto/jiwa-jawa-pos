@@ -63,7 +63,7 @@
                     @if($menu->image == null)
 
                     @else
-                        <img src="{{ asset('uploads/menu/'.$menu->image) }}" alt="..." width="200" height="200">
+                        <img src="{{ asset('images/menu/'.$menu->image) }}" alt="..." width="200" height="200">
                     @endif
                 </div>
             </div>

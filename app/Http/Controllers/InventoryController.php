@@ -191,7 +191,18 @@ class InventoryController extends Controller
 
     public function indexPurchaseOrder(Request $request): View
     {
-        $purchaseOrder = PurchaseOrder::where('outlet_id', Auth::user()->outlet_id)->paginate(10);
+        $purchaseOrder = PurchaseOrder::where('outlet_id', Auth::user()->outlet_id)
+            ->when($request->query('number'), function ($q) use ($request) {
+                return $q->where('number', $request->query('number'));
+            })
+            ->when($request->query('warehouse'), function ($q) use ($request) {
+                return $q->where('warehouse_id', $request->query('warehouse'));
+            })
+            ->paginate(10)
+            ->appends([
+                'number'      => $request->query('number'),
+                'warehouse'   => $request->query('warehouse'),
+            ]);
 
         $title = 'Purchase Order';
         return view('inventory.purchaseOrder.index', compact('title', 'purchaseOrder'));
@@ -348,10 +359,34 @@ class InventoryController extends Controller
 
     public function indexManageStock(Request $request): View
     {
-        $inventory = Inventory::with('material', 'material.unit', 'material.category')->where('outlet_id', Auth::user()->outlet_id)->paginate(10);
+        $inventory = Inventory::with('material', 'material.unit', 'material.category')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->whereHas('material', function ($query) use ($request) {
+                if ($request->query('sku') != null) {
+                    $query->where('sku', $request->query('sku'));
+                }
+            })
+            ->whereHas('material', function ($query) use ($request) {
+                if ($request->query('name') != null) {
+                    $query->where('name', $request->query('name'));
+                }
+            })
+            ->whereHas('material', function ($query) use ($request) {
+                if ($request->query('category') != null) {
+                    $query->where('category_id', $request->query('category'));
+                }
+            })
+            ->paginate(10)
+            ->appends([
+                'sku'       => $request->query('sku'),
+                'name'      => $request->query('name'),
+                'category'  => $request->query('category'),
+            ]);
+
+        $category = MaterialCategory::all();
 
         $title = 'Manage Stock';
-        return view('inventory.manageStock.index', compact('title', 'inventory'));
+        return view('inventory.manageStock.index', compact('title', 'inventory', 'category'));
     }
 
     public function detailManageStock(Request $request): View

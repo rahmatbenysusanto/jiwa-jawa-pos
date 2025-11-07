@@ -107,7 +107,7 @@
                             name: document.getElementById('name').value,
                             username: document.getElementById('username').value,
                             email: document.getElementById('email').value,
-                            noHp: document.getElementById('noHp').value,
+                            noHp: document.getElementById('nohp').value,
                             password: document.getElementById('password').value,
                             outlet: document.getElementById('outlet').value,
                         },

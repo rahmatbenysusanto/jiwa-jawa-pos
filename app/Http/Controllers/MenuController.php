@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class MenuController extends Controller
@@ -111,6 +112,19 @@ class MenuController extends Controller
         try {
             DB::beginTransaction();
 
+            Log::info(json_encode($request->all()));
+
+            $imageRelPath = null;
+            if ($request->hasFile('image')) {
+                $dir = public_path('images/menu');
+                File::ensureDirectoryExists($dir);
+
+                $ext = strtolower($request->file('image')->getClientOriginalExtension() ?: 'jpg');
+                $filename = Str::uuid()->toString().'.'.$ext;
+                $request->file('image')->move($dir, $filename);
+                $imageRelPath = "images/menu/{$filename}";
+            }
+
             $menu = Menu::create([
                 'outlet_id'     => Auth::user()->outlet_id,
                 'category_id'   => $request->post('category'),
@@ -118,7 +132,7 @@ class MenuController extends Controller
                 'name'          => $request->post('name'),
                 'price'         => $request->post('price'),
                 'description'   => $request->post('description'),
-                'image'         => $request->post('image'),
+                'image'         => $imageRelPath,
             ]);
 
             foreach ($request->post('variants') ?? [] as $variant) {

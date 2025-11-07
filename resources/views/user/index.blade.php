@@ -45,7 +45,7 @@
                                     <td>{{ $item->username }}</td>
                                     <td>{{ $item->email }}</td>
                                     <td>
-                                        <a class="btn btn-info btn-sm">Menu</a>
+                                        <a href="{{ route('user.menu', ['id' => $item->id]) }}" class="btn btn-info btn-sm">Menu</a>
                                     </td>
                                     <td>
                                         @if($item->status == 'active')

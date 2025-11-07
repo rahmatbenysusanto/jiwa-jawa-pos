@@ -107,6 +107,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/edit', 'edit')->name('user.edit');
         Route::post('/store', 'store')->name('user.store');
         Route::post('/update', 'update')->name('user.update');
+
+        Route::get('/menu', 'menu')->name('user.menu');
+        Route::post('/menu', 'changeMenu')->name('user.menu.change');
     });
 
     Route::prefix('/pos')->controller(PosController::class)->group(function () {

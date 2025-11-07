@@ -20,7 +20,25 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-
+                    <form action="{{ url()->current() }}" method="GET">
+                        <div class="row">
+                            <div class="col-2">
+                                <label class="form-label">PO Number</label>
+                                <input type="text" class="form-control" name="number" value="{{ request()->get('number', null) }}" placeholder="PO Number ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label">Warehouse</label>
+                                <input type="text" class="form-control" name="number" value="{{ request()->get('warehouse', null) }}" placeholder="Warehouse ...">
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-white">-</label>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-info">Search</button>
+                                    <a href="{{ url()->current() }}" class="btn btn-danger">Clear</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
