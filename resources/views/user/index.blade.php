@@ -32,6 +32,7 @@
                                     <th>Name</th>
                                     <th>Username</th>
                                     <th>Email</th>
+                                    <th>Outlet</th>
                                     <th>Access Menu</th>
                                     <th>Status</th>
                                     <th>Action</th>
@@ -44,6 +45,7 @@
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->username }}</td>
                                     <td>{{ $item->email }}</td>
+                                    <td class="fw-bold">{{ $item->outlet->name }}</td>
                                     <td>
                                         <a href="{{ route('user.menu', ['id' => $item->id]) }}" class="btn btn-info btn-sm">Menu</a>
                                     </td>

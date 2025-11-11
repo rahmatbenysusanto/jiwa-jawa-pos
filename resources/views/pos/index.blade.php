@@ -645,12 +645,12 @@
                     // All Menu
                     html += `
                         <div  class="tab_content active" data-tab="all" id="allProduct">
-                            <div class="row row-cols-xxl-5 g-3">
+                            <div class="row g-3">
                     `;
 
                     allMenu.forEach((product) => {
                         html += `
-                            <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
+                            <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                                 <div class="product-info card mb-0">
                                     <a onclick="selectProduct('${product.id}')" class="product-image">
                                         <img src="images/menu/${product.image}" alt="Products">
@@ -680,7 +680,7 @@
 
                         (menuCategory.menu).forEach((product) => {
                             html += `
-                                <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3 col-xxl cursor-pointer" onclick="selectProduct('${product.id}')">
+                                <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                                     <div class="product-info card mb-0">
                                         <a onclick="selectProduct('${product.id}')" class="product-image">
                                             <img src="images/menu/${product.image}" alt="Products">

@@ -71,6 +71,7 @@
 @endsection
 
 @section('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
     <script>
         localStorage.clear();
         loadDataVariant();
@@ -342,19 +343,31 @@
             }).then(function (result) {
                 if (result.isConfirmed) {
 
+                    const category = document.getElementById('category').value;
+                    const name     = document.getElementById('name').value;
+                    const price    = document.getElementById('price').value;
+                    const sku      = document.getElementById('sku').value;
+                    const variants = JSON.parse(localStorage.getItem('variant')) ?? [];
+
+                    const fd = new FormData();
+                    fd.append('_token', '{{ csrf_token() }}');
+                    fd.append('id', '{{ request()->get('id') }}');
+                    fd.append('category', category);
+                    fd.append('name', name);
+                    fd.append('price', price);
+                    fd.append('sku', sku);
+                    fd.append('desc', $('#summernote').summernote('code'));
+                    const img = document.getElementById('image').files[0];
+                    if (img) fd.append('image', img);
+                    fd.append('variants', variants);
+
+
                     $.ajax({
                         url: '{{ route('menu.update') }}',
                         method: 'POST',
-                        data: {
-                            _token: '{{ csrf_token() }}',
-                            id: '{{ request()->get('id') }}',
-                            category: category,
-                            name: name,
-                            price: price,
-                            variants: variants,
-                            sku: document.getElementById('sku').value,
-                            desc: document.getElementById('summernote').value
-                        },
+                        data: fd,
+                        processData: false,
+                        contentType: false,
                         success: (res) => {
                             if (res.status) {
                                 Swal.fire({

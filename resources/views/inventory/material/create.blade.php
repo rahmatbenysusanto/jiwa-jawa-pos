@@ -54,10 +54,6 @@
                                     <label class="form-label">Min Stock</label>
                                     <input type="number" class="form-control" id="min_stock" name="min_stock" placeholder="Min Stock ..." required>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Image</label>
-                                    <input type="file" class="form-control" id="image" name="image">
-                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Description</label>

@@ -195,32 +195,46 @@
                             </li>
 
                             <li class="submenu-open mt-2">
-                                <h6 class="submenu-hdr">Menu</h6>
+                                @if(collect(Session::get('menu', []))->intersect(['Menu Category', 'Menu', 'Addon Menu', 'Discount', 'Recipe menu'])->isNotEmpty())
+                                    <h6 class="submenu-hdr">Menu</h6>
+                                @endif
                                 <ul>
+                                    @if(collect(Session::get('menu', []))->contains('Menu Category'))
                                     <li class="{{ $title == 'Menu Category' ? 'active' : '' }}">
                                         <a href="{{ route('menu.category') }}">
                                             <i class="ti ti-list-details fs-16 me-2"></i>
                                             <span>Category</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Menu'))
                                     <li class="{{ in_array($title, ['Menu List', 'Create Menu']) ? 'active' : '' }}">
                                         <a href="{{ route('menu.list') }}">
                                             <i class="ti ti-book fs-16 me-2"></i>
                                             <span>List Menu</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Addon Menu'))
                                     <li class="{{ $title == 'Menu Addon' ? 'active' : '' }}">
                                         <a href="{{ route('menu.addon') }}">
                                             <i class="ti ti-checklist fs-16 me-2"></i>
                                             <span>Add on</span>
                                         </a>
                                     </li>
+                                    @endif
+                                    @if(collect(Session::get('menu', []))->contains('Discount'))
                                     <li class="{{ $title == 'Discount' ? 'active' : '' }}">
                                         <a href="{{ route('discount') }}">
                                             <i class="ti ti-discount-check fs-16 me-2"></i>
                                             <span>Discount</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Recipe menu'))
                                     <li class="submenu">
                                         <a href="javascript:void(0);" class="{{ in_array($title, ['Recipe Menu', 'Recipe Addon']) ? 'active subdrop' : '' }}">
                                             <i class="ti ti-book-2 fs-16 me-2"></i>
@@ -232,42 +246,59 @@
                                             <li><a href="{{ route('menu.recipe.addon') }}" class="{{ $title == 'Recipe Addon' ? 'active' : '' }}">Addon</a></li>
                                         </ul>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
 
                             <li class="submenu-open mt-2">
+                                @if(collect(Session::get('menu', []))->intersect(['Point Of Sale', 'Customer Display', 'List Transaction'])->isNotEmpty())
                                 <h6 class="submenu-hdr">Transaction</h6>
+                                @endif
                                 <ul>
+                                    @if(collect(Session::get('menu', []))->contains('Point Of Sale'))
                                     <li class="{{ $title == 'POS' ? 'active' : '' }}">
                                         <a href="{{ route('pos.index') }}">
                                             <i class="ti ti-device-laptop fs-16 me-2"></i>
                                             <span>Point Of Sale (POS)</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Customer Display'))
                                     <li class="{{ $title == 'Customer Display' ? 'active' : '' }}">
                                         <a href="{{ route('customer.display') }}">
                                             <i class="ti ti-shopping-bag fs-16 me-2"></i>
                                             <span>Customer Display</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('List Transaction'))
                                     <li class="{{ $title == 'Transaction' ? 'active' : '' }}">
                                         <a href="{{ route('transaction.index') }}">
                                             <i class="ti ti-device-analytics fs-16 me-2"></i>
                                             <span>List Transaction</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
 
                             <li class="submenu-open mt-2">
+                                @if(collect(Session::get('menu', []))->intersect(['Category Inventory', 'Material', 'Purchase Order', 'Manage Stock', 'Stock Consumption'])->isNotEmpty())
                                 <h6 class="submenu-hdr">Inventory</h6>
+                                @endif
                                 <ul>
+                                    @if(collect(Session::get('menu', []))->contains('Category Inventory'))
                                     <li class="{{ $title == 'Material Category' ? 'active' : '' }}">
                                         <a href="{{ route('inventory.category') }}">
                                             <i class="ti ti-carousel-vertical fs-16 me-2"></i>
                                             <span>Category</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Material'))
                                     <li class="{{ $title == 'Material' ? 'active' : '' }}">
                                         <a href="{{ route('inventory.material') }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box">
@@ -278,24 +309,34 @@
                                             <span>Material</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Purchase Order'))
                                     <li class="{{ $title == 'Purchase Order' ? 'active' : '' }}">
                                         <a href="{{ route('inventory.purchase.order') }}">
                                             <i class="ti ti-file-unknown fs-16 me-2"></i>
                                             <span>Purchase Order</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Manage Stock'))
                                     <li class="{{ $title == 'Manage Stock' ? 'active' : '' }}">
                                         <a href="{{ route('inventory.manage.stock') }}">
                                             <i class="ti ti-stack-3 fs-16 me-2"></i>
                                             <span>Manage Stock</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Stock Consumption'))
                                     <li class="{{ $title == 'Stock Consumption' ? 'active' : '' }}">
                                         <a href="{{ route('inventory.stock.consumption') }}">
                                             <i class="ti ti-stairs-up fs-16 me-2"></i>
                                             <span>Stock Consumption</span>
                                         </a>
                                     </li>
+                                    @endif
 {{--                                    <li class="{{ $title == 'Transfer Stock' ? 'active' : '' }}">--}}
 {{--                                        <a href="{{ route('inventory.transfer.stock') }}">--}}
 {{--                                            <i class="ti ti-stack-pop fs-16 me-2"></i>--}}
@@ -306,74 +347,97 @@
                             </li>
 
                             <li class="submenu-open mt-2">
+                                @if(collect(Session::get('menu', []))->intersect(['Sales Report', 'Top Selling Menu Report', 'Low Moving Menu Report', 'Stock Report', 'Products Report', 'Store Performance Report'])->isNotEmpty())
                                 <h6 class="submenu-hdr">Report</h6>
+                                @endif
                                 <ul>
+                                    @if(collect(Session::get('menu', []))->contains('Sales Report'))
                                     <li class="{{ $title == 'Sales Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.sales') }}">
                                             <i class="ti ti-report-money fs-16 me-2"></i>
                                             <span>Sales Report</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Top Selling Menu Report'))
                                     <li class="{{ $title == 'Top Selling Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.top.selling') }}">
                                             <i class="ti ti-chart-bar fs-16 me-2"></i>
                                             <span>Top Selling Menu</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Low Moving Menu Report'))
                                     <li class="{{ $title == 'Low Moving Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.low.moving') }}">
                                             <i class="ti ti-trending-down fs-16 me-2"></i>
                                             <span>Low Moving Menu</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Stock Report'))
                                     <li class="{{ $title == 'Stock Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.stock') }}">
                                             <i class="ti ti-box fs-16 me-2"></i>
                                             <span>Stock</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Discount Report'))
                                     <li class="{{ $title == 'Discount Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.discount') }}">
                                             <i class="ti ti-discount-2 fs-16 me-2"></i>
                                             <span>Discount</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Products Report'))
                                     <li class="{{ $title == '' ? 'active' : '' }}">
                                         <a href="#">
                                             <i class="ti ti-package fs-16 me-2"></i>
                                             <span>Products</span>
                                         </a>
                                     </li>
+                                    @endif
 
+                                    @if(collect(Session::get('menu', []))->contains('Store Performance Report'))
                                     <li class="{{ $title == 'Store Performance Report' ? 'active' : '' }}">
                                         <a href="{{ route('report.store.performance') }}">
                                             <i class="ti ti-graph fs-16 me-2"></i>
                                             <span>Store Performance</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
 
                             <li class="submenu-open mt-2">
+                                @if(collect(Session::get('menu', []))->intersect(['Outlet', 'User'])->isNotEmpty())
                                 <h6 class="submenu-hdr">POS Setting</h6>
+                                @endif
                                 <ul>
+                                    @if(collect(Session::get('menu', []))->contains('Outlet'))
                                     <li class="{{ $title == 'Outlet' ? 'active' : '' }}">
                                         <a href="{{ route('outlet.index') }}">
                                             <i class="ti ti-map-pin fs-16 me-2"></i>
                                             <span>Outlet</span>
                                         </a>
                                     </li>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('User'))
                                     <li class="{{ $title == 'User' ? 'active' : '' }}">
                                         <a href="{{ route('user.index') }}">
                                             <i class="ti ti-user fs-16 me-2 fs-16 me-2"></i>
                                             <span>User</span>
                                         </a>
                                     </li>
+                                    @endif
                                 </ul>
                             </li>
                         </ul>
