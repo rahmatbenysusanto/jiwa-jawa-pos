@@ -10,7 +10,9 @@
             </div>
         </div>
         <div class="page-btn">
-            <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category"><i class="ti ti-circle-plus me-1"></i>Add Category</a>
+            @if(collect(Session::get('menu', []))->contains('Add Menu Category'))
+                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-category"><i class="ti ti-circle-plus me-1"></i>Add Category</a>
+            @endif
         </div>
     </div>
 
@@ -32,12 +34,17 @@
                             <td>{{ $item->name }}</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
+                                    @if(collect(Session::get('menu', []))->contains('Edit Menu Category'))
                                     <a class="me-2" onclick="editCategory({{ $item->id }})">
                                         <i data-feather="edit" class="feather-edit"></i>
                                     </a>
+                                    @endif
+
+                                    @if(collect(Session::get('menu', []))->contains('Delete Menu Category'))
                                     <a class="p-2" onclick="deleteCategory({{ $item->id }})">
                                         <i data-feather="trash-2" class="feather-trash-2"></i>
                                     </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

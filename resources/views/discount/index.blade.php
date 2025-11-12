@@ -10,10 +10,12 @@
             </div>
         </div>
         <div class="page-btn">
+            @if(collect(Session::get('menu', []))->contains('Add Discount'))
             <a href="{{ route('discount.create') }}" class="btn btn-primary">
                 <i class="ti ti-circle-plus me-1"></i>
                 Add Discount
             </a>
+            @endif
         </div>
     </div>
 
@@ -121,12 +123,17 @@
                                             <a href="{{ route('discount.detail', ['id' => $item->id]) }}" class="btn btn-info btn-sm">
                                                 <i class="fa fa-eye"></i>
                                             </a>
+                                            @if(collect(Session::get('menu', []))->contains('Edit Discount'))
                                             <a href="{{ route('discount.edit', ['id' => $item->id]) }}" class="btn btn-primary btn-sm">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
+                                            @endif
+
+                                            @if(collect(Session::get('menu', []))->contains('Delete Discount'))
                                             <a class="btn btn-danger btn-sm" onclick="deleteDiscount('{{ $item->id }}')">
                                                 <i class="fa fa-trash"></i>
                                             </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

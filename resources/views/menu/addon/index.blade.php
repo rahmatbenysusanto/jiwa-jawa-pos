@@ -10,7 +10,9 @@
             </div>
         </div>
         <div class="page-btn">
+            @if(collect(Session::get('menu', []))->contains('Create Addon Menu'))
             <a href="{{ route('menu.addon.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Create Addon</a>
+            @endif
         </div>
     </div>
 
@@ -52,7 +54,9 @@
                                     <td>
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('menu.addon.detail', ['id' => $item->id]) }}" class="btn btn-info btn-sm">Detail</a>
+                                            @if(collect(Session::get('menu', []))->contains('Delete Addon Menu'))
                                             <a class="btn btn-danger btn-sm">Delete</a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

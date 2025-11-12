@@ -10,7 +10,9 @@
             </div>
         </div>
         <div class="page-btn">
+            @if(collect(Session::get('menu', []))->contains('Add Menu'))
             <a href="{{ route('menu.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Menu</a>
+            @endif
         </div>
     </div>
 
@@ -108,12 +110,17 @@
                                             <a href="" class="btn btn-success btn-sm">
                                                 <i class="fa fa-book"></i>
                                             </a>
+                                            @if(collect(Session::get('menu', []))->contains('Edit Menu'))
                                             <a href="{{ route('menu.edit', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-info">
                                                 <i class="fa-solid fa-pencil"></i>
                                             </a>
+                                            @endif
+
+                                            @if(collect(Session::get('menu', []))->contains('Delete Menu'))
                                             <a class="btn btn-icon btn-sm btn-danger" onclick="deleteMenu('{{ $item->id }}')">
                                                 <i class="fa-solid fa-trash"></i>
                                             </a>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
