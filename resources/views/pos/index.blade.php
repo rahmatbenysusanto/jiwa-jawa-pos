@@ -238,6 +238,11 @@
                     </table>
 
                     <div class="mt-3">
+                        <h4 class="modal-title mb-1">Note</h4>
+                        <textarea class="form-control" rows="2" id="note"></textarea>
+                    </div>
+
+                    <div class="mt-3">
                         <h4 class="modal-title mb-1">Discount</h4>
                         <div class="row" id="discountProduct">
 
@@ -324,6 +329,11 @@
 
                         </tbody>
                     </table>
+
+                    <div class="mt-3">
+                        <h4 class="modal-title mb-1">Note</h4>
+                        <textarea class="form-control" rows="2" id="noteEdit"></textarea>
+                    </div>
 
                     <div class="mt-3">
                         <h4 class="modal-title mb-1">Discount</h4>
@@ -1015,6 +1025,8 @@
 
             const totalPrice = Number(product.price) + priceDelta + priceAddon - Number(priceDiscount);
 
+            const note = document.getElementById('note').value ?? '';
+
             cart.push({
                 menuId: product.id,
                 name: product.name,
@@ -1030,7 +1042,8 @@
                     variant: variant,
                     addon: addon,
                     discountProduct: discountProduct
-                }
+                },
+                note: note
             });
 
             localStorage.setItem('cart', JSON.stringify(cart));
@@ -1174,6 +1187,7 @@
             document.getElementById('product-edit-category').value = product.category;
             document.getElementById('product-edit-sku').value = product.sku;
             document.getElementById('product-edit-base-price').value = 'Rp ' + rupiah(product.price);
+            document.getElementById('noteEdit').value = find.note;
 
             localStorage.setItem('variant', JSON.stringify(variant));
 
@@ -1429,11 +1443,14 @@
 
             const totalPrice = parseInt(product.basePrice) + priceDelta + priceAddon - parseInt(priceDiscount);
 
+            const note = document.getElementById('noteEdit').value;
+
             product.priceDelta = priceDelta;
             product.priceDiscount = priceDiscount;
             product.priceAddon = priceAddon;
             product.totalPrice = totalPrice;
             product.grandTotal = totalPrice * product.qty;
+            product.note = note;
             product.data = {
                 variant: variant,
                 addon: addon,

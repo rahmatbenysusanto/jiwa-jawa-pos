@@ -93,7 +93,7 @@ class TransactionController extends Controller
                     'price'            => $item['totalPrice'],
                     'discount'         => $item['priceDiscount'],
                     'total'            => $item['grandTotal'],
-                    'note'             => null,
+                    'note'             => $item['note'],
                 ]);
 
                 foreach ($item['data']['variant'] ?? [] as $variant) {
