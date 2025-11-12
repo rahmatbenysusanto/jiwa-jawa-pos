@@ -39,6 +39,10 @@
                         <input type="text" class="form-control" name="name" id="name" value="{{ $menu->name }}" placeholder="Menu Name ...">
                     </div>
                     <div class="mb-3">
+                        <label for="hpp" class="form-label">HPP (Harga Pokok Produksi)</label>
+                        <input type="number" class="form-control" name="hpp" id="hpp" value="{{ (int)$menu->hpp }}" placeholder="Rp ...">
+                    </div>
+                    <div class="mb-3">
                         <label for="price" class="form-label">Base Price</label>
                         <input type="number" class="form-control" name="price" id="price" value="{{ (int)$menu->price }}" placeholder="Rp ...">
                     </div>
@@ -87,6 +91,7 @@
                         id: option.id,
                         name: option.name,
                         price: parseInt(option.price_delta),
+                        hpp: parseInt(option.hpp),
                         default: option.is_default
                     });
                 });
@@ -113,6 +118,7 @@
                     {
                         name: '',
                         price: 0,
+                        hpp: 0,
                         default: true
                     }
                 ]
@@ -135,18 +141,21 @@
                                 <label class="form-label">Name</label>
                                 <input type="text" class="form-control" value="${option.name}" placeholder="Large ..." oninput="changeOption(${indexVariant}, ${indexOption}, 'name', this.value)">
                             </div>
-                            <div class="col-4">
+                            <div class="col-3">
+                                <label class="form-label">HPP</label>
+                                <input type="number" class="form-control" value="${option.price}" placeholder="Rp ..." oninput="changeOption(${indexVariant}, ${indexOption}, 'hpp', this.value)">
+                            </div>
+                            <div class="col-3">
                                 <label class="form-label">Price Delta</label>
                                 <input type="number" class="form-control" value="${option.price}" placeholder="Rp ..." oninput="changeOption(${indexVariant}, ${indexOption}, 'price', this.value)">
                             </div>
-                            <div class="col-2">
-                                <label class="form-label text-white">-</label>
+                            <div class="col-1">
+                                <label class="form-label">Default</label>
                                 <div class="form-check form-check-md form-switch mt-1">
                                     <input class="form-check-input" type="checkbox" role="switch" id="switch-md" ${option.default === true ? 'checked' : ''} onchange="changeOption(${indexVariant}, ${indexOption}, 'default', ${option.default})">
-                                    <label class="form-check-label fw-bold" for="switch-md">Default</label>
                                 </div>
                             </div>
-                            <div class="col-2">
+                            <div class="col-1">
                                 <label class="form-label text-white">-</label>
                                 <div>
                                     <a class="btn btn-danger" onclick="deleteVariantOption(${indexVariant}, ${indexOption})">
@@ -199,6 +208,7 @@
             variants[indexVariant].options.push({
                 name: '',
                 price: 0,
+                hpp: 0,
                 default: false
             });
 
@@ -237,6 +247,8 @@
                 option.name = value;
             } else if (type === 'price') {
                 option.price = value;
+            } else if (type === 'hpp') {
+                option.hpp = value;
             } else {
                 if (!value) {
                     option.default = true;
@@ -347,6 +359,7 @@
                     const name     = document.getElementById('name').value;
                     const price    = document.getElementById('price').value;
                     const sku      = document.getElementById('sku').value;
+                    const desc     = document.getElementById('desc').value;
                     const variants = JSON.parse(localStorage.getItem('variant')) ?? [];
 
                     const fd = new FormData();
@@ -356,7 +369,7 @@
                     fd.append('name', name);
                     fd.append('price', price);
                     fd.append('sku', sku);
-                    fd.append('desc', $('#summernote').summernote('code'));
+                    fd.append('desc', desc);
                     const img = document.getElementById('image').files[0];
                     if (img) fd.append('image', img);
                     fd.append('variants', variants);

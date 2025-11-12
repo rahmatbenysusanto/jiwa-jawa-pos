@@ -131,6 +131,7 @@ class MenuController extends Controller
                 'sku'           => $request->post('sku') ?? 'MN-' . strtoupper(Str::random(6)),
                 'name'          => $request->post('name'),
                 'price'         => $request->post('price'),
+                'hpp'           => $request->post('hpp'),
                 'description'   => $request->post('description'),
                 'image'         => $imageRelPath,
             ]);
@@ -148,6 +149,7 @@ class MenuController extends Controller
                         'name'              => $option['name'],
                         'is_default'        => $option['default'] == 'true' ? Auth::user()->outlet_id : 0,
                         'price_delta'       => $option['price'],
+                        'hpp'               => $option['hpp'],
                     ]);
                 }
             }
@@ -193,6 +195,7 @@ class MenuController extends Controller
                 'category_id'   => $request->post('category'),
                 'name'          => $request->post('name'),
                 'price'         => $request->post('price'),
+                'hpp'           => $request->post('hpp'),
                 'description'   => $request->post('desc'),
             ]);
 
@@ -224,6 +227,7 @@ class MenuController extends Controller
                         MenuVariantOption::where('id', $option['id'])->update([
                             'name'          => $option['name'],
                             'price_delta'   => $option['price'],
+                            'hpp'           => $option['hpp'],
                             'is_default'    => $option['default'] == 'true' ? 1 : 0,
                             'updated_at'    => $updatedAt
                         ]);
@@ -233,6 +237,7 @@ class MenuController extends Controller
                             'name'              => $option['name'],
                             'is_default'        => $option['default'] == 'true' ? 1 : 0,
                             'price_delta'       => $option['price'],
+                            'hpp'               => $option['hpp'],
                             'created_at'        => $updatedAt,
                             'updated_at'        => $updatedAt
                         ]);

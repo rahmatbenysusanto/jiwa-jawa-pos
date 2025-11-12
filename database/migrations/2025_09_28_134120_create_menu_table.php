@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('sku');
             $table->string('name');
             $table->decimal('price', 12, 2)->default(0);
+            $table->decimal('hpp', 12, 2)->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->enum('is_combo', ['yes', 'no'])->default('no');
             $table->text('description')->nullable();

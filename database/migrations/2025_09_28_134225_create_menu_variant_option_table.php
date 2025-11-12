@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->boolean('is_default')->default(false);
             $table->decimal('price_delta', 12, 2)->default(0);
+            $table->decimal('hpp', 12, 2)->default(0);
             $table->timestamps();
         });
     }

@@ -15,6 +15,7 @@ class Menu extends Model
         'sku',
         'name',
         'price',
+        'hpp',
         'is_combo',
         'status',
         'description',

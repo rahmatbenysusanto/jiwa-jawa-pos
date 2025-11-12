@@ -11,6 +11,7 @@ class MenuVariantOption extends Model
         'menu_variant_id',
         'name',
         'price_delta',
+        'hpp',
         'is_default'
     ];
 
