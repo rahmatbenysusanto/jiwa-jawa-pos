@@ -305,6 +305,7 @@ class MenuController extends Controller
             'addon_id'  => $request->post('addon_id'),
             'name'      => $request->post('name'),
             'price'     => $request->post('price'),
+            'hpp'       => $request->post('hpp'),
         ]);
 
         return back()->with('success', 'Create Addon variant successfully!');
@@ -322,7 +323,8 @@ class MenuController extends Controller
     public function addonDetailEdit(Request $request): \Illuminate\Http\RedirectResponse
     {
         AddonVariant::where('id', $request->post('id'))->update([
-            'name' => $request->post('name'),
+            'name'  => $request->post('name'),
+            'hpp'   => $request->post('hpp'),
             'price' => $request->post('price'),
         ]);
 
@@ -356,6 +358,7 @@ class MenuController extends Controller
                 AddonVariant::create([
                     'addon_id'  => $addon->id,
                     'name'      => $variant['name'],
+                    'hpp'       => $variant['hpp'],
                     'price'     => $variant['price'],
                 ]);
             }

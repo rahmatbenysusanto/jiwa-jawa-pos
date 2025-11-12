@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('addon_id');
             $table->string('name');
+            $table->integer('hpp')->default(0);
             $table->integer('price')->default(0);
             $table->timestamps();
         });

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AddonVariant extends Model
 {
     protected $table = 'addon_variant';
-    protected $fillable = ['addon_id', 'name', 'price', 'deleted_at'];
+    protected $fillable = ['addon_id', 'name', 'price', 'hpp', 'deleted_at'];
 
     public function addon(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

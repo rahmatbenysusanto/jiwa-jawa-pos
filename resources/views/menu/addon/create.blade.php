@@ -48,7 +48,8 @@
 
             variant.push({
                 name: '',
-                price: 0
+                hpp: 0,
+                price: 0,
             });
 
             localStorage.setItem('variant', JSON.stringify(variant));
@@ -61,15 +62,19 @@
 
             variant.forEach((item, index) => {
                 html += `
-                    <div class="col-5 mb-3">
+                    <div class="col-4 mb-3">
                         <label class="form-label">Variant Name</label>
                         <input type="text" class="form-control" value="${item.name}" placeholder="Variant name ..." oninput="changeOption(${index}, 'name', this.value)">
                     </div>
-                    <div class="col-5 mb-3">
+                    <div class="col-3 mb-3">
+                        <label class="form-label">Variant HPP</label>
+                        <input type="number" class="form-control" value="${item.hpp}" placeholder="Rp 0" oninput="changeOption(${index}, 'hpp', this.value)">
+                    </div>
+                    <div class="col-4 mb-3">
                         <label class="form-label">Variant Price</label>
                         <input type="number" class="form-control" value="${item.price}" placeholder="Rp 0" oninput="changeOption(${index}, 'price', this.value)">
                     </div>
-                    <div class="col-2 mb-3">
+                    <div class="col-1 mb-3">
                         <label class="form-label text-white">-</label>
                         <div>
                             <a class="btn btn-danger" onclick="deleteVariant(${index})">
@@ -95,6 +100,8 @@
 
             if (type === 'name') {
                 variant[index].name = value;
+            } else if (type === 'hpp') {
+                variant[index].hpp = value;
             } else {
                 variant[index].price = value;
             }

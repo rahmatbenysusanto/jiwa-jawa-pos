@@ -77,6 +77,10 @@
                             <input type="text" class="form-control" name="name" id="name" placeholder="Variant Name">
                         </div>
                         <div class="mb-3">
+                            <label for="hpp" class="form-label">Hpp</label>
+                            <input type="number" class="form-control" name="hpp" id="hpp" placeholder="Rp 0">
+                        </div>
+                        <div class="mb-3">
                             <label for="price" class="form-label">Price</label>
                             <input type="number" class="form-control" name="price" id="price" placeholder="Rp 0">
                         </div>
@@ -104,6 +108,10 @@
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control" name="name" id="variant-name" placeholder="Variant Name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="hpp" class="form-label">Hpp</label>
+                            <input type="number" class="form-control" name="hpp" id="hpp-price" placeholder="Rp 0">
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Price</label>
