@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('transaction_id');
             $table->integer('menu_id');
             $table->integer('qty');
+            $table->decimal('hpp', 12, 2);
             $table->decimal('base_price', 12, 2);
             $table->decimal('price', 12, 2);
             $table->decimal('discount', 12, 2);

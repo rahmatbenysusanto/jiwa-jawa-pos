@@ -11,6 +11,7 @@ class TransactionDetail extends Model
         'transaction_id',
         'menu_id',
         'qty',
+        'hpp',
         'base_price',
         'price',
         'discount',

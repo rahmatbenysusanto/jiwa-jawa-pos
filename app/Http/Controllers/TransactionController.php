@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Events\TransactionEvent;
+use App\Models\AddonVariant;
 use App\Models\Inventory;
 use App\Models\MaterialUsage;
+use App\Models\Menu;
 use App\Models\MenuRecipeMaterial;
+use App\Models\MenuVariantOption;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
 use App\Models\TransactionData;
@@ -72,6 +75,7 @@ class TransactionController extends Controller
                 'invoice_number'    => $request->post('invoice'),
                 'order_number'      => str_pad($orderNumber, 2, '0', STR_PAD_LEFT),
                 'qty'               => count($request->post('cart')),
+                'hpp'               => 0,
                 'subtotal'          => $request->post('subTotal'),
                 'discount'          => $request->post('discount'),
                 'tax'               => $request->post('totalTax'),
@@ -84,7 +88,12 @@ class TransactionController extends Controller
                 'created_by'        => Auth::id()
             ]);
 
+            $hppTransaction = 0;
+
             foreach ($request->post('cart') as $item) {
+                $menu = Menu::find($item['menuId']);
+                $hppTransactionDetail = $menu->hpp;
+
                 $detail = TransactionDetail::create([
                     'transaction_id'   => $transaction->id,
                     'menu_id'          => $item['menuId'],
@@ -99,6 +108,9 @@ class TransactionController extends Controller
                 foreach ($item['data']['variant'] ?? [] as $variant) {
                     foreach ($variant['option'] as $option) {
                         if ($option['select'] == 1) {
+                            $menuVariantOption = MenuVariantOption::find($option['id']);
+                            $hppTransactionDetail += $menuVariantOption->hpp;
+
                             TransactionDetailVariant::create([
                                 'transaction_detail_id'     => $detail->id,
                                 'menu_variant_option_id'    => $option['id'],
@@ -111,6 +123,9 @@ class TransactionController extends Controller
                 }
 
                 foreach ($item['data']['addon'] ?? [] as $addon) {
+                    $addonVariant = AddonVariant::find($addon['id']);
+                    $hppTransactionDetail += $addonVariant->hpp;
+
                     TransactionDetailVariantAddon::create([
                         'transaction_detail_id' => $detail->id,
                         'addon_variant_id'      => $addon['id'],
@@ -131,7 +146,12 @@ class TransactionController extends Controller
                         ]);
                     }
                 }
+
+                TransactionDetail::where('id', $detail->id)->update(['hpp' => $hppTransactionDetail]);
+                $hppTransaction += $hppTransactionDetail;
             }
+
+            Transaction::where('id', $transaction->id)->update(['hpp' => $hppTransaction]);
 
             if ($request->post('discountTransaction') != null) {
                 $discountTransaction = $request->post('discountTransaction');

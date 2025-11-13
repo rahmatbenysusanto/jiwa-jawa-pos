@@ -13,6 +13,7 @@ class Transaction extends Model
         'invoice_number',
         'order_number',
         'qty',
+        'hpp',
         'subtotal',
         'discount',
         'tax',

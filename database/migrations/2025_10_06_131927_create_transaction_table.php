@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('invoice_number');
             $table->integer('order_number');
             $table->integer('qty');
+            $table->decimal('hpp', 12, 2);
             $table->decimal('subtotal', 12, 2);
             $table->decimal('discount', 12, 2);
             $table->decimal('tax', 12, 2);
