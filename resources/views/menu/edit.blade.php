@@ -53,7 +53,7 @@
                     <div class="mb-3">
                         <div class="summer-description-box">
                             <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3" id="summernote">{{ $menu->description }}</textarea>
+                            <textarea class="form-control" rows="3" id="desc">{{ $menu->description }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -358,6 +358,7 @@
                     const category = document.getElementById('category').value;
                     const name     = document.getElementById('name').value;
                     const price    = document.getElementById('price').value;
+                    const hpp    = document.getElementById('hpp').value;
                     const sku      = document.getElementById('sku').value;
                     const desc     = document.getElementById('desc').value;
                     const variants = JSON.parse(localStorage.getItem('variant')) ?? [];
@@ -368,6 +369,7 @@
                     fd.append('category', category);
                     fd.append('name', name);
                     fd.append('price', price);
+                    fd.append('hpp', hpp);
                     fd.append('sku', sku);
                     fd.append('desc', desc);
                     const img = document.getElementById('image').files[0];

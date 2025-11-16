@@ -193,6 +193,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
     Route::prefix('/report')->controller(ReportController::class)->group(function () {
         Route::get('/sales', 'sales')->name('report.sales');
+        Route::get('/sales-detail', 'salesDetail')->name('report.sales.detail');
         Route::get('/top-selling', 'topSelling')->name('report.top.selling');
         Route::get('/low-moving', 'lowMoving')->name('report.low.moving');
         Route::get('/stock', 'stock')->name('report.stock');

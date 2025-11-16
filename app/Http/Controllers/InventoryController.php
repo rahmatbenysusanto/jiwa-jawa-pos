@@ -8,11 +8,14 @@ use App\Models\Material;
 use App\Models\MaterialCategory;
 use App\Models\MaterialUnit;
 use App\Models\MaterialUsage;
+use App\Models\Outlet;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -251,9 +254,11 @@ class InventoryController extends Controller
         try {
             DB::beginTransaction();
 
+            $number = 'PO-'.date('Ymd').random_int(100, 999);
+
             $purchaseOrder = PurchaseOrder::create([
                 'outlet_id'     => Auth::user()->outlet_id,
-                'number'        => 'PO-'.date('Ymd').random_int(100, 999),
+                'number'        => $number,
                 'qty'           => count($request->post('material')),
                 'status'        => 'new',
                 'warehouse_id'  => 1,
@@ -271,7 +276,7 @@ class InventoryController extends Controller
             }
 
             // Create PO WMS
-            $this->createPoWMS($purchaseOrder->id);
+            $this->createPoWMS($purchaseOrder->id, $number);
 
             DB::commit();
             return response()->json([
@@ -288,27 +293,39 @@ class InventoryController extends Controller
         }
     }
 
-    private function createPoWMS($id): void
+    /**
+     * @throws ConnectionException
+     */
+    private function createPoWMS($id, $number): void
     {
-        $curl = curl_init();
+        $purchaseOrder = PurchaseOrder::findOrFail($id);
+        $purchaseOrderDetail = PurchaseOrderDetail::with('material.unit')
+            ->where('purchase_order_id', $id)
+            ->get();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'localhost:8000/api/outbound',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS =>'{
-                "name": ""
-            }',
-            CURLOPT_HTTPHEADER => array('Content-Type: application/json'),
-        ));
+        $outlet = Outlet::findOrFail($purchaseOrder->outlet_id);
 
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $material = [];
+
+        foreach ($purchaseOrderDetail as $item) {
+            $material[] = [
+                'sku'    => $item->material->sku,
+                'qty'    => $item->qty,
+                'satuan' => $item->material->unit->symbol,
+            ];
+        }
+
+        $response = Http::baseUrl('https://wms-selvin.moodatech.site')
+            ->asJson()
+            ->post('/api/outbound', [
+                'warehouse_id'     => $purchaseOrder->warehouse_id,
+                'outlet'           => $outlet->name,
+                'outlet_po_number' => $number,
+                'qty'              => $purchaseOrder->qty,
+                'material'         => $material,
+            ]);
+
+        Log::info($response->json());
     }
 
     public function processPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse

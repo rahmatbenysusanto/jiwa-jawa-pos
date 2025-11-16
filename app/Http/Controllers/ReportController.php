@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Outlet;
+use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDiscount;
 use Illuminate\Http\Request;
@@ -15,8 +16,16 @@ class ReportController extends Controller
 {
     public function sales(): View
     {
+        $transaction = Transaction::where('transaction_status', 'normal')->latest()->paginate(10);
+
         $title = 'Sales Report';
-        return view('report.sales', compact('title'));
+        return view('report.sales', compact('title', 'transaction'));
+    }
+
+    public function salesDetail(Request $request): View
+    {
+        $title = 'Sales Report';
+        return view('report.sales-detail', compact('title'));
     }
 
     public function topSelling(Request $request): View
