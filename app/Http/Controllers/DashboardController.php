@@ -83,8 +83,22 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $materialMinStock = DB::table('material as m')
+            ->leftJoin('inventory as i', 'i.material_id', '=', 'm.id')
+            ->select(
+                'm.id',
+                'm.name',
+                'm.sku',
+                'm.image',
+                DB::raw('COALESCE(SUM(i.stock), 0) as total_stock')
+            )
+            ->groupBy('m.id', 'm.name', 'm.sku', 'm.image')
+            ->orderBy('total_stock', 'asc')
+            ->limit(5)
+            ->get();
+
         $title = 'Dashboard';
-        return view('dashboard.index', compact('title', 'transactionCount', 'totalCost', 'transactionDineIn', 'transactionTakeAway', 'transactionHpp', 'topSelling', 'lowMoving'));
+        return view('dashboard.index', compact('title', 'transactionCount', 'totalCost', 'transactionDineIn', 'transactionTakeAway', 'transactionHpp', 'topSelling', 'lowMoving', 'materialMinStock'));
     }
 
     public function chartTransaction(): \Illuminate\Http\JsonResponse
