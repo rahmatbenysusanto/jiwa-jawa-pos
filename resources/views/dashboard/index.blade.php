@@ -270,7 +270,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div class="d-flex align-items-center">
                                 <a href="javascript:void(0);" class="avatar avatar-lg">
-                                    <img src="assets/img/products/product-06.jpg" alt="img">
+                                    <img src="{{ asset('images/menu/default.png') }}" alt="img">
                                 </a>
                                 <div class="ms-2">
                                     <h6 class="fw-bold mb-1"><a href="javascript:void(0);">{{ $item->name }}</a></h6>
