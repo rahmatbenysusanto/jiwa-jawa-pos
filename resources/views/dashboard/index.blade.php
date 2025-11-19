@@ -47,9 +47,9 @@
                             <i class="ti ti-repeat fs-24"></i>
                         </span>
                     <div class="ms-2">
-                        <p class="text-white mb-1">Transaction Dine In</p>
+                        <p class="text-white mb-1">Hpp Transaction</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
-                            <h4 class="text-white">Rp {{ number_format($transactionDineIn) }}</h4>
+                            <h4 class="text-white">Rp {{ number_format($transactionHpp) }}</h4>
                             <span class="badge badge-soft-danger"><i class="ti ti-arrow-down me-1"></i>-22%</span>
                         </div>
                     </div>
@@ -64,9 +64,9 @@
                             <i class="ti ti-gift fs-24"></i>
                         </span>
                     <div class="ms-2">
-                        <p class="text-white mb-1">Transaction Take Away</p>
+                        <p class="text-white mb-1">Transaction Dine In</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
-                            <h4 class="text-white">Rp {{ number_format($transactionTakeAway) }}</h4>
+                            <h4 class="text-white">Rp {{ number_format($transactionDineIn) }}</h4>
                             <span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
                         </div>
                     </div>
@@ -81,9 +81,9 @@
                             <i class="ti ti-brand-pocket fs-24"></i>
                         </span>
                     <div class="ms-2">
-                        <p class="text-white mb-1">Transaction Online</p>
+                        <p class="text-white mb-1">Transaction Take Away</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
-                            <h4 class="text-white">Rp {{ number_format($transactionDelivery) }}</h4>
+                            <h4 class="text-white">Rp {{ number_format($transactionTakeAway) }}</h4>
                             <span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
                         </div>
                     </div>
@@ -99,17 +99,13 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
                         <div>
-                            <h4 class="mb-1">Rp 0</h4>
+                            <h4 class="mb-1" id="menu-coffee">Rp 0</h4>
                             <p>Menu Coffee</p>
                         </div>
                         <span class="revenue-icon bg-cyan-transparent text-cyan">
                             <i class="fa-solid fa-layer-group fs-16"></i>
                         </span>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
-                        <a href="#" class="text-decoration-underline fs-13 fw-medium">View All</a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -119,17 +115,13 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
                         <div>
-                            <h4 class="mb-1">Rp 0</h4>
+                            <h4 class="mb-1" id="menu-non-coffee">Rp 0</h4>
                             <p>Menu Non Coffee</p>
                         </div>
                         <span class="revenue-icon bg-teal-transparent text-teal">
                             <i class="ti ti-chart-pie fs-16"></i>
                         </span>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+35%</span> vs Last Month</p>
-                        <a href="#" class="text-decoration-underline fs-13 fw-medium">View All</a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -139,17 +131,13 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
                         <div>
-                            <h4 class="mb-1">Rp 0</h4>
+                            <h4 class="mb-1" id="menu-food">Rp 0</h4>
                             <p>Menu Food</p>
                         </div>
                         <span class="revenue-icon bg-orange-transparent text-orange">
                             <i class="ti ti-lifebuoy fs-16"></i>
                         </span>
                     </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <p class="mb-0"><span class="fs-13 fw-bold text-success">+41%</span> vs Last Month</p>
-                        <a href="expense-list.html" class="text-decoration-underline fs-13 fw-medium">View All</a>
-                    </div>
                 </div>
             </div>
         </div>
@@ -159,16 +147,12 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom">
                         <div>
-                            <h4 class="mb-1">Rp 0</h4>
+                            <h4 class="mb-1" id="menu-snack">Rp 0</h4>
                             <p>Menu Snacks / Light Bites</p>
                         </div>
                         <span class="revenue-icon bg-indigo-transparent text-indigo">
                             <i class="ti ti-hash fs-16"></i>
                         </span>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <p class="mb-0"><span class="fs-13 fw-bold text-danger">-20%</span> vs Last Month</p>
-                        <a href="#" class="text-decoration-underline fs-13 fw-medium">View All</a>
                     </div>
                 </div>
             </div>
@@ -185,28 +169,10 @@
                         <span class="title-icon bg-soft-primary fs-16 me-2"><i class="ti ti-shopping-cart"></i></span>
                         <h5 class="card-title mb-0">Transaction</h5>
                     </div>
-                    <ul class="nav btn-group custom-btn-group">
-                        <a class="btn btn-outline-light" href="javascript:void(0);">1D</a>
-                        <a class="btn btn-outline-light" href="javascript:void(0);">1W</a>
-                        <a class="btn btn-outline-light" href="javascript:void(0);">1M</a>
-                        <a class="btn btn-outline-light" href="javascript:void(0);">3M</a>
-                        <a class="btn btn-outline-light" href="javascript:void(0);">6M</a>
-                        <a class="btn btn-outline-light active" href="javascript:void(0);">1Y</a>
-                    </ul>
                 </div>
                 <div class="card-body pb-0">
                     <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="border p-2 br-8">
-                                <p class="d-inline-flex align-items-center mb-1"><i class="ti ti-circle-filled fs-8 text-primary-300 me-1"></i>Total Purchase</p>
-                                <h4>3K</h4>
-                            </div>
-                            <div class="border p-2 br-8">
-                                <p class="d-inline-flex align-items-center mb-1"><i class="ti ti-circle-filled fs-8 text-primary me-1"></i>Total Sales</p>
-                                <h4>1K</h4>
-                            </div>
-                        </div>
-                        <div id="sales-daychart"></div>
+                        <div id="transactionChart"></div>
                     </div>
                 </div>
             </div>
@@ -229,7 +195,7 @@
                                     <i class="ti ti-user-check"></i>
                                 </div>
                                 <p class="mb-1">Cash</p>
-                                <h5>6987</h5>
+                                <h5 id="payment-cash">0</h5>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -238,7 +204,7 @@
                                     <i class="ti ti-users"></i>
                                 </div>
                                 <p class="mb-1">QRIS</p>
-                                <h5>4896</h5>
+                                <h5 id="payment-qris">0</h5>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -247,51 +213,7 @@
                                     <i class="ti ti-shopping-cart"></i>
                                 </div>
                                 <p class="mb-1">Debit</p>
-                                <h5>487</h5>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer pb-sm-0">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                        <h5>Customers Overview</h5>
-                        <div class="dropdown dropdown-wraper">
-                            <a href="javascript:void(0);" class="dropdown-toggle btn btn-sm btn-white"  data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ti ti-calendar me-1"></i>Today
-                            </a>
-                            <ul class="dropdown-menu p-3">
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item">Today</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item">Weekly</a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0);" class="dropdown-item">Monthly</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col-sm-5">
-                            <div id="customer-chart"></div>
-                        </div>
-                        <div class="col-sm-7">
-                            <div class="row gx-0">
-                                <div class="col-sm-6">
-                                    <div class="text-center border-end">
-                                        <h2 class="mb-1">5.5K</h2>
-                                        <p class="text-orange mb-2">First Time</p>
-                                        <span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>25%</span>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="text-center">
-                                        <h2 class="mb-1">3.5K</h2>
-                                        <p class="text-teal mb-2">Return</p>
-                                        <span class="badge badge-success badge-xs d-inline-flex align-items-center"><i class="ti ti-arrow-up-left me-1"></i>21%</span>
-                                    </div>
-                                </div>
+                                <h5 id="payment-debit">0</h5>
                             </div>
                         </div>
                     </div>
@@ -456,4 +378,132 @@
         <!-- /Recent Sales -->
 
     </div>
+@endsection
+
+@section('js')
+    <script>
+        function rupiah(angka) {
+            const number = parseInt(angka, 10) || 0;
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        }
+
+        $.ajax({
+           url: '{{ route('chartTransaction') }}',
+           method: 'GET',
+           success: (res) => {
+               if ($('#transactionChart').length > 0) {
+                   const sColStacked = {
+                       chart: {
+                           height: 245,
+                           type: 'bar',
+                           stacked: true,
+                           toolbar: {
+                               show: false,
+                           }
+                       },
+                       colors: ['#FE9F43', '#FFE3CB'],
+                       responsive: [{
+                           breakpoint: 480,
+                           options: {
+                               legend: {
+                                   position: 'bottom',
+                                   offsetX: -10,
+                                   offsetY: 0
+                               }
+                           }
+                       }],
+                       plotOptions: {
+                           bar: {
+                               borderRadius: 8,
+                               borderRadiusWhenStacked: 'all',
+                               horizontal: false,
+                               endingShape: 'rounded'
+                           },
+                       },
+                       series: [{
+                           name: 'HPP',
+                           data: res.hpp
+                       }, {
+                           name: 'Revenue',
+                           data: res.revenue
+                       }],
+                       xaxis: {
+                           categories: res.labels,
+                           labels: {
+                               style: {
+                                   colors: '#6B7280',
+                                   fontSize: '13px',
+                               }
+                           }
+                       },
+                       yaxis: {
+                           labels: {
+                               formatter: (val) => {
+                                   return 'Rp ' + val.toLocaleString('id-ID');
+                               },
+                               offsetX: -15,
+                               style: {
+                                   colors: '#6B7280',
+                                   fontSize: '13px',
+                               }
+                           }
+                       },
+                       grid: {
+                           borderColor: '#E5E7EB',
+                           strokeDashArray: 5,
+                           padding: {
+                               left: -16,
+                               top: 0,
+                               bottom: 0,
+                               right: 0,
+                           },
+                       },
+                       legend: {
+                           show: false
+                       },
+                       dataLabels: {
+                           enabled: false
+                       },
+                       fill: {
+                           opacity: 1
+                       },
+                   };
+
+                   const chart = new ApexCharts(
+                       document.querySelector("#transactionChart"),
+                       sColStacked
+                   );
+
+                   chart.render();
+               }
+           }
+        });
+
+        $.ajax({
+            url: '{{ route('paymentMethodTransaction') }}',
+            method: 'GET',
+            success: (res) => {
+                document.getElementById('payment-cash').innerText = res.cash;
+                document.getElementById('payment-qris').innerText = res.qris;
+                document.getElementById('payment-debit').innerText = res.debit;
+            }
+        })
+
+        $.ajax({
+            url: '{{ route('chartTransactionByCategoryMenu') }}',
+            method: 'GET',
+            success: (res) => {
+                const data = res.data;
+
+                document.getElementById('menu-coffee').innerText = rupiah(data.coffee);
+                document.getElementById('menu-non-coffee').innerText = rupiah(data.non_coffee);
+                document.getElementById('menu-food').innerText = rupiah(data.food);
+                document.getElementById('menu-snack').innerText = rupiah(data.snack);
+            }
+        });
+    </script>
 @endsection

@@ -36,11 +36,10 @@ class DashboardController extends Controller
             ->whereDate('transaction_date', date('Y-m-d'))
             ->sum('total');
 
-        $transactionDelivery = Transaction::where('outlet_id', Auth::user()->outlet_id)
-            ->where('transaction_delivery', 'delivery')
+        $transactionHpp = Transaction::where('outlet_id', Auth::user()->outlet_id)
             ->where('transaction_status', '!=', 'cancelled')
             ->whereDate('transaction_date', date('Y-m-d'))
-            ->sum('total');
+            ->sum('hpp');
 
         $topSelling = TransactionDetail::query()
             ->join('transaction as t', 't.id', '=', 'transaction_detail.transaction_id')
@@ -85,6 +84,106 @@ class DashboardController extends Controller
             ->get();
 
         $title = 'Dashboard';
-        return view('dashboard.index', compact('title', 'transactionCount', 'totalCost', 'transactionDineIn', 'transactionTakeAway', 'transactionDelivery', 'topSelling', 'lowMoving'));
+        return view('dashboard.index', compact('title', 'transactionCount', 'totalCost', 'transactionDineIn', 'transactionTakeAway', 'transactionHpp', 'topSelling', 'lowMoving'));
+    }
+
+    public function chartTransaction(): \Illuminate\Http\JsonResponse
+    {
+        $startDate = now()->subDays(12)->startOfDay();
+        $endDate   = now()->endOfDay();
+
+        $transactions = DB::table('transaction')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw('DATE(created_at) as date, SUM(total) as total_trans, SUM(hpp) as total_hpp')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->keyBy('date');
+
+        $label = [];
+        $totalRevenue = [];
+        $totalHpp = [];
+
+        for ($i = 12; $i >= 0; $i--) {
+            $dateObj = now()->subDays($i);
+
+            $label[] = $dateObj->format('d M y');
+
+            $date = $dateObj->format('Y-m-d');
+
+            $totalRevenue[] = isset($transactions[$date]) ? (float) $transactions[$date]->total_trans : 0;
+
+            $totalHpp[] = isset($transactions[$date]) ? (float) $transactions[$date]->total_hpp : 0;
+        }
+
+        return response()->json([
+            'labels'    => $label,
+            'revenue'   => $totalRevenue,
+            'hpp'       => $totalHpp,
+        ]);
+    }
+
+    public function paymentMethodTransaction(): \Illuminate\Http\JsonResponse
+    {
+        $cash = Transaction::whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereNot('transaction_status', 'cancelled')
+            ->where('payment_method_id', 1)
+            ->count();
+
+        $qris = Transaction::whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereNot('transaction_status', 'cancelled')
+            ->where('payment_method_id', 2)
+            ->count();
+
+        $debit = Transaction::whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereNot('transaction_status', 'cancelled')
+            ->where('payment_method_id', 3)
+            ->count();
+
+        return response()->json([
+            'cash'    => $cash,
+            'qris'    => $qris,
+            'debit'   => $debit,
+        ]);
+    }
+
+    public function chartTransactionByCategoryMenu(): \Illuminate\Http\JsonResponse
+    {
+        $coffee = TransactionDetail::with(['menu', 'menu.category'])
+            ->whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereHas('menu.category', function ($query) {
+                $query->whereIn('name', ['Coffee']);
+            })
+            ->sum('total');
+
+        $nonCoffee = TransactionDetail::with(['menu', 'menu.category'])
+            ->whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereHas('menu.category', function ($query) {
+                $query->whereIn('name', ['Ice Milk', 'Non Coffee', 'Jus']);
+            })
+            ->sum('total');
+
+        $food = TransactionDetail::with(['menu', 'menu.category'])
+            ->whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereHas('menu.category', function ($query) {
+                $query->whereIn('name', ['Food']);
+            })
+            ->sum('total');
+
+        $snack = TransactionDetail::with(['menu', 'menu.category'])
+            ->whereBetween('created_at', [date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59')])
+            ->whereHas('menu.category', function ($query) {
+                $query->whereIn('name', ['Snack']);
+            })
+            ->sum('total');
+
+        return response()->json([
+            'data'  =>  [
+                'coffee'        => $coffee,
+                'non_coffee'    => $nonCoffee,
+                'food'          => $food,
+                'snack'         => $snack,
+            ]
+        ]);
     }
 }

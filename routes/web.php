@@ -24,6 +24,9 @@ Route::controller(AuthController::class)->group(function () {
 Route::middleware(LoginMiddleware::class)->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
+        Route::get('/chart-transaction', 'chartTransaction')->name('chartTransaction');
+        Route::get('/payment-method', 'paymentMethodTransaction')->name('paymentMethodTransaction');
+        Route::get('/transaction-category', 'chartTransactionByCategoryMenu')->name('chartTransactionByCategoryMenu');
     });
 
     Route::prefix('/menu')->controller(MenuController::class)->group(function () {
