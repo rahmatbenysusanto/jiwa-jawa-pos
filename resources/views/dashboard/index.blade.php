@@ -17,7 +17,7 @@
 
     <div class="alert bg-orange-transparent alert-dismissible fade show mb-4">
         <div>
-            <span><i class="ti ti-info-circle fs-14 text-orange me-2"></i>Your Product </span> <span class="text-orange fw-semibold"> Apple Iphone 15 is running Low, </span> already below 5 Pcs., <a href="javascript:void(0);" class="link-orange text-decoration-underline fw-semibold" data-bs-toggle="modal" data-bs-target="#add-stock">Add Stock</a>
+            <span><i class="ti ti-info-circle fs-14 text-orange me-2"></i>Your Material </span> <span class="text-orange fw-semibold"> {{ $materialMinStock[0]->name }} is running Low, </span> already below {{ $materialMinStock[0]->total_stock }}., <a href="javascript:void(0);" class="link-orange text-decoration-underline fw-semibold" data-bs-toggle="modal" data-bs-target="#add-stock">Add Stock</a>
         </div>
         <button type="button" class="btn-close text-gray-9 fs-14" data-bs-dismiss="alert" aria-label="Close"><i class="ti ti-x"></i></button>
     </div>

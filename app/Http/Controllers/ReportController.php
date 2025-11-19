@@ -84,8 +84,24 @@ class ReportController extends Controller
 
     public function stock(): View
     {
+        $material = DB::table('material')
+            ->leftJoin('material_category', 'material.category_id', '=', 'material_category.id')
+            ->leftJoin('material_unit', 'material.base_unit_id', '=', 'material_unit.id')
+            ->leftJoin('inventory', 'inventory.material_id', '=', 'material.id')
+            ->select([
+                'material.id',
+                'material.name',
+                'material.sku',
+                'material_category.name as category',
+                'material_unit.symbol',
+                DB::raw('COALESCE(SUM(inventory.stock), 0) as stock'),
+            ])
+            ->groupBy(['material.id', 'material.name', 'material.sku', 'material_category.name'])
+            ->orderBy('stock', 'ASC')
+            ->paginate(10);
+
         $title = 'Stock Report';
-        return view('report.stock', compact('title'));
+        return view('report.stock', compact('title', 'material'));
     }
 
     public function discount(): View
