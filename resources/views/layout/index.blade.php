@@ -396,23 +396,23 @@
                                     </li>
                                     @endif
 
-                                    @if(collect(Session::get('menu', []))->contains('Products Report'))
-                                    <li class="{{ $title == '' ? 'active' : '' }}">
-                                        <a href="#">
-                                            <i class="ti ti-package fs-16 me-2"></i>
-                                            <span>Products</span>
-                                        </a>
-                                    </li>
-                                    @endif
+{{--                                    @if(collect(Session::get('menu', []))->contains('Products Report'))--}}
+{{--                                    <li class="{{ $title == '' ? 'active' : '' }}">--}}
+{{--                                        <a href="#">--}}
+{{--                                            <i class="ti ti-package fs-16 me-2"></i>--}}
+{{--                                            <span>Products</span>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+{{--                                    @endif--}}
 
-                                    @if(collect(Session::get('menu', []))->contains('Store Performance Report'))
-                                    <li class="{{ $title == 'Store Performance Report' ? 'active' : '' }}">
-                                        <a href="{{ route('report.store.performance') }}">
-                                            <i class="ti ti-graph fs-16 me-2"></i>
-                                            <span>Store Performance</span>
-                                        </a>
-                                    </li>
-                                    @endif
+{{--                                    @if(collect(Session::get('menu', []))->contains('Store Performance Report'))--}}
+{{--                                    <li class="{{ $title == 'Store Performance Report' ? 'active' : '' }}">--}}
+{{--                                        <a href="{{ route('report.store.performance') }}">--}}
+{{--                                            <i class="ti ti-graph fs-16 me-2"></i>--}}
+{{--                                            <span>Store Performance</span>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+{{--                                    @endif--}}
                                 </ul>
                             </li>
 

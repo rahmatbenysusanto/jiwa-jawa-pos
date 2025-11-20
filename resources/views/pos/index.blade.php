@@ -64,6 +64,7 @@
                             <input type="text" class="form-control" placeholder="Search Product" id="searchProduct">
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
+                        <button class="btn btn-primary btn-sm" onclick="testPrint()">Test Print</button>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -549,61 +550,62 @@
 
     <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
     <script>
-        // 0) DEV ONLY: matikan kebutuhan sertifikat & tanda tangan
-        qz.security.setCertificatePromise((resolve, reject) => resolve(null));
-        qz.security.setSignaturePromise((toSign) => (resolve, reject) => resolve(null));
+        qz.security.setCertificatePromise(function (resolve, reject) {
+            // sementara untuk testing bisa pakai certificate demo dari QZ
+            resolve("-----BEGIN CERTIFICATE-----\nMIID...demo...CERT...\n-----END CERTIFICATE-----\n");
+        });
 
-        async function ensureQZ() {
+        qz.security.setSignaturePromise(function (toSign) {
+            return function(resolve, reject) {
+                // DEV MODE: langsung resolve tanpa sign (cek setting QZ Tray: allow insecure)
+                resolve(null);
+            };
+        });
+
+        function connectQZ() {
             if (!qz.websocket.isActive()) {
-                // pakai ws (insecure) di localhost
-                await qz.websocket.connect({ host: 'localhost', usingSecure: false });
-            }
-        }
-
-        async function printNota() {
-            try {
-                await ensureQZ();
-
-                const matches = await qz.printers.find("HaoYin");
-                const printer = matches[0] || await qz.printers.getDefault();
-                if (!printer) throw new Error('Printer tidak ditemukan di macOS');
-
-                // 2) config: ALT PRINTING penting di macOS agar RAW ESC/POS tembus
-                const cfg = qz.configs.create(printer, {
-                    altPrinting: true,              // kunci di macOS
-                    // encoding: 'CP437',           // opsional, sesuai self-test kamu
+                return qz.websocket.connect().catch(function(err) {
+                    console.error("QZ connect error:", err);
+                    alert("QZ Tray belum jalan di komputer kasir.");
                 });
-
-                // 3) uji RAW termudah: teks polos + feed
-                const data = ["TEST RAW\nKEDAI SELVIN\n\n\n"]; // dulu tanpa ESC
-                await qz.print(cfg, data);
-
-                // 4) jika barusan berhasil, lanjut ESC/POS
-                const ESC = '\x1B', GS = '\x1D';
-                const escpos = [
-                    ESC+"@", ESC+"a"+"\x01", "KEDAI SELVIN\n", "Solo\n\n",
-                    ESC+"a"+"\x00",
-                    "Americano  x1      18.000\n",
-                    "Croissant  x1      12.000\n",
-                    "---------------------------\n",
-                    "Total               30.000\n",
-                    "Metode: DEBIT\n",
-                    "Approval: 749832\n",
-                    "Last4  : 1234\n",
-                    "\n\n\n"
-                    // GS+"V"+"\x00" // cutter jika ada auto-cutter
-                ];
-                await qz.print(cfg, escpos);
-
-                alert('Print terkirim ✓');
-            } catch (e) {
-                console.error(e);
-                alert('Gagal print: ' + (e.message || e));
             }
+            return Promise.resolve();
         }
 
-        document.getElementById('btnPrint').addEventListener('click', printNota);
+        const PRINTER_TEST = "VSC_Customer"; // ganti sesuai nama printermu di QZ Tray
+
+        function testPrint() {
+            connectQZ().then(() => {
+                let config = qz.configs.create(PRINTER_TEST);
+
+                let data = [
+                    "\x1B\x40",                      // init printer
+                    "\x1B\x61\x01", "TEST PRINT\n",  // center alignment
+                    "\x1B\x61\x00",                  // left
+                    "POS Dummy Print\n",
+                    "-----------------------------\n",
+                    "Produk A x1  = 10.000\n",
+                    "Produk B x2  = 24.000\n",
+                    "-----------------------------\n",
+                    "Total        = 34.000\n",
+                    "-----------------------------\n",
+                    "\nTerima kasih!\n",
+                    "\x1D\x56\x00"                   // cut
+                ];
+
+                qz.print(config, data)
+                    .then(() => {
+                        alert("Berhasil kirim ke printer!");
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Gagal print: " + err);
+                    });
+
+            });
+        }
     </script>
+
 
     <script>
         localStorage.clear();
@@ -717,7 +719,7 @@
                 url: '{{ route('pos.menu') }}',
                 method: 'GET',
                 success: (res) => {
-                    allMenuData = res.all;
+                    allMenuData = res.all;          // simpan global
                     menuCategoryData = res.category;
                     renderMenu(allMenuData, menuCategoryData);
                 }

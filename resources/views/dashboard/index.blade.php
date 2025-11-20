@@ -8,10 +8,7 @@
             <p class="fw-medium">You have <span class="text-primary fw-bold">{{ number_format($transactionCount) }}</span> Orders, Today</p>
         </div>
         <div class="input-icon-start position-relative mb-3">
-                <span class="input-icon-addon fs-16 text-gray-9">
-                    <i class="ti ti-calendar"></i>
-                </span>
-            <input type="text" class="form-control date-range bookingrange" placeholder="Search Product">
+
         </div>
     </div>
 
