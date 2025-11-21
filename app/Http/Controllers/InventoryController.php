@@ -434,6 +434,53 @@ class InventoryController extends Controller
         $title = 'Transfer Stock';
         return view('inventory.transferStock.index', compact('title'));
     }
+
+    public function callbackPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            PurchaseOrder::where('id', $request->post('po_number'))->update([
+                'status'        => 'completed',
+                'updated_at'    => date('Y-m-d H:i:s')
+            ]);
+
+            $purchaseOrderDetail = PurchaseOrderDetail::where('purchase_order_id', $request->post('po_number'))->get();
+            foreach ($purchaseOrderDetail as $detail) {
+                PurchaseOrderDetail::where('id', $detail->id)->update([
+                    'status'        => 'completed',
+                    'updated_at'    => date('Y-m-d H:i:s')
+                ]);
+
+                $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
+
+                $material = Material::find($detail->material_id);
+
+                InventoryDetail::create([
+                    'inventory_id'      => $inventory->id,
+                    'purchase_order_id' => $detail->id,
+                    'material_id'       => $detail->material_id,
+                    'qty'               => $detail->qty * $material->conversion_value,
+                    'price'             => 0
+                ]);
+
+                Inventory::where('id', $inventory->id)->increment('stock', $detail->qty * $material->conversion_value);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status'    => true,
+                'message'   => 'Callback Purchase Order Success'
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            Log::error($err->getLine());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
+    }
 }
 
 
