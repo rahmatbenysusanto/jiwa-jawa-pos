@@ -23,7 +23,7 @@
 
     function printInvoicePOS(orderNumber) {
         $.ajax({
-            url: '',
+            url: '{{ route('pos.find.transaction') }}',
             method: 'GET',
             data: {
                 orderNumber: orderNumber,

@@ -64,7 +64,7 @@
                             <input type="text" class="form-control" placeholder="Search Product" id="searchProduct">
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
-                        <button class="btn btn-primary btn-sm" onclick="testPrint()">Test Print</button>
+                        <button class="btn btn-primary btn-sm" onclick="printInvoicePOS('1212')">Test Print</button>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -766,6 +766,7 @@
 
     </script>
 
+    @include('pos.invoice')
 
     <script>
         localStorage.clear();

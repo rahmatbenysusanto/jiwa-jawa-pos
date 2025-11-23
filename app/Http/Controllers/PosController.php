@@ -202,4 +202,13 @@ class PosController extends Controller
             'status' => true
         ]);
     }
+
+    public function findTransaction(Request $request): \Illuminate\Http\JsonResponse
+    {
+        return response()->json([
+            'data'  => [
+                'transaction'   => []
+            ]
+        ]);
+    }
 }

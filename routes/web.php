@@ -128,6 +128,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::post('/change-payment-method', 'changePaymentMethod')->name('pos.payment.method.change');
 
         Route::get('/addon-all', 'listAddon')->name('pos.addon.all');
+        Route::get('/find-transaction', 'findTransaction')->name('pos.find.transaction');
     });
 
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
