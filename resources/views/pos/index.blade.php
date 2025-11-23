@@ -670,7 +670,7 @@
 
                                 ALIGN_CENTER,
                                 BOLD_ON,
-                                "*SALES RECEIPT*\n\n",
+                                "\n*SALES RECEIPT*\n",
                                 BOLD_OFF,
                                 ALIGN_LEFT
                             ];
@@ -699,15 +699,8 @@
                             data.push("\n");
 
                             data.push(
-                                padRight("TOTAL PAID", 24) + padLeft(totalStr, 8) + "\n",
-                                padRight("CHANGES", 24)   + padLeft("Rp 0", 8) + "\n",
+                                padRight("TOTAL", 24) + padLeft(totalStr, 8) + "\n",
                                 padRight("# ITEM SOLD", 24) + padLeft(String(items.length), 8) + "\n",
-                                "\n",
-                                `DPP Nilai Lain : 0\n`,
-                                `DPP : ${meta.dpp.toLocaleString("id-ID")}\n`,
-                                `PPN : ${meta.ppn.toLocaleString("id-ID")}\n`,
-                                `PB1 : ${meta.pb1.toLocaleString("id-ID")}\n`,
-                                "\n"
                             );
 
                             // QR CODE + NOMOR ORDER
@@ -715,7 +708,7 @@
                             data.push(ALIGN_CENTER);
                             buildQrCommands(qrPayload).forEach(cmd => data.push(cmd));
                             data.push("\n");
-                            data.push("Scan QR untuk login ke wifi" + "\n");
+                            data.push("Scan QR untuk login ke wifi" + "\n\n");
 
                             // FOOTER
                             data.push(
@@ -768,7 +761,7 @@
                         // ================== KIRIM KE PRINTER ==================
                         qz.print(config, data)
                             .then(() => {
-                                
+
                             })
                             .catch(err => {
                                 console.error(err);
