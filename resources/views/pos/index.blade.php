@@ -64,7 +64,7 @@
                             <input type="text" class="form-control" placeholder="Search Product" id="searchProduct">
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
-                        <button class="btn btn-primary btn-sm" onclick="printInvoicePOS('1212')">Test Print</button>
+                        <button class="btn btn-primary btn-sm" onclick="printInvoicePOS('INV-20251123-Q9BXLU')">Test Print</button>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -573,15 +573,16 @@
 
         const PRINTER_TEST = "POS-58";
 
-        function printInvoicePOS(orderNumber) {
+        function printInvoicePOS(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
                 method: 'GET',
                 data: {
-                    orderNumber: orderNumber,
+                    invoiceNumber: invoiceNumber,
                 },
                 success: (res) => {
                     const transaction = res.data.transaction;
+                    const transactionDetail = res.data.transactionDetail;
 
                     connectQZ().then(() => {
                         let config = qz.configs.create(PRINTER_TEST, {
@@ -723,7 +724,7 @@
                                 "\x1B\x61\x01",     // center
                                 "\x1B\x45\x01",     // bold on
                                 "\x1D\x21\x11",     // text double width & double height (besar)
-                                "58\n",
+                                `${transaction.order_number}`+'\n',
                                 "\x1D\x21\x00",     // reset size normal
                                 "\x1B\x45\x00",     // bold off
                                 "\x1B\x61\x00",     // left alignment kembali normal
@@ -737,22 +738,32 @@
                         }
 
                         // ================== DUMMY DATA TEST ==================
-                        const items = [
-                            { name: "ICE KSK LARGE", qty: 1, price: 19000 },
-                            { name: "ROTI COKLAT",   qty: 2, price: 8000  }
-                        ];
+                        // const items = [
+                        //     { name: "ICE KSK LARGE", qty: 1, price: 19000 },
+                        //     { name: "ROTI COKLAT",   qty: 2, price: 8000  }
+                        // ];
+
+                        let items = [];
+                        transactionDetail.forEach((detail) => {
+                            items.push({
+                                name: detail.menu.name,
+                                qty: detail.qty,
+                                price: detail.total,
+                                note: detail.note,
+                            });
+                        });
 
                         const meta = {
-                            storeName:   "Kedai Selvin",
-                            rctNo:       "91250802300290873",
-                            cashierName: "Nurul Aisyah",
+                            storeName:   transaction.outlet.name,
+                            rctNo:       transaction.invoice_number,
+                            cashierName: transaction.users.name,
                             dateTime:    "23/08/2025 13:01",
                             paymentName: "BCA QRIS",
-                            paymentRef:  "023600220250823130005004010",
+                            paymentRef:  "-",
                             dpp:         17273,
                             ppn:         0,
                             pb1:         1727,
-                            orderNo:     "ORD-250823-0001"
+                            orderNo:     transaction.invoice_number
                         };
 
                         // build data ESC/POS untuk dikirim ke printer
