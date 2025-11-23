@@ -33,7 +33,7 @@
                                     <td>{{ $item->sku }}</td>
                                     <td>{{ $item->name }}</td>
                                     <td>{{ $item->category }}</td>
-                                    <td>{{ number_format($item->stock) }} {{ $item->symbol }}</td>
+                                    <td>{{ number_format($item->stock) }} {{ $item->symbol ?? null }}</td>
                                     <td></td>
                                 </tr>
                             @endforeach
