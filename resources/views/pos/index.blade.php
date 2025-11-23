@@ -555,10 +555,12 @@
             resolve("-----BEGIN CERTIFICATE-----\nMIID...demo...CERT...\n-----END CERTIFICATE-----\n");
         });
 
-        qz.security.setSignaturePromise(function (toSign) {
-            return function(resolve, reject) {
-                resolve(null);
-            };
+        qz.security.setCertificatePromise(resolve => resolve(CERTIFICATE_PEM));
+        qz.security.setSignaturePromise(toSign => function(resolve, reject) {
+            fetch("/sign", { method: "POST", body: toSign })
+                .then(res => res.text())
+                .then(resolve)
+                .catch(reject);
         });
 
         function connectQZ() {
