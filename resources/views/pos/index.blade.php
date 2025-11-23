@@ -768,7 +768,7 @@
                         // ================== KIRIM KE PRINTER ==================
                         qz.print(config, data)
                             .then(() => {
-                                alert("Berhasil kirim ke printer!");
+                                
                             })
                             .catch(err => {
                                 console.error(err);
