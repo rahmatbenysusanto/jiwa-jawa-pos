@@ -30,7 +30,6 @@
                         <p class="text-white mb-1">Total Transaction</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
                             <h4 class="text-white">Rp {{ number_format($totalCost) }}</h4>
-                            <span class="badge badge-soft-primary"><i class="ti ti-arrow-up me-1"></i>+22%</span>
                         </div>
                     </div>
                 </div>
@@ -47,7 +46,6 @@
                         <p class="text-white mb-1">Hpp Transaction</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
                             <h4 class="text-white">Rp {{ number_format($transactionHpp) }}</h4>
-                            <span class="badge badge-soft-danger"><i class="ti ti-arrow-down me-1"></i>-22%</span>
                         </div>
                     </div>
                 </div>
@@ -64,7 +62,6 @@
                         <p class="text-white mb-1">Transaction Dine In</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
                             <h4 class="text-white">Rp {{ number_format($transactionDineIn) }}</h4>
-                            <span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
                         </div>
                     </div>
                 </div>
@@ -81,7 +78,6 @@
                         <p class="text-white mb-1">Transaction Take Away</p>
                         <div class="d-inline-flex align-items-center flex-wrap gap-2">
                             <h4 class="text-white">Rp {{ number_format($transactionTakeAway) }}</h4>
-                            <span class="badge badge-soft-success"><i class="ti ti-arrow-up me-1"></i>+22%</span>
                         </div>
                     </div>
                 </div>
