@@ -206,7 +206,7 @@ class PosController extends Controller
 
     public function findTransaction(Request $request): \Illuminate\Http\JsonResponse
     {
-        $transaction = Transaction::with('outlet:id,name', 'users:id,name')->where('invoice_number', $request->get('invoiceNumber'))->first();
+        $transaction = Transaction::with('outlet:id,name', 'users:id,name', 'paymentMethod')->where('invoice_number', $request->get('invoiceNumber'))->first();
         $transactionDetail = TransactionDetail::with('menu:id,name')->where('transaction_id', $transaction->id)->get();
 
         return response()->json([

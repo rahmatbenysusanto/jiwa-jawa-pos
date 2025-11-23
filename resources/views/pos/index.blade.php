@@ -671,7 +671,8 @@
 
                                 ALIGN_CENTER,
                                 BOLD_ON,
-                                "\n*SALES RECEIPT*\n",
+                                "\n*SALES RECEIPT*",
+                                "\n\n",
                                 BOLD_OFF,
                                 ALIGN_LEFT
                             ];
@@ -693,16 +694,12 @@
                                 padRight(meta.paymentName || "PAYMENT", 24) + padLeft(payStr, 8) + "\n"
                             );
 
-                            if (meta.paymentRef) {
-                                data.push(meta.paymentRef + "\n");
-                            }
-
-                            data.push("\n");
-
                             data.push(
                                 padRight("TOTAL", 24) + padLeft(totalStr, 8) + "\n",
                                 padRight("# ITEM SOLD", 24) + padLeft(String(items.length), 8) + "\n",
                             );
+
+                            data.push("\n");
 
                             // QR CODE + NOMOR ORDER
                             const qrPayload = meta.orderNo; // bisa diganti URL / payload lain
@@ -753,16 +750,24 @@
                             });
                         });
 
+                        function formatDateTime(dateString) {
+                            const d = new Date(dateString);
+
+                            const day    = String(d.getDate()).padStart(2, '0');
+                            const month  = String(d.getMonth() + 1).padStart(2, '0');
+                            const year   = d.getFullYear();
+                            const hour   = String(d.getHours()).padStart(2, '0');
+                            const minute = String(d.getMinutes()).padStart(2, '0');
+
+                            return `${day}/${month}/${year} ${hour}:${minute}`;
+                        }
+
                         const meta = {
                             storeName:   transaction.outlet.name,
                             rctNo:       transaction.invoice_number,
                             cashierName: transaction.users.name,
-                            dateTime:    "23/08/2025 13:01",
-                            paymentName: "BCA QRIS",
-                            paymentRef:  "-",
-                            dpp:         17273,
-                            ppn:         0,
-                            pb1:         1727,
+                            dateTime:    formatDateTime(transaction.created_at),
+                            paymentName: transaction.payment_method.name,
                             orderNo:     transaction.invoice_number
                         };
 
