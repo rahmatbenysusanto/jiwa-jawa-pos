@@ -96,7 +96,7 @@ class ReportController extends Controller
                 'material_unit.symbol',
                 DB::raw('COALESCE(SUM(inventory.stock), 0) as stock'),
             ])
-            ->groupBy(['material.id', 'material.name', 'material.sku', 'material_category.name'])
+            ->groupBy(['material.id', 'material.name', 'material.sku', 'material_category.name', 'material_unit.symbol'])
             ->orderBy('stock', 'ASC')
             ->paginate(10);
 
