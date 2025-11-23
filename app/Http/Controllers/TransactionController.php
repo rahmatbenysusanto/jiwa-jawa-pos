@@ -81,7 +81,7 @@ class TransactionController extends Controller
                 'tax'               => $request->post('totalTax'),
                 'total'             => $request->post('grandTotal'),
                 'payment_method_id' => $paymentMethod->id ?? 0,
-                'payment_status'    => 'pending',
+                'payment_status'    => $paymentMethod->id == 1 ? 'paid' : 'pending',
                 'transaction_type'  => 'sales',
                 'note'              => $request->post('note'),
                 'transaction_date'  => date('Y-m-d H:i:s'),
