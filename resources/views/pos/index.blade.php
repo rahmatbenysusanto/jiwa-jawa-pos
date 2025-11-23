@@ -572,11 +572,13 @@
             return Promise.resolve();
         }
 
-        const PRINTER_TEST = "VSC_Customer"; // ganti sesuai nama printermu di QZ Tray
+        const PRINTER_TEST = "POS-58"; // ganti sesuai nama printermu di QZ Tray YICHIP_POS58_Printer
 
         function testPrint() {
             connectQZ().then(() => {
-                let config = qz.configs.create(PRINTER_TEST);
+                let config = qz.configs.create(PRINTER_TEST, {
+                    forceRaw: true
+                });
 
                 let data = [
                     "\x1B\x40",                      // init printer
