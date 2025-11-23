@@ -315,6 +315,10 @@ class TransactionController extends Controller
             'data'                  => json_encode($request->post('data')),
         ]);
 
+        Transaction::where('invoice_number', $request->post('invoiceNumber'))->update([
+            'payment_status' => 'paid'
+        ]);
+
         return response()->json([
             'status' => true,
         ]);
