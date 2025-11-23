@@ -660,18 +660,17 @@
                                 // HEADER
                                 ALIGN_CENTER,
                                 BOLD_ON,
-                                (meta.storeName || "").toUpperCase() + "\n",
+                                (meta.storeName || "").toUpperCase() + "\n\n",
                                 BOLD_OFF,
 
                                 ALIGN_LEFT,
                                 `DATE  : ${meta.dateTime}\n`,
                                 `INV NO: ${meta.rctNo}\n`,
                                 `CASHIER: ${meta.cashierName}\n`,
-                                separator(),
 
                                 ALIGN_CENTER,
                                 BOLD_ON,
-                                "*SALES RECEIPT*\n",
+                                "*SALES RECEIPT*\n\n",
                                 BOLD_OFF,
                                 ALIGN_LEFT
                             ];
@@ -716,23 +715,29 @@
                             data.push(ALIGN_CENTER);
                             buildQrCommands(qrPayload).forEach(cmd => data.push(cmd));
                             data.push("\n");
-                            data.push(meta.orderNo + "\n");
-                            data.push("\n");
+                            data.push("Scan QR untuk login ke wifi" + "\n");
 
                             // FOOTER
                             data.push(
                                 "Harga sudah termasuk pajak\n",
-                                "PT Fajar Mitra Indah\n",
-                                "WA Business : 0898-3862-898\n",
-                                "FB, IG & TIKTOK @FamilyMartID\n",
-                                "TWITTER @FamilyMart_ID\n",
+                                "WA : 0898-3862-898\n",
+                                "FB, IG & TIKTOK @KedaiSelvin\n",
                                 "\n",
                                 "Nomor Antrian Anda\n",
+                                "\n",
+
+                                // ================== ANGKA 58 BESAR BOLD TENGAH ==================
+                                "\x1B\x61\x01",     // center
+                                "\x1B\x45\x01",     // bold on
+                                "\x1D\x21\x11",     // text double width & double height (besar)
+                                "58\n",
+                                "\x1D\x21\x00",     // reset size normal
+                                "\x1B\x45\x00",     // bold off
+                                "\x1B\x61\x00",     // left alignment kembali normal
+                                // ===============================================================
+
                                 "\n\n\n",
-                                GS + "V" + "\x00",
-                                "58",
-                                "\n\n\n",
-                                "\n\n\n",
+                                GS + "V" + "\x00"    // cutter
                             );
 
                             return data;
@@ -746,7 +751,6 @@
 
                         const meta = {
                             storeName:   "Kedai Selvin",
-                            posId:       "002",
                             rctNo:       "91250802300290873",
                             cashierName: "Nurul Aisyah",
                             dateTime:    "23/08/2025 13:01",
