@@ -209,6 +209,11 @@ class PosController extends Controller
         $transaction = Transaction::with('outlet:id,name', 'users:id,name', 'paymentMethod')->where('invoice_number', $request->get('invoiceNumber'))->first();
         $transactionDetail = TransactionDetail::with('menu:id,name')->where('transaction_id', $transaction->id)->get();
 
+        foreach ($transactionDetail as $detail) {
+            $detail->addon = DB::table('transaction_detail_addon')->where('transaction_detail_id', $detail->id)->get();
+            $detail->variant = DB::table('transaction_detail_variant')->where('transaction_detail_id', $detail->id)->get();
+        }
+
         return response()->json([
             'data'  => [
                 'transaction'       => $transaction,

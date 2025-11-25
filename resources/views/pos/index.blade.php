@@ -621,11 +621,26 @@
                         }
 
                         // 1 baris item: "ICE KSK LARGE x1      Rp 19.000"
-                        function itemLine(name, qty, price) {
+                        function itemLine(name, qty, price, addon, variant) {
                             const qtyStr   = `x${qty}`;
                             const priceStr = `Rp ${ (qty * price).toLocaleString("id-ID") }`;
 
                             let left = `${name} ${qtyStr}`;
+
+                            if (addon.length !== 0) {
+                                left = 'Addon :'
+                            }
+                            (addon ?? []).forEach((item) => {
+                                left = `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} ${item.qty}`;
+                            });
+
+                            if (addon.length !== 0) {
+                                left = 'Variant :'
+                            }
+                            (variant ?? []).forEach((item) => {
+                                left = `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}`;
+                            });
+
                             if (left.length > 20) left = left.substring(0, 20);
 
                             const spaces = LINE_WIDTH - left.length - priceStr.length;
@@ -681,7 +696,7 @@
 
                             // LIST ITEM
                             items.forEach(it => {
-                                data.push(itemLine(it.name, it.qty, it.price));
+                                data.push(itemLine(it.name, it.qty, it.price, it.addon, it.variant));
                             });
 
                             data.push("\n");
@@ -749,6 +764,8 @@
                                 qty: detail.qty,
                                 price: detail.total,
                                 note: detail.note,
+                                addon: detail.addon ?? [],
+                                variant: detail.variant ?? [],
                             });
                         });
 
@@ -846,11 +863,30 @@
                         }
 
                         // 1 baris item: "ICE KSK LARGE x1      Rp 19.000"
-                        function itemLine(name, qty, price) {
+                        function itemLine(name, qty, price, addon, variant, note) {
                             const qtyStr   = `x${qty}`;
                             const priceStr = `Rp ${ (qty * price).toLocaleString("id-ID") }`;
 
                             let left = `${name} ${qtyStr}`;
+
+                            if (addon.length !== 0) {
+                                left = 'Addon :'
+                            }
+                            (addon ?? []).forEach((item) => {
+                                left = `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} ${item.qty}`;
+                            });
+
+                            if (addon.length !== 0) {
+                                left = 'Variant :'
+                            }
+                            (variant ?? []).forEach((item) => {
+                                left = `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}`;
+                            });
+
+                            if (note !== null || note !== '' || note !== undefined) {
+                                left = 'Note : ' + note;
+                            }
+
                             if (left.length > 20) left = left.substring(0, 20);
 
                             const spaces = LINE_WIDTH - left.length - priceStr.length;
@@ -906,7 +942,7 @@
 
                             // LIST ITEM
                             items.forEach(it => {
-                                data.push(itemLine(it.name, it.qty, it.price));
+                                data.push(itemLine(it.name, it.qty, it.price, it.addon, it.variant, it.note));
                             });
 
                             data.push("\n");
@@ -951,6 +987,8 @@
                                 qty: detail.qty,
                                 price: detail.total,
                                 note: detail.note,
+                                addon: detail.addon ?? [],
+                                variant: detail.variant ?? [],
                             });
                         });
 
