@@ -759,10 +759,6 @@
                             });
 
                             data.push("\n");
-                            data.push(
-                                padRight("TOTAL", 24) + padLeft(totalStr, 8) + "\n",
-                                separator()
-                            );
 
                             // PEMBAYARAN
                             const payStr = `Rp ${total.toLocaleString("id-ID")}`;
@@ -771,8 +767,11 @@
                             );
 
                             data.push(
-                                padRight("TOTAL", 24) + padLeft(totalStr, 8) + "\n",
                                 padRight("# ITEM SOLD", 24) + padLeft(String(items.length), 8) + "\n",
+                                padRight("SUB TOTAL", 24) + padLeft(transaction.subtotal, 8) + "\n",
+                                padRight("DISC", 24) + padLeft(transaction.discount, 8) + "\n",
+                                padRight("TAX", 24) + padLeft(transaction.tax, 8) + "\n",
+                                padRight("TOTAL", 24) + padLeft(transaction.total, 8) + "\n",
                             );
 
                             data.push("\n");
