@@ -630,14 +630,14 @@
                             if (addon.length !== 0) {
                                 left = 'Addon :'
                             }
-                            (addon ?? []).forEach((item) => {
+                            (addon).forEach((item) => {
                                 left = `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} ${item.qty}`;
                             });
 
                             if (addon.length !== 0) {
                                 left = 'Variant :'
                             }
-                            (variant ?? []).forEach((item) => {
+                            (variant).forEach((item) => {
                                 left = `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}`;
                             });
 
