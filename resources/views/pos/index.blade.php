@@ -64,7 +64,7 @@
                             <input type="text" class="form-control" placeholder="Search Product" id="searchProduct">
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
-                        <button class="btn btn-primary btn-sm" onclick="printInvoicePOS('INV-20251123-Q9BXLU')">Test Print</button>
+                        <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -776,18 +776,244 @@
                         // build data ESC/POS untuk dikirim ke printer
                         let data = buildReceipt(items, meta);
 
-                        // ================== KIRIM KE PRINTER ==================
-                        qz.print(config, data)
-                            .then(() => {
+                        // Cash Drawer
+                        let drawerPulse = [''];
+                        if (transaction.payment_method.name === 'Cash') {
+                            drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+                        }
 
+                        // ================== KIRIM KE PRINTER ==================
+                        qz.print(config, drawerPulse) // BUKA CASH DRAWER DULU
+                            .then(() => new Promise(resolve => setTimeout(resolve, 400))) // DELAY 0.4 DETIK
+                            .then(() => qz.print(config, data)) // LALU PRINT STRUK
+                            .then(() => {
+                                console.log("Struk selesai diprint & laci dibuka");
                             })
                             .catch(err => {
                                 console.error(err);
                                 alert("Gagal print: " + err);
                             });
+
                     });
 
                 }
+            });
+        }
+
+        function printNotaKitchen(invoiceNumber) {
+            $.ajax({
+                url: '{{ route('pos.find.transaction') }}',
+                method: 'GET',
+                data: {
+                    invoiceNumber: invoiceNumber,
+                },
+                success: (res) => {
+                    const transaction = res.data.transaction;
+                    const transactionDetail = res.data.transactionDetail;
+
+                    connectQZ().then(() => {
+                        let config = qz.configs.create(PRINTER_TEST, {
+                            forceRaw: true
+                        });
+
+                        // ================== KONSTANTA ESC/POS ==================
+                        const ESC = "\x1B";
+                        const GS  = "\x1D";
+
+                        const INIT         = ESC + "@";
+                        const ALIGN_LEFT   = ESC + "a" + "\x00";
+                        const ALIGN_CENTER = ESC + "a" + "\x01";
+                        const ALIGN_RIGHT  = ESC + "a" + "\x02";
+                        const BOLD_ON      = ESC + "E" + "\x01";
+                        const BOLD_OFF     = ESC + "E" + "\x00";
+
+                        const LINE_WIDTH = 32; // kira-kira lebar karakter kertas 58mm
+
+                        // ================== HELPER FUNCTION ==================
+
+                        function separator() {
+                            return "-".repeat(LINE_WIDTH) + "\n";
+                        }
+
+                        function padLeft(text, width) {
+                            if (text.length > width) return text.substring(0, width);
+                            return " ".repeat(width - text.length) + text;
+                        }
+
+                        function padRight(text, width) {
+                            if (text.length > width) return text.substring(0, width);
+                            return text + " ".repeat(width - text.length);
+                        }
+
+                        // 1 baris item: "ICE KSK LARGE x1      Rp 19.000"
+                        function itemLine(name, qty, price) {
+                            const qtyStr   = `x${qty}`;
+                            const priceStr = `Rp ${ (qty * price).toLocaleString("id-ID") }`;
+
+                            let left = `${name} ${qtyStr}`;
+                            if (left.length > 20) left = left.substring(0, 20);
+
+                            const spaces = LINE_WIDTH - left.length - priceStr.length;
+                            return left + " ".repeat(spaces > 0 ? spaces : 1) + priceStr + "\n";
+                        }
+
+                        // ESC/POS QR Code
+                        function buildQrCommands(qrData) {
+                            // Model 2
+                            const model = GS + "(k" + String.fromCharCode(4, 0, 49, 65, 50, 0);
+                            // Size (1-16)
+                            const size  = GS + "(k" + String.fromCharCode(3, 0, 49, 67, 6);
+                            // Error correction level L
+                            const ecc   = GS + "(k" + String.fromCharCode(3, 0, 49, 69, 48);
+
+                            // Store data
+                            const storeLen = qrData.length + 3;
+                            const pL = storeLen & 0xFF;
+                            const pH = (storeLen >> 8) & 0xFF;
+                            const store = GS + "(k" + String.fromCharCode(pL, pH, 49, 80, 48) + qrData;
+
+                            // Print QR
+                            const print = GS + "(k" + String.fromCharCode(3, 0, 49, 81, 48);
+
+                            return [model, size, ecc, store, print];
+                        }
+
+                        function buildReceipt(items, meta) {
+                            const total = items.reduce((sum, i) => sum + i.qty * i.price, 0);
+                            const totalStr = `Rp ${total.toLocaleString("id-ID")}`;
+
+                            let data = [
+                                INIT,
+
+                                // HEADER
+                                ALIGN_CENTER,
+                                BOLD_ON,
+                                (meta.storeName || "").toUpperCase() + "\n\n",
+                                BOLD_OFF,
+
+                                ALIGN_LEFT,
+                                `DATE  : ${meta.dateTime}\n`,
+                                `INV NO: ${meta.rctNo}\n`,
+                                `CASHIER: ${meta.cashierName}\n`,
+
+                                ALIGN_CENTER,
+                                BOLD_ON,
+                                "\n*SALES RECEIPT*",
+                                "\n\n",
+                                BOLD_OFF,
+                                ALIGN_LEFT
+                            ];
+
+                            // LIST ITEM
+                            items.forEach(it => {
+                                data.push(itemLine(it.name, it.qty, it.price));
+                            });
+
+                            data.push("\n");
+                            data.push(
+                                padRight("# ITEM SOLD", 24) + padLeft(String(items.length), 8) + "\n",
+                            );
+
+                            data.push("\n");
+
+                            // FOOTER
+                            data.push(
+                                "Nomor Antrian Anda\n",
+                                "\n",
+
+                                // ================== ANGKA 58 BESAR BOLD TENGAH ==================
+                                "\x1B\x61\x01",     // center
+                                "\x1B\x45\x01",     // bold on
+                                "\x1D\x21\x11",     // text double width & double height (besar)
+                                `${transaction.order_number}`+'\n',
+                                "\x1D\x21\x00",     // reset size normal
+                                "\x1B\x45\x00",     // bold off
+                                "\x1B\x61\x00",     // left alignment kembali normal
+                                // ===============================================================
+
+                                "\n\n\n",
+                                GS + "V" + "\x00"    // cutter
+                            );
+
+                            return data;
+                        }
+
+                        // ================== DUMMY DATA TEST ==================
+                        // const items = [
+                        //     { name: "ICE KSK LARGE", qty: 1, price: 19000 },
+                        //     { name: "ROTI COKLAT",   qty: 2, price: 8000  }
+                        // ];
+
+                        let items = [];
+                        transactionDetail.forEach((detail) => {
+                            items.push({
+                                name: detail.menu.name,
+                                qty: detail.qty,
+                                price: detail.total,
+                                note: detail.note,
+                            });
+                        });
+
+                        function formatDateTime(dateString) {
+                            const d = new Date(dateString);
+
+                            const day    = String(d.getDate()).padStart(2, '0');
+                            const month  = String(d.getMonth() + 1).padStart(2, '0');
+                            const year   = d.getFullYear();
+                            const hour   = String(d.getHours()).padStart(2, '0');
+                            const minute = String(d.getMinutes()).padStart(2, '0');
+
+                            return `${day}/${month}/${year} ${hour}:${minute}`;
+                        }
+
+                        const meta = {
+                            storeName:   transaction.outlet.name,
+                            rctNo:       transaction.invoice_number,
+                            cashierName: transaction.users.name,
+                            dateTime:    formatDateTime(transaction.created_at),
+                            paymentName: transaction.payment_method.name,
+                            orderNo:     transaction.invoice_number
+                        };
+
+                        // build data ESC/POS untuk dikirim ke printer
+                        let data = buildReceipt(items, meta);
+
+                        // Cash Drawer
+                        let drawerPulse = [''];
+                        if (transaction.payment_method.name === 'Cash') {
+                            drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+                        }
+
+                        // ================== KIRIM KE PRINTER ==================
+                        qz.print(config, drawerPulse) // BUKA CASH DRAWER DULU
+                            .then(() => new Promise(resolve => setTimeout(resolve, 400))) // DELAY 0.4 DETIK
+                            .then(() => qz.print(config, data)) // LALU PRINT STRUK
+                            .then(() => {
+                                console.log("Struk selesai diprint & laci dibuka");
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                alert("Gagal print: " + err);
+                            });
+
+                    });
+
+                }
+            });
+        }
+
+        function openCashDrawer() {
+            connectQZ().then(() => {
+                let config = qz.configs.create(PRINTER_TEST, {
+                    forceRaw: true
+                });
+
+                const drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+
+                qz.print(config, drawerPulse)
+                    .catch(err => {
+                        alert("Gagal print: " + err);
+                    });
             });
         }
     </script>
@@ -2204,6 +2430,10 @@
                             Swal.close();
 
                             if (res.status) {
+
+                                // Print Nota
+                                printInvoicePOS('{{ $invoiceNumber }}');
+
                                 if (paymentMethod === 'Debit') {
                                     Swal.fire({
                                         title: 'Success!',
@@ -2211,7 +2441,7 @@
                                         icon: 'success',
                                     }).then((i) => {
                                         document.getElementById('buttonAfterProcess').innerHTML = `
-                                            <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                            <a class="btn btn-secondary w-100 mb-2" onclick="printInvoicePOS('{{ $invoiceNumber}}')">
                                                 <i class="ti ti-printer me-2"></i>Print Invoice
                                             </a>
                                             <a class="btn btn-orange w-100 mb-2" onclick="debitPaymentNumber()">
@@ -2225,7 +2455,7 @@
                                     localStorage.setItem('midtrans', JSON.stringify(midtrans));
 
                                     document.getElementById('buttonAfterProcess').innerHTML = `
-                                        <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                        <a class="btn btn-secondary w-100 mb-2" onclick="printInvoicePOS('{{ $invoiceNumber}}')">
                                             <i class="ti ti-printer me-2"></i>Print Invoice
                                         </a>
                                         <a class="btn btn-orange w-100 mb-2" onclick="viewQrisModal()">
@@ -2236,7 +2466,7 @@
                                     viewQrisModal();
                                 } else {
                                     document.getElementById('buttonAfterProcess').innerHTML = `
-                                        <a class="btn btn-secondary w-100 mb-2" onclick="printNota()">
+                                        <a class="btn btn-secondary w-100 mb-2" onclick="printInvoicePOS('{{ $invoiceNumber}}')">
                                             <i class="ti ti-printer me-2"></i>Print Invoice
                                         </a>
                                     `;
