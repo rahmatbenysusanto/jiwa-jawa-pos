@@ -65,6 +65,7 @@
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
                         <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
+                        <a class="btn btn-primary btn-sm ms-2" onclick="printInvoicePOS('INV-20251125-JU1W3P')">Test</a>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -628,22 +629,21 @@
                             let left = `${name} ${qtyStr}`;
 
                             if (addon.length !== 0) {
-                                left = 'Addon :'
+                                left += '\nAddon : \n'
                             }
                             (addon).forEach((item) => {
-                                left = `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} ${item.qty}`;
+                                left += `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} x${item.qty} \n`;
                             });
 
-                            if (addon.length !== 0) {
-                                left = 'Variant :'
+                            if (variant.length !== 0) {
+                                left += 'Variant :\n'
                             }
                             (variant).forEach((item) => {
-                                left = `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}`;
+                                left += `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}\n`;
                             });
 
-                            if (left.length > 20) left = left.substring(0, 20);
-
                             const spaces = LINE_WIDTH - left.length - priceStr.length;
+
                             return left + " ".repeat(spaces > 0 ? spaces : 1) + priceStr + "\n";
                         }
 
@@ -708,7 +708,7 @@
                             // PEMBAYARAN
                             const payStr = `Rp ${total.toLocaleString("id-ID")}`;
                             data.push(
-                                padRight(meta.paymentName || "PAYMENT", 24) + padLeft(payStr, 8) + "\n"
+                                padRight(meta.paymentName || "PAYMENT", 24) + "\n"
                             );
 
                             data.push(
@@ -870,24 +870,22 @@
                             let left = `${name} ${qtyStr}`;
 
                             if (addon.length !== 0) {
-                                left = 'Addon :'
+                                left += '\nAddon : \n'
                             }
-                            (addon ?? []).forEach((item) => {
-                                left = `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} ${item.qty}`;
+                            (addon).forEach((item) => {
+                                left += `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} x${item.qty} \n`;
                             });
 
-                            if (addon.length !== 0) {
-                                left = 'Variant :'
+                            if (variant.length !== 0) {
+                                left += 'Variant :\n'
                             }
-                            (variant ?? []).forEach((item) => {
-                                left = `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}`;
+                            (variant).forEach((item) => {
+                                left += `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}\n`;
                             });
 
                             if (note !== null || note !== '' || note !== undefined) {
                                 left = 'Note : ' + note;
                             }
-
-                            if (left.length > 20) left = left.substring(0, 20);
 
                             const spaces = LINE_WIDTH - left.length - priceStr.length;
                             return left + " ".repeat(spaces > 0 ? spaces : 1) + priceStr + "\n";
