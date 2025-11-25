@@ -862,33 +862,95 @@
                             return text + " ".repeat(width - text.length);
                         }
 
-                        // 1 baris item: "ICE KSK LARGE x1      Rp 19.000"
-                        function itemLine(name, qty, price, addon, variant, note) {
-                            const qtyStr   = `x${qty}`;
-                            const priceStr = `Rp ${ (qty * price).toLocaleString("id-ID") }`;
+                        function formatMoney(n) {
+                            return `Rp ${n.toLocaleString("id-ID")}`;
+                        }
 
-                            let left = `${name} ${qtyStr}`;
-
-                            if (addon.length !== 0) {
-                                left += '\nAddon : \n'
+                        function wrapText(text, width) {
+                            const words = String(text).split(/\s+/);
+                            const lines = [];
+                            let line = "";
+                            for (const w of words) {
+                                if ((line + (line ? " " : "") + w).length <= width) {
+                                    line = line ? line + " " + w : w;
+                                } else {
+                                    if (line) lines.push(line);
+                                    // if single word longer than width, hard-split
+                                    if (w.length > width) {
+                                        let start = 0;
+                                        while (start < w.length) {
+                                            lines.push(w.slice(start, start + width));
+                                            start += width;
+                                        }
+                                        line = "";
+                                    } else {
+                                        line = w;
+                                    }
+                                }
                             }
-                            (addon).forEach((item) => {
-                                left += `${item.addon_name} ${item.addon_price.toLocaleString("id-ID")} x${item.qty} \n`;
+                            if (line) lines.push(line);
+                            return lines;
+                        }
+
+                        function itemLine(name, qty = 1, price = 0, addon = [], variant = [], note = null) {
+                            const qtyStr = `x${qty}`;
+                            const totalPrice = qty * price;
+                            const priceStr = formatMoney(totalPrice);
+
+                            // Kumpulkan blok kiri sebagai array baris (sebelum wrapping)
+                            const leftBlocks = [];
+                            leftBlocks.push(`${name} ${qtyStr}`);
+
+                            if (Array.isArray(addon) && addon.length) {
+                                leftBlocks.push("Addon:");
+                                addon.forEach(a => {
+                                    // contoh: "Keripik 5.000 x2"
+                                    const aPrice = a.addon_price ?? 0;
+                                    leftBlocks.push(`${a.addon_name} ${aPrice.toLocaleString("id-ID")} x${a.qty}`);
+                                });
+                            }
+
+                            if (Array.isArray(variant) && variant.length) {
+                                leftBlocks.push("Variant:");
+                                variant.forEach(v => {
+                                    const vPrice = v.variant_price ?? 0;
+                                    leftBlocks.push(`${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
+                                });
+                            }
+
+                            if (note !== null && note !== undefined && String(note).trim() !== "") {
+                                leftBlocks.push(`Note: ${note}`);
+                            }
+
+                            // Baris pertama harus berisi price di sebelah kanan.
+                            // Hitung lebar yang tersedia untuk teks kiri pada baris pertama:
+                            const availForFirst = LINE_WIDTH - priceStr.length;
+                            const outputLines = [];
+
+                            // Wrap first logical block (nama + qty) agar sesuai availForFirst
+                            const firstWrapped = wrapText(leftBlocks.shift(), availForFirst);
+                            // pakai baris pertama dari firstWrapped sebagai baris dengan price
+                            let firstLineText = firstWrapped.shift() || "";
+                            if (firstLineText.length > availForFirst) {
+                                firstLineText = firstLineText.slice(0, availForFirst - 3) + "...";
+                            }
+                            const padSpaces = Math.max(1, availForFirst - firstLineText.length);
+                            outputLines.push(firstLineText + " ".repeat(padSpaces) + priceStr);
+
+                            // sisa dari firstWrapped (jika ada) dimasukkan ke output sebagai baris biasa
+                            firstWrapped.forEach(t => {
+                                const wrapped = wrapText(t, LINE_WIDTH);
+                                wrapped.forEach(x => outputLines.push(x));
                             });
 
-                            if (variant.length !== 0) {
-                                left += 'Variant :\n'
-                            }
-                            (variant).forEach((item) => {
-                                left += `${item.variant_name} : ${item.variant_value} ${item.variant_price.toLocaleString("id-ID")}\n`;
+                            // untuk setiap leftBlocks berikutnya, wrap ke LINE_WIDTH dan push
+                            leftBlocks.forEach(block => {
+                                const wrapped = wrapText(block, LINE_WIDTH);
+                                wrapped.forEach(line => outputLines.push(line));
                             });
 
-                            if (note !== null || note !== '' || note !== undefined) {
-                                left = 'Note : ' + note;
-                            }
-
-                            const spaces = LINE_WIDTH - left.length - priceStr.length;
-                            return left + " ".repeat(spaces > 0 ? spaces : 1) + priceStr + "\n";
+                            // Pastikan setiap baris yang lebih pendek tetap diakhiri newline saat digabung
+                            return outputLines.map(l => l + "\n").join("");
                         }
 
                         // ESC/POS QR Code
