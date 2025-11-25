@@ -867,16 +867,17 @@
                         }
 
                         function wrapText(text, width) {
+                            if (!text) return [];
                             const words = String(text).split(/\s+/);
                             const lines = [];
                             let line = "";
                             for (const w of words) {
-                                if ((line + (line ? " " : "") + w).length <= width) {
-                                    line = line ? line + " " + w : w;
+                                if ((line ? line.length + 1 + w.length : w.length) <= width) {
+                                    line = line ? (line + " " + w) : w;
                                 } else {
                                     if (line) lines.push(line);
-                                    // if single word longer than width, hard-split
                                     if (w.length > width) {
+                                        // hard-split very long word
                                         let start = 0;
                                         while (start < w.length) {
                                             lines.push(w.slice(start, start + width));
@@ -897,59 +898,52 @@
                             const totalPrice = qty * price;
                             const priceStr = formatMoney(totalPrice);
 
-                            // Kumpulkan blok kiri sebagai array baris (sebelum wrapping)
-                            const leftBlocks = [];
-                            leftBlocks.push(`${name} ${qtyStr}`);
+                            // Baris utama (nama + qty) — ini yang akan dipasangkan dengan price di baris pertama
+                            const main = `${name} ${qtyStr}`;
 
+                            // Kumpulkan blok tambahan (tanpa menambahkan newline ke main)
+                            const extraBlocks = [];
                             if (Array.isArray(addon) && addon.length) {
-                                leftBlocks.push("Addon:");
+                                extraBlocks.push("Addon:");
                                 addon.forEach(a => {
-                                    // contoh: "Keripik 5.000 x2"
                                     const aPrice = a.addon_price ?? 0;
-                                    leftBlocks.push(`${a.addon_name} ${aPrice.toLocaleString("id-ID")} x${a.qty}`);
+                                    extraBlocks.push(`${a.addon_name} ${aPrice.toLocaleString("id-ID")} x${a.qty}`);
                                 });
                             }
 
                             if (Array.isArray(variant) && variant.length) {
-                                leftBlocks.push("Variant:");
+                                extraBlocks.push("Variant:");
                                 variant.forEach(v => {
                                     const vPrice = v.variant_price ?? 0;
-                                    leftBlocks.push(`${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
+                                    extraBlocks.push(`${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
                                 });
                             }
 
                             if (note !== null && note !== undefined && String(note).trim() !== "") {
-                                leftBlocks.push(`Note: ${note}`);
+                                extraBlocks.push(`Note: ${note}`);
                             }
 
-                            // Baris pertama harus berisi price di sebelah kanan.
-                            // Hitung lebar yang tersedia untuk teks kiri pada baris pertama:
-                            const availForFirst = LINE_WIDTH - priceStr.length;
                             const outputLines = [];
 
-                            // Wrap first logical block (nama + qty) agar sesuai availForFirst
-                            const firstWrapped = wrapText(leftBlocks.shift(), availForFirst);
-                            // pakai baris pertama dari firstWrapped sebagai baris dengan price
-                            let firstLineText = firstWrapped.shift() || "";
-                            if (firstLineText.length > availForFirst) {
-                                firstLineText = firstLineText.slice(0, availForFirst - 3) + "...";
-                            }
-                            const padSpaces = Math.max(1, availForFirst - firstLineText.length);
-                            outputLines.push(firstLineText + " ".repeat(padSpaces) + priceStr);
+                            // Baris pertama: main (wrapped jika perlu) + price di kanan
+                            const availForFirst = LINE_WIDTH - priceStr.length;
+                            const mainWrapped = wrapText(main, Math.max(1, availForFirst));
 
-                            // sisa dari firstWrapped (jika ada) dimasukkan ke output sebagai baris biasa
-                            firstWrapped.forEach(t => {
-                                const wrapped = wrapText(t, LINE_WIDTH);
-                                wrapped.forEach(x => outputLines.push(x));
-                            });
+                            // gunakan baris pertama dari mainWrapped sebagai baris dengan price
+                            const firstMainLine = mainWrapped.length ? mainWrapped.shift() : "";
+                            const pad = Math.max(1, availForFirst - firstMainLine.length);
+                            outputLines.push(firstMainLine + " ".repeat(pad) + priceStr);
 
-                            // untuk setiap leftBlocks berikutnya, wrap ke LINE_WIDTH dan push
-                            leftBlocks.forEach(block => {
+                            // sisa dari mainWrapped menjadi baris biasa
+                            mainWrapped.forEach(l => outputLines.push(l));
+
+                            // lalu tambahkan extraBlocks (wrap per baris)
+                            extraBlocks.forEach(block => {
                                 const wrapped = wrapText(block, LINE_WIDTH);
-                                wrapped.forEach(line => outputLines.push(line));
+                                wrapped.forEach(l => outputLines.push(l));
                             });
 
-                            // Pastikan setiap baris yang lebih pendek tetap diakhiri newline saat digabung
+                            // akhiri setiap baris dengan newline
                             return outputLines.map(l => l + "\n").join("");
                         }
 
