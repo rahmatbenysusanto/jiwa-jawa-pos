@@ -574,7 +574,7 @@
             return Promise.resolve();
         }
 
-        const PRINTER_TEST = "POS-58";
+        const PRINTER_POS = "POS-58";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -588,7 +588,7 @@
                     const transactionDetail = res.data.transactionDetail;
 
                     connectQZ().then(() => {
-                        let config = qz.configs.create(PRINTER_TEST, {
+                        let config = qz.configs.create(PRINTER_POS, {
                             forceRaw: true
                         });
 
@@ -676,10 +676,6 @@
                                     const vPrice = v.variant_price ?? 0;
                                     extraBlocks.push(`${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
                                 });
-                            }
-
-                            if (note !== null && note !== undefined && String(note).trim() !== "") {
-                                extraBlocks.push(`Note: ${note}`);
                             }
 
                             const outputLines = [];
@@ -875,6 +871,7 @@
             });
         }
 
+        const PRINTER_KITCHEN = "";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
@@ -887,7 +884,7 @@
                     const transactionDetail = res.data.transactionDetail;
 
                     connectQZ().then(() => {
-                        let config = qz.configs.create(PRINTER_TEST, {
+                        let config = qz.configs.create(PRINTER_KITCHEN, {
                             forceRaw: true
                         });
 
