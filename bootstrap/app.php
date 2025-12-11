@@ -12,7 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->web(
+            without: [
+                'midtrans/callback',
+                '/midtrans/callback',
+                'api/midtrans/callback',
+                '/api/midtrans/callback',
+            ]
+        );
+
+        // Daftarkan middleware api (stateless)
+        $middleware->api();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
