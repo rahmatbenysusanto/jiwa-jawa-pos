@@ -386,4 +386,31 @@ class TransactionController extends Controller
             ]);
         }
     }
+
+    public function callbackMidtransPayment(Request $request): JsonResponse
+    {
+        $payload = $request->all();
+
+        $orderId = $payload['order_id'] ?? null;
+        $status  = $payload['transaction_status'] ?? null;
+
+        $localSignature = hash('sha512',
+            $payload['order_id'] .
+            $payload['status_code'] .
+            $payload['gross_amount'] .
+            env('MIDTRANS_SERVER_KEY')
+        );
+
+        if ($localSignature !== $payload['signature_key']) {
+            return response()->json(['message' => 'Invalid signature'], 403);
+        }
+
+        if ($status === 'settlement') {
+            Transaction::where('invoice_number', $orderId)->update(['payment_status' => 'paid']);
+        }
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
 }
