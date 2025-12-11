@@ -205,12 +205,3 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/store-performance', 'storePerformance')->name('report.store.performance');
     });
 });
-
-Route::prefix('/api')->group(function () {
-    Route::post('/callback/midtrans/payment', [TransactionController::class, 'callbackMidtransPayment']);
-    Route::post('/testing', function () {
-        return response()->json([
-            'status' => true,
-        ]);
-    });
-});
