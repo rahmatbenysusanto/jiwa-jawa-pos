@@ -1151,7 +1151,7 @@
 
         function openCashDrawer() {
             connectQZ().then(() => {
-                let config = qz.configs.create(PRINTER_TEST, {
+                let config = qz.configs.create(PRINTER_POS, {
                     forceRaw: true
                 });
 
