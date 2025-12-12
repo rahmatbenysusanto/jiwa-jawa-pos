@@ -1154,7 +1154,7 @@
                 const config = qz.configs.create(PRINTER_POS);
 
                 // Mengirim sebagai raw hex string
-                const data = [{ type: 'raw', format: 'hex', data: '1B700019FA' }];
+                const data = [{ type: "raw", format: "hex", data: "1B7001C8C8" }];
 
                 qz.print(config, data)
                     .catch(err => alert("Gagal print: " + err));
