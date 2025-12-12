@@ -1152,11 +1152,14 @@
         }
 
         function openCashDrawer() {
-            const payloadSequence = [
-                { type: "raw", format: "hex", data: "1B7001FFFF" },
-                { type: "raw", format: "hex", data: "1B7001FFFF" }
-            ];
-            qz.print(config, payloadSequence).catch(err => console.error(err));
+            connectQZ().then(() => {
+                const config = qz.configs.create(PRINTER_POS);
+
+                const data = [{ type: "raw", format: "hex", data: "1B7001FAFA" }];
+
+                qz.print(config, data)
+                    .catch(err => alert("Gagal print: " + err));
+            });
         }
 
     </script>
