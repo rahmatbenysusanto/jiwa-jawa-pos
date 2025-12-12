@@ -1,14 +1,11 @@
 <?php
 
-use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/process-po', [InventoryController::class, 'callbackPurchaseOrder']);
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
-Route::post('/callback/midtrans/payment', [TransactionController::class, 'callbackMidtransPayment']);
-Route::post('/testing', function () {
-    return response()->json([
-        'status' => true,
-    ]);
-});
+Route::post('/callback/payment-qris', [TransactionController::class, 'callbackMidtransPayment']);
