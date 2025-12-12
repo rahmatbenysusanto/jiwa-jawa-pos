@@ -1151,17 +1151,12 @@
             });
         }
 
-        async function openCashDrawer() {
-            const config = qz.configs.create(PRINTER_POS, { forceRaw: true });
-            const small = new Uint8Array([0x1B,0x70,0x01,0x3C,0x3C]); // ~60ms
-            const medium = new Uint8Array([0x1B,0x70,0x01,0x64,0x64]); // 100ms
-            const big = new Uint8Array([0x1B,0x70,0x01,0xFF,0xFF]);    // 255ms
-
-            await qz.print(config, small);
-            await new Promise(r=>setTimeout(r,50));
-            await qz.print(config, medium);
-            await new Promise(r=>setTimeout(r,50));
-            await qz.print(config, big);
+        function openCashDrawer() {
+            const payloadSequence = [
+                { type: "raw", format: "hex", data: "1B7001FFFF" },
+                { type: "raw", format: "hex", data: "1B7001FFFF" }
+            ];
+            qz.print(config, payloadSequence).catch(err => console.error(err));
         }
 
     </script>
