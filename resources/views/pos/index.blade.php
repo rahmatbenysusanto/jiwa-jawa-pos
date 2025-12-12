@@ -1151,18 +1151,16 @@
 
         function openCashDrawer() {
             connectQZ().then(() => {
-                let config = qz.configs.create(PRINTER_POS, {
-                    forceRaw: true
-                });
+                const config = qz.configs.create(PRINTER_POS, { forceRaw: true });
 
-                const drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+                // Contoh command: ESC p m t1 t2  -> 0x1B 0x70 0x00 0x19 0xFA
+                const bytes = new Uint8Array([0x1B, 0x70, 0x00, 0x19, 0xFA]);
 
-                qz.print(config, drawerPulse)
-                    .catch(err => {
-                        alert("Gagal print: " + err);
-                    });
-            });
+                qz.print(config, bytes)
+                    .catch(err => alert("Gagal print: " + err));
+            }).catch(err => alert("Gagal connectQZ: " + err));
         }
+
     </script>
 
     <script>
