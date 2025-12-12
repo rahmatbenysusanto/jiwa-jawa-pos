@@ -1154,12 +1154,11 @@
         function openCashDrawer() {
             connectQZ().then(() => {
                 const config = qz.configs.create(PRINTER_POS);
-
-                // Mengirim sebagai raw hex string
                 const data = [{ type: "raw", format: "hex", data: "1B7001FAFA" }];
 
-                qz.print(config, data)
-                    .catch(err => alert("Gagal print: " + err));
+                qz.print(config, data).catch(err => alert("Gagal print: " + err));
+                qz.print(config, data).catch(err => alert("Gagal print: " + err));
+                qz.print(config, data).catch(err => alert("Gagal print: " + err));
             });
         }
 
