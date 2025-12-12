@@ -1151,14 +1151,14 @@
 
         function openCashDrawer() {
             connectQZ().then(() => {
-                const config = qz.configs.create(PRINTER_POS, { forceRaw: true });
+                const config = qz.configs.create(PRINTER_POS);
 
-                // Contoh command: ESC p m t1 t2  -> 0x1B 0x70 0x00 0x19 0xFA
-                const bytes = new Uint8Array([0x1B, 0x70, 0x00, 0x19, 0xFA]);
+                // Mengirim sebagai raw hex string
+                const data = [{ type: 'raw', format: 'hex', data: '1B700019FA' }];
 
-                qz.print(config, bytes)
+                qz.print(config, data)
                     .catch(err => alert("Gagal print: " + err));
-            }).catch(err => alert("Gagal connectQZ: " + err));
+            });
         }
 
     </script>
