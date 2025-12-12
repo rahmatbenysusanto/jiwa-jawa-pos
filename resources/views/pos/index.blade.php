@@ -1131,6 +1131,8 @@
                             drawerPulse = ["\x1B\x70\x00\x19\xFA"];
                         }
 
+                        openCashDrawer();
+
                         // ================== KIRIM KE PRINTER ==================
                         qz.print(config, drawerPulse) // BUKA CASH DRAWER DULU
                             .then(() => new Promise(resolve => setTimeout(resolve, 400))) // DELAY 0.4 DETIK
@@ -1154,7 +1156,7 @@
                 const config = qz.configs.create(PRINTER_POS);
 
                 // Mengirim sebagai raw hex string
-                const data = [{ type: "raw", format: "hex", data: "1B7001C8C8" }];
+                const data = [{ type: "raw", format: "hex", data: "1B7000FAFA" }];
 
                 qz.print(config, data)
                     .catch(err => alert("Gagal print: " + err));
