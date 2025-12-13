@@ -197,6 +197,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
     <script>
+        localStorage.setItem('print_kasir', JSON.stringify('POS-58'));
+        localStorage.setItem('print_dapur', JSON.stringify('POS-58-2'));
+
         function printNota(invoiceNumber) {
             document.getElementById('buttonPrintNota').innerHTML = `
                 <div class="col-6">
@@ -324,7 +327,7 @@
             return Promise.resolve();
         }
 
-        const PRINTER_POS = "PRINT_KASIR";
+        //const PRINTER_POS = "POS-58";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -336,6 +339,8 @@
                 success: (res) => {
                     const transaction = res.data.transaction;
                     const transactionDetail = res.data.transactionDetail;
+
+                    let PRINTER_POS = JSON.parse(localStorage.getItem('print_kasir'));
 
                     connectQZ().then(() => {
                         let config = qz.configs.create(PRINTER_POS, {
@@ -621,7 +626,7 @@
             });
         }
 
-        const PRINTER_KITCHEN = "PRINT_DAPUR";
+        //const PRINTER_KITCHEN = "PRINT_DAPUR";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
@@ -632,6 +637,8 @@
                 success: (res) => {
                     const transaction = res.data.transaction;
                     const transactionDetail = res.data.transactionDetail;
+
+                    let PRINTER_KITCHEN = JSON.parse(localStorage.getItem('print_dapur'));
 
                     connectQZ().then(() => {
                         let config = qz.configs.create(PRINTER_KITCHEN, {
