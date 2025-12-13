@@ -574,7 +574,7 @@
             return Promise.resolve();
         }
 
-        const PRINTER_POS = "POS-58";
+        const PRINTER_POS = "PRINT_KASIR";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -871,7 +871,7 @@
             });
         }
 
-        const PRINTER_KITCHEN = "";
+        const PRINTER_KITCHEN = "PRINT_DAPUR";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
@@ -1128,7 +1128,7 @@
                         // Cash Drawer
                         let drawerPulse = [''];
                         if (transaction.payment_method.name === 'Cash') {
-                            drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+                            drawerPulse = [{ type: "raw", format: "hex", data: "1B7001FAFA" }];
                         }
 
                         openCashDrawer();
