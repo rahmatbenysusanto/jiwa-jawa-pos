@@ -603,22 +603,24 @@
                         let data = buildReceipt(items, meta);
 
                         // Cash Drawer
-                        let drawerPulse = [''];
+                        let printFlow = Promise.resolve();
+
                         if (transaction.payment_method.name === 'Cash') {
-                            drawerPulse = ["\x1B\x70\x00\x19\xFA"];
+                            printFlow = printFlow
+                                .then(() => qz.print(config, ["\x1B\x70\x00\x19\xFA"]))
+                                .then(() => new Promise(resolve => setTimeout(resolve, 400)));
                         }
 
-                        // ================== KIRIM KE PRINTER ==================
-                        qz.print(config, drawerPulse) // BUKA CASH DRAWER DULU
-                            .then(() => new Promise(resolve => setTimeout(resolve, 400))) // DELAY 0.4 DETIK
-                            .then(() => qz.print(config, data)) // LALU PRINT STRUK
+                        printFlow
+                            .then(() => qz.print(config, data))
                             .then(() => {
-                                console.log("Struk selesai diprint & laci dibuka");
+                                console.log("Struk selesai diprint");
                             })
                             .catch(err => {
                                 console.error(err);
                                 alert("Gagal print: " + err);
                             });
+
 
                     });
 
