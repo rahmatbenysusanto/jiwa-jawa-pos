@@ -324,7 +324,7 @@
             return Promise.resolve();
         }
 
-        const PRINTER_POS = "POS-58";
+        const PRINTER_POS = "PRINT_KASIR";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -621,7 +621,7 @@
             });
         }
 
-        const PRINTER_KITCHEN = "RPP02N";
+        const PRINTER_KITCHEN = "PRINT_DAPUR";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
