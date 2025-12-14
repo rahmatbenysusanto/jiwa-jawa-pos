@@ -141,10 +141,10 @@
                                     <td>Discount</td>
                                     <td class="text-danger text-end" id="discount">Rp 0</td>
                                 </tr>
-                                <tr>
-                                    <td>Tax (11%)</td>
-                                    <td class="text-end" id="totalTax">Rp 0</td>
-                                </tr>
+{{--                                <tr>--}}
+{{--                                    <td>Tax (11%)</td>--}}
+{{--                                    <td class="text-end" id="totalTax">Rp 0</td>--}}
+{{--                                </tr>--}}
                                 <tr>
                                     <td>Grand Total</td>
                                     <td class="text-end" id="grandTotal">Rp 0</td>
@@ -1644,9 +1644,22 @@
 
         function viewChartList() {
             const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
+
+            cart.map(item => ({
+                ...item,
+                menuId: Number(item.menuId),
+                qty: Number(item.qty),
+                basePrice: Number(item.basePrice),
+                totalPrice: Number(item.totalPrice),
+                priceAddon: Number(item.priceAddon),
+                priceDelta: Number(item.priceDelta),
+                priceDiscount: Number(item.priceDiscount),
+                grandTotal: Number(item.grandTotal),
+            }));
+
             let html = '';
 
-            if (cart === null || cart === []) {
+            if (cart === []) {
                 document.getElementById('cartValue').style.display = 'none';
                 document.getElementById('cartNull').style.display = 'block';
             } else {
@@ -1673,13 +1686,13 @@
 
                     let price = '';
                     let discountProductHtml = '';
-                    if (item.priceDiscount === 0) {
-                        price = `<div>Rp ${rupiah(item.grandTotal)}</div>`;
+                    if (parseInt(item.priceDiscount) === 0) {
+                        price = `<div>Rp ${rupiah(parseInt(item.grandTotal))}</div>`;
                     } else {
                         price = `
-                            <div class="text-decoration-line-through">Rp ${rupiah((item.totalPrice + item.priceDelta) * item.qty)}</div>
-                            ${item.priceDiscount !== 0 ? `<div class="text-danger">- Rp ${rupiah(item.priceDiscount * item.qty)}</div>` : ''}
-                            <div>Rp ${rupiah(item.grandTotal)}</div>
+                            <div class="text-decoration-line-through">Rp ${rupiah((parseInt(item.totalPrice) + parseInt(item.priceDelta)) * item.qty)}</div>
+                            ${parseInt(item.priceDiscount) !== 0 ? `<div class="text-danger">- Rp ${rupiah(parseInt(item.priceDiscount) * item.qty)}</div>` : ''}
+                            <div>Rp ${rupiah(parseInt(item.grandTotal))}</div>
                         `;
 
                         (item.data.discountProduct ?? []).forEach((discount) => {
@@ -1744,11 +1757,11 @@
 
             if (type === 'tambah') {
                 find.qty++
-                find.grandTotal += Number(find.totalPrice);
+                find.grandTotal = Number(find.grandTotal) + Number(find.totalPrice);
             } else {
                 if (parseInt(find.qty) !== 1) {
                     find.qty--
-                    find.grandTotal -= Number(find.totalPrice);
+                    find.grandTotal = Number(find.grandTotal) - Number(find.totalPrice);
                 }
             }
 
@@ -2154,8 +2167,6 @@
                 }
             }
 
-            totalTax = (subTotal - discount) * 0.11;
-
             grandTotal = subTotal - discount + totalTax;
 
             localStorage.setItem('subTotal', JSON.stringify(subTotal));
@@ -2165,7 +2176,7 @@
 
             document.getElementById('subTotal').innerText = 'Rp '+rupiah(subTotal);
             document.getElementById('discount').innerText = 'Rp '+rupiah(discount);
-            document.getElementById('totalTax').innerText = 'Rp '+rupiah(totalTax);
+            //document.getElementById('totalTax').innerText = 'Rp '+rupiah(totalTax);
             document.getElementById('grandTotal').innerText = 'Rp '+rupiah(grandTotal);
             document.getElementById('buttonPay').innerText = 'Pay : Rp '+ rupiah(grandTotal);
 

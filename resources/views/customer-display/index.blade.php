@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@yield('title') - Kedai Selvin</title>
+    <title>Customer - Kedai Selvin</title>
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.png') }}" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
@@ -126,7 +126,7 @@
                                 <table class="table table-borderless">
                                     <tr><td class="fw-bold">Sub Total</td><td class="text-end" id="subTotal">Rp 0</td></tr>
                                     <tr><td class="fw-bold">Discount</td><td class="text-danger text-end" id="discount">Rp 0</td></tr>
-                                    <tr><td class="fw-bold">Tax (11%)</td><td class="text-end" id="totalTax">Rp 0</td></tr>
+{{--                                    <tr><td class="fw-bold">Tax (11%)</td><td class="text-end" id="totalTax">Rp 0</td></tr>--}}
                                     <tr class="border-top"><td class="fw-bold">Grand Total</td><td class="text-end price-lg" id="grandTotal">Rp 0</td></tr>
                                 </table>
                             </div>
@@ -198,6 +198,8 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 <script>
+    localStorage.clear();
+
     // Fullscreen
     (function(){const btn=document.getElementById('btnFullscreen'); const el=document.documentElement; btn?.addEventListener('click',()=>{ if(!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.(); });})();
 
@@ -212,7 +214,7 @@
     setDisplay('promo');
 
     // Invoice & cart rendering (tetap sama seperti sebelumnya)
-    document.getElementById('invoiceNumber').innerText = localStorage.getItem('invoice') || '';
+    document.getElementById('invoiceNumber').innerText = JSON.parse(localStorage.getItem('invoice')) || '';
     document.getElementById('cartValue').style.display = 'none';
 
     function viewChartList(){
@@ -243,24 +245,30 @@
         document.getElementById('listProductCart').innerHTML = html;
     }
 
-    function calculatePrice(){
+    function calculatePrice() {
         const cart = JSON.parse(localStorage.getItem('cart')||'[]');
         const discountTransaction = JSON.parse(localStorage.getItem('discountTransaction')||'[]');
         let subTotal=0, totalTax=0, discount=0, grandTotal=0;
         cart.forEach((item)=>{ subTotal += parseInt(item.totalPrice)*parseInt(item.qty); discount += parseInt(item.priceDiscount)*parseInt(item.qty); });
         const transDisc = Array.isArray(discountTransaction) ? discountTransaction.find(i=>parseInt(i.select)===1) : undefined;
         if(transDisc){ if(transDisc.type==='nominal') discount += parseInt(transDisc.value); else discount += (subTotal - discount) * (parseInt(transDisc.value)/100); }
-        totalTax = (subTotal - discount) * 0.11; grandTotal = subTotal - discount + totalTax;
+        //totalTax = (subTotal - discount) * 0.11;
+        grandTotal = subTotal - discount + totalTax;
         localStorage.setItem('subTotal', JSON.stringify(subTotal));
-        localStorage.setItem('totalTax', JSON.stringify(totalTax));
+        //localStorage.setItem('totalTax', JSON.stringify(totalTax));
         localStorage.setItem('discount', JSON.stringify(discount));
         localStorage.setItem('grandTotal', JSON.stringify(grandTotal));
         document.getElementById('subTotal').innerText='Rp '+rupiah(subTotal);
         document.getElementById('discount').innerText='Rp '+rupiah(discount);
-        document.getElementById('totalTax').innerText='Rp '+rupiah(totalTax);
+        //document.getElementById('totalTax').innerText='Rp '+rupiah(totalTax);
         document.getElementById('grandTotal').innerText='Rp '+rupiah(grandTotal);
     }
-    function calculateJumlahCart(){ const cart=JSON.parse(localStorage.getItem('cart')||'[]'); const items=cart.reduce((s,i)=>s+parseInt(i.qty||0),0); document.getElementById('jumlahCart').innerText=items; }
+
+    function calculateJumlahCart() {
+        const cart=JSON.parse(localStorage.getItem('cart')||'[]');
+        const items = cart.reduce((s,i)=>s+parseInt(i.qty||0),0);
+        document.getElementById('jumlahCart').innerText=items;
+    }
 
     // QRIS
     function renderQRIS(qrString){ const c=document.getElementById('qrisCanvas'); new QRious({ element:c, value:qrString, size:360 }); }
