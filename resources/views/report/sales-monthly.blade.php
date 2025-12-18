@@ -51,7 +51,9 @@
                             @foreach($transaction as $index => $item)
                                 <tr>
                                     <td>{{ $transaction->firstItem() + $index }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->date)->translatedFormat('d F Y') }}</td>
+                                    <td>
+                                        {{ \Carbon\Carbon::create($item->year, $item->month)->translatedFormat('F Y') }}
+                                    </td>
                                     <td class="text-center fw-bold">{{ number_format($item->total_order) }}</td>
                                     <td class="text-center fw-bold">{{ number_format($item->total_item) }}</td>
                                     <td class="fw-bold">Rp {{ number_format($item->grand_total) }}</td>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KasRekonsiliasi;
 use App\Models\Menu;
 use App\Models\Outlet;
 use App\Models\Transaction;
@@ -14,12 +15,41 @@ use Illuminate\View\View;
 
 class ReportController extends Controller
 {
-    public function sales(): View
+    public function sales(Request $request): View
     {
-        $transaction = Transaction::where('transaction_status', 'normal')->latest()->paginate(10);
+        $transaction = Transaction::selectRaw('
+                DATE(transaction_date) AS date,
+                COUNT(id) AS total_order,
+                SUM(qty) AS total_item,
+                SUM(total) AS grand_total,
+                SUM(hpp) AS total_hpp
+            ')
+            ->groupBy(DB::raw('DATE(transaction_date)'))
+            ->orderBy('date', 'desc')
+            ->paginate(10);
 
-        $title = 'Sales Report';
+        $title = 'Sales Report Daily';
         return view('report.sales', compact('title', 'transaction'));
+    }
+
+    public function salesMonthly()
+    {
+        $transaction = $transaction = Transaction::selectRaw('
+                YEAR(transaction_date) as year,
+                MONTH(transaction_date) as month,
+                COUNT(id) as total_order,
+                SUM(qty) as total_item,
+                SUM(total) as grand_total,
+                SUM(hpp) as total_hpp
+            ')
+            ->where('transaction_status', 'normal')
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->paginate(10);
+
+        $title = 'Sales Report Monthly';
+        return view('report.sales-monthly', compact('title', 'transaction'));
     }
 
     public function salesDetail(Request $request): View
@@ -123,5 +153,45 @@ class ReportController extends Controller
 
         $title = 'Store Performance Report';
         return view('report.store-performance', compact('title', 'outlet'));
+    }
+
+    public function kasKonsolidasi(Request $request): View
+    {
+        $kasKonsolidasi = KasRekonsiliasi::latest()->paginate(10);
+
+        $title = 'Kas';
+        return view('report.kas-konsolidasi', compact('title', 'kasKonsolidasi'));
+    }
+
+    public function kasKonsolidasiCreate(): View
+    {
+        $title = 'Kas';
+        return view('report.kas-konsolidasi-create', compact('title'));
+    }
+
+    public function kasKonsolidasiDataTransaction(Request $request)
+    {
+        $transaction = Transaction::whereBetween('transaction_date', [
+                $request->tanggal.' 00:00:00',
+                $request->tanggal.' 23:59:59'
+            ])
+            ->select([
+                // grand total
+                DB::raw('COALESCE(SUM(total), 0) AS total'),
+                DB::raw('COALESCE(SUM(hpp), 0) AS hpp'),
+
+                // breakdown total per payment method
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 1 THEN total END), 0) AS total_cash'),
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 2 THEN total END), 0) AS total_qris'),
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 3 THEN total END), 0) AS total_debit'),
+            ])
+            ->where('transaction_status', 'normal')
+            ->where('payment_status', 'paid')
+            ->first();
+
+        return response()->json([
+            'status'   => true,
+            'data'     => $transaction
+        ]);
     }
 }

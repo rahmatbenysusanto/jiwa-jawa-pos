@@ -351,12 +351,24 @@
                                 <h6 class="submenu-hdr">Report</h6>
                                 @endif
                                 <ul>
+                                    <li class="{{ $title == 'Kas' ? 'active' : '' }}">
+                                        <a href="{{ route('report.kas.konsolidasi') }}">
+                                            <i class="ti ti-chart-bar fs-16 me-2"></i>
+                                            <span>Kas Konsolidasi</span>
+                                        </a>
+                                    </li>
+
                                     @if(collect(Session::get('menu', []))->contains('Sales Report'))
-                                    <li class="{{ $title == 'Sales Report' ? 'active' : '' }}">
-                                        <a href="{{ route('report.sales') }}">
+                                    <li class="submenu">
+                                        <a href="javascript:void(0);" class="{{ in_array($title, ['Sales Report Daily', 'Sales Report Monthly']) ? 'active subdrop' : '' }}">
                                             <i class="ti ti-report-money fs-16 me-2"></i>
                                             <span>Sales Report</span>
+                                            <span class="menu-arrow"></span>
                                         </a>
+                                        <ul style="display: none;">
+                                            <li><a href="{{ route('report.sales') }}" class="{{ $title == 'Sales Report Daily' ? 'active' : '' }}">Daily</a></li>
+                                            <li><a href="{{ route('report.sales.monthly') }}" class="{{ $title == 'Sales Report Monthly' ? 'active' : '' }}">Monthly</a></li>
+                                        </ul>
                                     </li>
                                     @endif
 

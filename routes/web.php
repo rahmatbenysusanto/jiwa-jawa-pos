@@ -197,11 +197,16 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
     Route::prefix('/report')->controller(ReportController::class)->group(function () {
         Route::get('/sales', 'sales')->name('report.sales');
+        Route::get('/sales-monthly', 'salesMonthly')->name('report.sales.monthly');
         Route::get('/sales-detail', 'salesDetail')->name('report.sales.detail');
         Route::get('/top-selling', 'topSelling')->name('report.top.selling');
         Route::get('/low-moving', 'lowMoving')->name('report.low.moving');
         Route::get('/stock', 'stock')->name('report.stock');
         Route::get('/discount', 'discount')->name('report.discount');
         Route::get('/store-performance', 'storePerformance')->name('report.store.performance');
+
+        Route::get('/kas-konsolidasi', 'kasKonsolidasi')->name('report.kas.konsolidasi');
+        Route::get('/kas-konsolidasi/create', 'kasKonsolidasiCreate')->name('report.kas.konsolidasi.create');
+        Route::get('/kas-konsolidasi/data-transaction', 'kasKonsolidasiDataTransaction')->name('report.kas.konsolidasi.data.transaction');
     });
 });
