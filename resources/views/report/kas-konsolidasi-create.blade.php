@@ -247,6 +247,7 @@
                            dataPecahan: dataPecahan
                        },
                        success: (res) => {
+                           console.log(res);
                            if (res.status) {
                                Swal.fire({
                                    title: 'Success',

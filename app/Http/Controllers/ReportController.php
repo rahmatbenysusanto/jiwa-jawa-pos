@@ -211,8 +211,6 @@ class ReportController extends Controller
         $modalAkhir = (int) $request->post('modalAkhir');
         $totalCash = (int) ($request->post('cash') ?? 0);
 
-        Log::info($modalAkhir);
-
         $selisih = $modalAkhir - ($modalAwal + $totalCash);
 
         $status = 'normal';
@@ -260,7 +258,35 @@ class ReportController extends Controller
             'laba_bersih' => $request->post('labaBersih'),
         ];
 
-        Mail::to('rahmat.beny12@gmail.com')->send(new Notification($data));
+        // Wa Notification
+        $waMessage =
+            "☕ *LAPORAN HARIAN KEDAI SELVIN*\n" .
+            "📅 Tanggal: {$data['tanggal']}\n\n" .
+
+            "💼 *Ringkasan Kas*\n" .
+            "- Modal Awal Cash    : Rp " . number_format($data['modal_awal']) . "\n" .
+            "- Cash Akhir (Fisik) : Rp " . number_format($data['cash_akhir']) . "\n\n" .
+
+            "💳 *Total Pembayaran*\n" .
+            "- Cash  : Rp " . number_format($data['cash']) . "\n" .
+            "- QRIS  : Rp " . number_format($data['qris']) . "\n" .
+            "- Debit : Rp " . number_format($data['debit']) . "\n\n" .
+
+            "📈 *Laba*\n" .
+            "- Laba Kotor  : Rp " . number_format($data['laba_kotor']) . "\n" .
+            "- Laba Bersih : Rp " . number_format($data['laba_bersih']) . "\n\n" .
+
+            "📊 *Status Cash*\n" .
+            "- Status  : *{$status}*\n" .
+            "- Selisih : Rp " . number_format($selisih) . "\n\n" .
+
+            "👤 Diinput oleh:\n" .
+            "{$data['input_by']}\n\n" .
+            "—\nPesan ini dikirim otomatis oleh sistem Kedai Selvin.";
+
+        app('App\Services\WhatsappService')->sendMessage($waMessage);
+
+        //Mail::to('rahmat.beny12@gmail.com')->send(new Notification($data));
 
         return response()->json([
             'status'   => true,
