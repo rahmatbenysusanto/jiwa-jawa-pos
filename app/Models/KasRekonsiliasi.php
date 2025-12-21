@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KasRekonsiliasi extends Model
 {
@@ -17,5 +18,12 @@ class KasRekonsiliasi extends Model
         'laba_bersih',
         'tanggal',
         'created_by',
+        'selisih',
+        'status'
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by', 'id');
+    }
 }

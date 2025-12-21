@@ -208,5 +208,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/kas-konsolidasi', 'kasKonsolidasi')->name('report.kas.konsolidasi');
         Route::get('/kas-konsolidasi/create', 'kasKonsolidasiCreate')->name('report.kas.konsolidasi.create');
         Route::get('/kas-konsolidasi/data-transaction', 'kasKonsolidasiDataTransaction')->name('report.kas.konsolidasi.data.transaction');
+        Route::post('/kas-konsolidasi', 'kasKonsolidasiStore')->name('report.kas.konsolidasi.store');
+        Route::get('/kas-konsolidasi/detail', 'kasKonsolidasiDetail')->name('report.kas.konsolidasi.detail');
     });
 });

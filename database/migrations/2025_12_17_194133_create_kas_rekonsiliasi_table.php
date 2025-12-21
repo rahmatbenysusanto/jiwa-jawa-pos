@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('debit')->default(0);
             $table->integer('laba_kotor')->default(0);
             $table->integer('laba_bersih')->default(0);
+            $table->integer('selisih')->default(0);
+            $table->string('status');
             $table->timestamp('tanggal');
             $table->integer('created_by')->nullable();
             $table->timestamps();

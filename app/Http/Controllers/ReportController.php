@@ -2,15 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Notification;
 use App\Models\KasRekonsiliasi;
 use App\Models\Menu;
 use App\Models\Outlet;
+use App\Models\PecahanUang;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\TransactionDiscount;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class ReportController extends Controller
@@ -157,7 +162,12 @@ class ReportController extends Controller
 
     public function kasKonsolidasi(Request $request): View
     {
-        $kasKonsolidasi = KasRekonsiliasi::latest()->paginate(10);
+        $kasKonsolidasi = KasRekonsiliasi::with('user')
+            ->when($request->query('tanggal'), function ($q) use ($request) {
+                $q->whereBetween('tanggal', [$request->query('tanggal'). '00:00:00', $request->query('tanggal'). ' 23:59:59']);
+            })
+            ->latest()
+            ->paginate(10);
 
         $title = 'Kas';
         return view('report.kas-konsolidasi', compact('title', 'kasKonsolidasi'));
@@ -193,5 +203,75 @@ class ReportController extends Controller
             'status'   => true,
             'data'     => $transaction
         ]);
+    }
+
+    public function kasKonsolidasiStore(Request $request)
+    {
+        $modalAwal  = (int) $request->post('modalAwal');
+        $modalAkhir = (int) $request->post('modalAkhir');
+        $totalCash = (int) ($request->post('cash') ?? 0);
+
+        Log::info($modalAkhir);
+
+        $selisih = $modalAkhir - ($modalAwal + $totalCash);
+
+        $status = 'normal';
+
+        if ($selisih < 0) {
+            $status = 'minus';
+        } elseif ($selisih > 0) {
+            $status = 'berlebih';
+        }
+
+        $kasRekonsiliasi = KasRekonsiliasi::create([
+            'modal_awal'    => $request->post('modalAwal'),
+            'modal_akhir'   => $request->post('modalAkhir'),
+            'cash'          => $request->post('cash') ?? 0,
+            'qris'          => $request->post('qris') ?? 0,
+            'debit'         => $request->post('debit') ?? 0,
+            'laba_kotor'    => $request->post('labaKotor') ?? 0,
+            'laba_bersih'   => $request->post('labaBersih') ?? 0,
+            'tanggal'       => $request->post('tanggal'),
+            'created_by'    => Auth::id(),
+            'selisih'       => $selisih,
+            'status'        => $status
+        ]);
+
+        foreach ($request->post('dataPecahan') as $item) {
+            PecahanUang::create([
+                'kas_rekonsiliasi_id'   => $kasRekonsiliasi->id,
+                'pecahan'              => $item['pecahan'],
+                'jumlah'               => $item['jumlah'],
+            ]);
+        }
+
+        // Send Email Notification
+        $user = User::find(Auth::id());
+
+        $data = [
+            'tanggal'     => $request->post('tanggal'),
+            'input_by'    => $user->name,
+            'modal_awal'  => $request->post('modalAwal'),
+            'cash_akhir'  => $request->post('modalAkhir'),
+            'cash'        => $request->post('cash'),
+            'qris'        => $request->post('qris'),
+            'debit'       => $request->post('debit'),
+            'laba_kotor'  => $request->post('labaKotor'),
+            'laba_bersih' => $request->post('labaBersih'),
+        ];
+
+        Mail::to('rahmat.beny12@gmail.com')->send(new Notification($data));
+
+        return response()->json([
+            'status'   => true,
+        ]);
+    }
+
+    public function kasKonsolidasiDetail(Request $request): View
+    {
+        $pecahan = PecahanUang::where('kas_rekonsiliasi_id', $request->query('id'))->get();
+
+        $title = 'Kas';
+        return view('report.kas-konsolidasi-detail', compact('title', 'pecahan'));
     }
 }
