@@ -75,7 +75,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('inventory.manage.stock.detail', ['id' => $item->id]) }}" class="btn btn-info btn-sm">
+                                        <a href="{{ route('inventory.manage.stock.detail', ['id' => $item->material->id]) }}" class="btn btn-info btn-sm">
                                             <i class="fa fa-eye"></i>
                                         </a>
                                     </td>

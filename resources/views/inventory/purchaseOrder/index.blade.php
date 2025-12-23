@@ -61,7 +61,7 @@
                                     <td>{{ $item->number }}</td>
                                     <td>{{ $item->warehouse_name }}</td>
                                     <td class="text-center fw-bold">{{ $item->qty }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->po_date)->translatedFormat('d F Y H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->order_date)->translatedFormat('d F Y H:i') }}</td>
                                     <td class="text-center">
                                         @switch($item->status)
                                             @case('new')

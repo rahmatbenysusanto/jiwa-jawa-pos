@@ -201,6 +201,7 @@ class InventoryController extends Controller
             ->when($request->query('warehouse'), function ($q) use ($request) {
                 return $q->where('warehouse_id', $request->query('warehouse'));
             })
+            ->orderBy('created_at', 'desc')
             ->paginate(10)
             ->appends([
                 'number'      => $request->query('number'),
@@ -345,16 +346,22 @@ class InventoryController extends Controller
                     'updated_at'    => date('Y-m-d H:i:s')
                 ]);
 
-                $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
-
                 $material = Material::find($detail->material_id);
 
+                $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
+                if ($inventory == null) {
+                    $inventory = Inventory::create([
+                        'outlet_id'     => Auth::user()->outlet_id,
+                        'material_id'   => $detail->material_id,
+                        'stock'         => $detail->qty * $material->conversion_value,
+                    ]);
+                }
+
                 InventoryDetail::create([
-                    'inventory_id'      => $inventory->id,
-                    'purchase_order_id' => $detail->id,
-                    'material_id'       => $detail->material_id,
-                    'qty'               => $detail->qty * $material->conversion_value,
-                    'price'             => 0
+                    'inventory_id'              => $inventory->id,
+                    'purchase_order_detail_id'  => $detail->id,
+                    'qty'                       => $detail->qty * $material->conversion_value,
+                    'price'                     => 0
                 ]);
 
                 Inventory::where('id', $inventory->id)->increment('stock', $detail->qty * $material->conversion_value);
@@ -366,8 +373,6 @@ class InventoryController extends Controller
             ]);
         } catch (\Exception $err) {
             DB::rollBack();
-            Log::error($err->getMessage());
-            Log::error($err->getLine());
             return response()->json([
                 'status' => false,
             ]);
@@ -408,8 +413,20 @@ class InventoryController extends Controller
 
     public function detailManageStock(Request $request): View
     {
+        $purchaseOrder = DB::table('purchase_order')
+            ->leftJoin('purchase_order_detail', 'purchase_order_detail.purchase_order_id', '=', 'purchase_order.id')
+            ->where('purchase_order_detail.material_id', $request->query('id'))
+            ->where('purchase_order.status', 'completed')
+            ->orderBy('purchase_order_detail.created_at', 'desc')
+            ->select([
+                'purchase_order.number',
+                'purchase_order.order_date',
+                'purchase_order_detail.qty'
+            ])
+            ->get();
+
         $title = 'Manage Stock';
-        return view('inventory.manageStock.detail', compact('title'));
+        return view('inventory.manageStock.detail', compact('title', 'purchaseOrder'));
     }
 
     public function indexStockConsumption(Request $request): View

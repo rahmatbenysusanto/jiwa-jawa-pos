@@ -219,7 +219,7 @@
                             document.getElementById(`pecahan_${key}`).value || 0
                         );
 
-                        const subtotal = jumlah * pecahanUang[key];
+                        const subtotal = jumlah * parseInt(pecahanUang[key]);
 
                         modalAkhir += subtotal;
 
@@ -247,7 +247,6 @@
                            dataPecahan: dataPecahan
                        },
                        success: (res) => {
-                           console.log(res);
                            if (res.status) {
                                Swal.fire({
                                    title: 'Success',
