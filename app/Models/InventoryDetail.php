@@ -11,6 +11,7 @@ class InventoryDetail extends Model
         'inventory_id',
         'purchase_order_detail_id',
         'qty',
-        'price'
+        'price',
+        'purchase_order_id'
     ];
 }

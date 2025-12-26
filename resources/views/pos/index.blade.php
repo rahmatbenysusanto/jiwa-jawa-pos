@@ -65,7 +65,6 @@
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
                         <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
-                        <a class="btn btn-primary btn-sm ms-2" onclick="printInvoicePOS('INV-20251125-JU1W3P')">Test</a>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">

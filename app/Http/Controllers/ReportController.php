@@ -286,7 +286,7 @@ class ReportController extends Controller
 
         app('App\Services\WhatsappService')->sendMessage($waMessage);
 
-        //Mail::to('rahmat.beny12@gmail.com')->send(new Notification($data));
+        Mail::to('rahmat.beny12@gmail.com')->send(new Notification($data));
 
         return response()->json([
             'status'   => true,

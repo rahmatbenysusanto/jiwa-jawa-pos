@@ -452,7 +452,7 @@ class InventoryController extends Controller
         return view('inventory.transferStock.index', compact('title'));
     }
 
-    public function callbackPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
+    public function approvedPurchaseOrderWMS(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
             DB::beginTransaction();
@@ -476,7 +476,6 @@ class InventoryController extends Controller
                 InventoryDetail::create([
                     'inventory_id'      => $inventory->id,
                     'purchase_order_id' => $detail->id,
-                    'material_id'       => $detail->material_id,
                     'qty'               => $detail->qty * $material->conversion_value,
                     'price'             => 0
                 ]);
@@ -497,6 +496,19 @@ class InventoryController extends Controller
                 'status' => false,
             ]);
         }
+    }
+
+    public function cancelledPurchaseOrderWMS(Request $request): \Illuminate\Http\JsonResponse
+    {
+        PurchaseOrder::where('id', $request->post('po_number'))->update([
+            'status'        => 'cancel',
+            'updated_at'    => date('Y-m-d H:i:s')
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Callback Cancel Purchase Order Success'
+        ]);
     }
 }
 
