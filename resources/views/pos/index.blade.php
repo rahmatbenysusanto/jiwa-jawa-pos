@@ -65,6 +65,7 @@
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
                         <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
+                        <a onclick="printNotaKitchen('INV-20251227-0LNCJE')">TESTING PRINT DAPUR</a>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -870,7 +871,7 @@
             });
         }
 
-        const PRINTER_KITCHEN = "PRINT_DAPUR";
+        const PRINTER_KITCHEN = "DAPUR_1";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
