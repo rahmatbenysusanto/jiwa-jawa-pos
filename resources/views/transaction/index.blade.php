@@ -305,16 +305,16 @@
             });
         }
 
-        qz.security.setCertificatePromise(function (resolve, reject) {
-            resolve("-----BEGIN CERTIFICATE-----\nMIID...demo...CERT...\n-----END CERTIFICATE-----\n");
+        qz.security.setCertificatePromise(() => {
+            return fetch('/qz/cert.pem').then(res => res.text());
         });
 
-        qz.security.setCertificatePromise(resolve => resolve(CERTIFICATE_PEM));
-        qz.security.setSignaturePromise(toSign => function(resolve, reject) {
-            fetch("/sign", { method: "POST", body: toSign })
-                .then(res => res.text())
-                .then(resolve)
-                .catch(reject);
+        qz.security.setSignaturePromise((toSign) => {
+            return fetch('/sign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: toSign
+            }).then(res => res.text());
         });
 
         function connectQZ() {

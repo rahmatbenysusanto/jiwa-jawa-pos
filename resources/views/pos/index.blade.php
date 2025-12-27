@@ -65,7 +65,6 @@
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
                         <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
-                        <a onclick="printNotaKitchen('INV-20251214-WG16NE')" class="btn btn-primary btn-sm">TESTING PRINT DAPUR</a>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -988,7 +987,7 @@
                             // gunakan baris pertama dari mainWrapped sebagai baris dengan price
                             const firstMainLine = mainWrapped.length ? mainWrapped.shift() : "";
                             const pad = Math.max(1, availForFirst - firstMainLine.length);
-                            outputLines.push(firstMainLine + " ".repeat(pad) + priceStr);
+                            //outputLines.push(firstMainLine + " ".repeat(pad) + priceStr);
 
                             // sisa dari mainWrapped menjadi baris biasa
                             mainWrapped.forEach(l => outputLines.push(l));

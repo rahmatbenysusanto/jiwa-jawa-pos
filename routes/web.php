@@ -212,3 +212,13 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/kas-konsolidasi/detail', 'kasKonsolidasiDetail')->name('report.kas.konsolidasi.detail');
     });
 });
+
+Route::post('/sign', function (Request $request) {
+    $data = $request->getContent();
+    $privateKey = file_get_contents(storage_path('app/qz/private-key.pem'));
+
+    openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA512);
+
+    return base64_encode($signature);
+});
+
