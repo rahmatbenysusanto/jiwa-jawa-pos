@@ -573,16 +573,6 @@
             return Promise.resolve();
         }
 
-        function connectQZ() {
-            if (!qz.websocket.isActive()) {
-                return qz.websocket.connect().catch(function(err) {
-                    console.error("QZ connect error:", err);
-                    alert("QZ Tray belum jalan di komputer kasir.");
-                });
-            }
-            return Promise.resolve();
-        }
-
         const PRINTER_POS = "POS-58-KASIR";
 
         function printInvoicePOS(invoiceNumber) {
@@ -1335,7 +1325,8 @@
                         price: Number(product.price),
                         sku: product.sku,
                         category: product.category.name,
-                        combo: product.is_combo
+                        combo: product.is_combo,
+                        image: product.image
                     }));
 
                     const discountWithSelect = discount.map(item => ({ ...item, select: 0 }));
@@ -1644,7 +1635,8 @@
                     addon: addon,
                     discountProduct: discountProduct
                 },
-                note: note
+                note: note,
+                image: product.image
             });
 
             localStorage.setItem('cart', JSON.stringify(cart));

@@ -110,6 +110,7 @@
                                     <table class="table table-borderless align-middle">
                                         <thead>
                                         <tr>
+                                            <th class="bg-transparent text-center"></th>
                                             <th class="bg-transparent fw-bold">Product</th>
                                             <th class="bg-transparent fw-bold text-center">QTY</th>
                                             <th class="bg-transparent fw-bold text-end">Price</th>
@@ -227,7 +228,8 @@
             document.getElementById('cartValue').style.display='block';
             document.getElementById('cartNull').style.display='none';
             cart.forEach((item)=>{
-                let variantHtml=''; let addonHtml='';
+                let variantHtml='';
+                let addonHtml='';
                 (item?.data?.variant||[]).forEach(v=>{ (v.option||[]).forEach(o=>{ if(parseInt(o.select)===1){ variantHtml += `${v.name}: ${o.name} - Rp ${rupiah(o.price)}<br>`; } }); });
                 (item?.data?.addon||[]).forEach(a=>{ addonHtml += `${a.name}: Rp ${rupiah(a.total)}<br>`; });
                 let discountProductHtml=''; (item?.data?.discountProduct||[]).forEach(d=>{ if(parseInt(d.select)===1) discountProductHtml=`<div class="text-danger">Disc: ${d.name}</div>`; });
@@ -238,7 +240,7 @@
                         `${item.priceDiscount?`<div class=\"text-danger text-end\">- Rp ${rupiah(parseInt(item.priceDiscount)*parseInt(item.qty))}</div>`:''}`+
                         `<div class=\"text-end fw-semibold\">Rp ${rupiah(item.grandTotal)}</div>`;
                 }
-                html += `<tr><td><div class=\"fw-semibold\">${item.name}</div><div class=\"small text-muted\">Base Price : Rp ${rupiah(item.basePrice)}</div>${variantHtml?`<div class=\"small\">${variantHtml}</div>`:''}${item.priceAddon?`<div class=\"small\">Addon:<br>${addonHtml}</div>`:''}${discountProductHtml}</td><td class=\"fw-bold text-center\">${item.qty}</td><td>${priceHtml}</td></tr>`;
+                html += `<tr><td><img src="${item.image === 'default.png' ? 'images/menu/'+item.image : item.image}" alt="Products" style="max-height: 50px"></td><td><div class=\"fw-semibold\">${item.name}</div><div class=\"small text-muted\">Base Price : Rp ${rupiah(item.basePrice)}</div>${variantHtml?`<div class=\"small\">${variantHtml}</div>`:''}${item.priceAddon?`<div class=\"small\">Addon:<br>${addonHtml}</div>`:''}${discountProductHtml}</td><td class=\"fw-bold text-center\">${item.qty}</td><td>${priceHtml}</td></tr>`;
             });
             calculatePrice(); calculateJumlahCart();
         }
