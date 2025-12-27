@@ -197,8 +197,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
     <script>
-        localStorage.setItem('print_kasir', JSON.stringify('POS-58'));
-        localStorage.setItem('print_dapur', JSON.stringify('POS-58-2'));
+        localStorage.setItem('print_kasir', JSON.stringify('PRINT_KASIR'));
+        localStorage.setItem('print_dapur', JSON.stringify('PRINT_DAPUR'));
 
         function printNota(invoiceNumber) {
             document.getElementById('buttonPrintNota').innerHTML = `
@@ -327,7 +327,7 @@
             return Promise.resolve();
         }
 
-        //const PRINTER_POS = "POS-58";
+        const PRINTER_POS = "PRINT_KASIR";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -628,7 +628,7 @@
             });
         }
 
-        //const PRINTER_KITCHEN = "PRINT_DAPUR";
+        const PRINTER_KITCHEN = "PRINT_DAPUR";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',

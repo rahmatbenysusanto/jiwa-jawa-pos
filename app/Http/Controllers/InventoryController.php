@@ -316,7 +316,7 @@ class InventoryController extends Controller
             ];
         }
 
-        $response = Http::baseUrl('https://wms-selvin.moodatech.site')
+        Http::baseUrl('https://wms-selvin.moodatech.site')
             ->asJson()
             ->post('/api/outbound', [
                 'warehouse_id'     => $purchaseOrder->warehouse_id,
@@ -325,8 +325,6 @@ class InventoryController extends Controller
                 'qty'              => $purchaseOrder->qty,
                 'material'         => $material,
             ]);
-
-        Log::info($response->json());
     }
 
     public function processPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
