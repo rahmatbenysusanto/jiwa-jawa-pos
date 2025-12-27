@@ -885,7 +885,7 @@
 
                     connectQZ().then(() => {
                         let config = qz.configs.create(PRINTER_KITCHEN, {
-                            forceRaw: true
+                            // forceRaw: true
                         });
 
                         // ================== KONSTANTA ESC/POS ==================
