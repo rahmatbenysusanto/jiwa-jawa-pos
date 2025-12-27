@@ -197,8 +197,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
     <script>
-        localStorage.setItem('print_kasir', JSON.stringify('PRINT_KASIR'));
-        localStorage.setItem('print_dapur', JSON.stringify('PRINT_DAPUR'));
+        localStorage.setItem('print_kasir', JSON.stringify('POS-58-KASIR'));
+        localStorage.setItem('print_dapur', JSON.stringify('POS-58-DAPUR'));
 
         function printNota(invoiceNumber) {
             document.getElementById('buttonPrintNota').innerHTML = `

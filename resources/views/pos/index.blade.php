@@ -65,7 +65,7 @@
                         </div>
                         <a class="btn btn-sm btn-primary" onclick="viewAllCategory()">View All Categories</a>
                         <button class="btn btn-danger btn-sm" onclick="openCashDrawer()">Open Cash Drawer</button>
-                        <a onclick="printNotaKitchen('INV-20251227-0LNCJE')">TESTING PRINT DAPUR</a>
+                        <a onclick="printNotaKitchen('INV-20251214-WG16NE')" class="btn btn-primary btn-sm">TESTING PRINT DAPUR</a>
                     </div>
                 </div>
                 <ul class="tabs owl-carousel pos-category3 mb-4">
@@ -574,7 +574,7 @@
             return Promise.resolve();
         }
 
-        const PRINTER_POS = "PRINT_KASIR";
+        const PRINTER_POS = "POS-58-KASIR";
 
         function printInvoicePOS(invoiceNumber) {
             $.ajax({
@@ -865,13 +865,14 @@
                                 alert("Gagal print: " + err);
                             });
 
+                        printNotaKitchen(invoiceNumber);
                     });
 
                 }
             });
         }
 
-        const PRINTER_KITCHEN = "POS-TES";
+        const PRINTER_KITCHEN = "POS-58-DAPUR";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
@@ -1131,7 +1132,7 @@
                             drawerPulse = [{ type: "raw", format: "hex", data: "1B7001FAFA" }];
                         }
 
-                        openCashDrawer();
+                        //openCashDrawer();
 
                         // ================== KIRIM KE PRINTER ==================
                         qz.print(config, drawerPulse) // BUKA CASH DRAWER DULU
