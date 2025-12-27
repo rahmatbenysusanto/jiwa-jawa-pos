@@ -871,7 +871,7 @@
             });
         }
 
-        const PRINTER_KITCHEN = "DAPUR_1";
+        const PRINTER_KITCHEN = "testing_print_dapur";
         function printNotaKitchen(invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.find.transaction') }}',
