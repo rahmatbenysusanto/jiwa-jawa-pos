@@ -112,8 +112,6 @@ class MenuController extends Controller
         try {
             DB::beginTransaction();
 
-            Log::info(json_encode($request->all()));
-
             $imageRelPath = null;
             if ($request->hasFile('image')) {
                 $dir = public_path('images/menu');
@@ -200,8 +198,8 @@ class MenuController extends Controller
             ]);
 
             $updatedAt = now();
-
-            foreach ($request->post('variants') ?? [] as $variant) {
+            $variants = json_decode($request->variants, true);
+            foreach ($variants ?? [] as $variant) {
                 if (isset($variant['id'])) {
                     // Variant Lama
                     MenuVariant::where('id', $variant['id'])->update([
@@ -216,8 +214,6 @@ class MenuController extends Controller
                         'menu_id'   => $request->post('id'),
                         'name'      => $variant['name'],
                         'required'  => $variant['required'] == 'true' ? 1 : 0,
-                        'created_at' => $updatedAt,
-                        'updated_at' => $updatedAt
                     ]);
                     $variantId = $createVariant->id;
                 }
@@ -238,8 +234,6 @@ class MenuController extends Controller
                             'is_default'        => $option['default'] == 'true' ? 1 : 0,
                             'price_delta'       => $option['price'],
                             'hpp'               => $option['hpp'],
-                            'created_at'        => $updatedAt,
-                            'updated_at'        => $updatedAt
                         ]);
                     }
                 }
@@ -248,6 +242,20 @@ class MenuController extends Controller
             }
 
             MenuVariant::where('menu_id', $request->post('id'))->where('updated_at', '!=', $updatedAt)->delete();
+
+            if ($request->hasFile('image')) {
+                $dir = public_path('images/menu');
+                File::ensureDirectoryExists($dir);
+
+                $ext = strtolower($request->file('image')->getClientOriginalExtension() ?: 'jpg');
+                $filename = Str::uuid()->toString().'.'.$ext;
+                $request->file('image')->move($dir, $filename);
+                $imageRelPath = "images/menu/{$filename}";
+
+                Menu::where('id', $request->post('id'))->update([
+                    'image' => $imageRelPath,
+                ]);
+            }
 
             DB::commit();
             return response()->json([

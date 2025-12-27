@@ -1211,56 +1211,56 @@
 
             // All Menu
             html += `
-        <div class="tab_content active" data-tab="all" id="allProduct">
-            <div class="row g-3">
-    `;
+                <div class="tab_content active" data-tab="all" id="allProduct">
+                    <div class="row g-3">
+            `;
 
             allMenu.forEach((product) => {
                 html += `
-            <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
-                <div class="product-info card mb-0">
-                    <a onclick="selectProduct('${product.id}')" class="product-image">
-                        <img src="images/menu/${product.image}" alt="Products">
-                    </a>
-                    <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
-                    <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
-                    <div class="d-flex align-items-center justify-content-between price">
-                        <span>${product.stock} Pcs</span>
-                        <p>Rp ${rupiah(product.price)}</p>
+                    <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
+                        <div class="product-info card mb-0">
+                            <a onclick="selectProduct('${product.id}')" class="product-image d-flex justify-content-center">
+                                <img src="${product.image === 'default.png' ? 'images/menu/'+product.image : product.image}" alt="Products" style="max-height: 200px">
+                            </a>
+                            <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                            <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
+                            <div class="d-flex align-items-center justify-content-between price">
+                                <span>${product.stock} Pcs</span>
+                                <p>Rp ${rupiah(product.price)}</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        `;
+                `;
             });
 
             html += `
-            </div>
-        </div>
-    `;
+                    </div>
+                </div>
+            `;
 
             // Menu By Category
             menu.forEach((menuCategory) => {
                 html += `
-            <div class="tab_content" data-tab="${menuCategory.idName}" id="categoryMenuList">
-                <div class="row row-cols-xxl-5 g-3">
-        `;
+                    <div class="tab_content" data-tab="${menuCategory.idName}" id="categoryMenuList">
+                        <div class="row row-cols-xxl-5 g-3">
+                `;
 
                 (menuCategory.menu).forEach((product) => {
                     html += `
-                <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
-                    <div class="product-info card mb-0">
-                        <a onclick="selectProduct('${product.id}')" class="product-image">
-                            <img src="images/menu/${product.image}" alt="Products">
-                        </a>
-                        <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
-                        <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
-                        <div class="d-flex align-items-center justify-content-between price">
-                            <span>${product.stock} Pcs</span>
-                            <p>Rp ${rupiah(product.price)}</p>
+                        <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
+                            <div class="product-info card mb-0">
+                                <a onclick="selectProduct('${product.id}')" class="product-image d-flex justify-content-center">
+                                    <img src="${product.image === 'default.png' ? 'images/menu/'+product.image : product.image}" alt="Products" style="max-height: 200px">
+                                </a>
+                                <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                                <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
+                                <div class="d-flex align-items-center justify-content-between price">
+                                    <span>${product.stock} Pcs</span>
+                                    <p>Rp ${rupiah(product.price)}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
                 });
 
                 html += `

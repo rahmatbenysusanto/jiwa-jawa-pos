@@ -11,7 +11,8 @@ class MenuVariant extends Model
     protected $fillable = [
         'menu_id',
         'name',
-        'required'
+        'required',
+        'created_at'
     ];
 
     public function menuVariantOptions(): HasMany

@@ -372,10 +372,9 @@
                     fd.append('hpp', hpp);
                     fd.append('sku', sku);
                     fd.append('desc', desc);
+                    fd.append('variants', JSON.stringify(variants));
                     const img = document.getElementById('image').files[0];
                     if (img) fd.append('image', img);
-                    fd.append('variants', variants);
-
 
                     $.ajax({
                         url: '{{ route('menu.update') }}',
