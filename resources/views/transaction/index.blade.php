@@ -305,32 +305,88 @@
             });
         }
 
+        // HAPUS semua kode certificate lama, ganti dengan ini:
+
         qz.security.setCertificatePromise(function(resolve, reject) {
             fetch('/qz/digital-certificate.txt')
-                .then(res => res.text())
-                .then(resolve)
-                .catch(reject);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Certificate not found: ' + response.status);
+                    }
+                    return response.text();
+                })
+                .then(certificate => {
+                    // Validate format
+                    if (!certificate.includes('-----BEGIN CERTIFICATE-----')) {
+                        throw new Error('Invalid certificate format');
+                    }
+
+                    console.log('✓ Certificate loaded');
+                    console.log('Certificate size:', certificate.length, 'chars');
+                    console.log('Preview:', certificate.substring(0, 60) + '...');
+
+                    resolve(certificate);
+                })
+                .catch(error => {
+                    console.error('✗ Certificate error:', error);
+                    reject(error);
+                });
         });
 
         qz.security.setSignaturePromise(function(toSign) {
             return function(resolve, reject) {
+                console.log('→ Requesting signature...');
+                console.log('Data to sign (preview):', toSign.substring(0, 50) + '...');
+
                 fetch('/sign', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
                     body: toSign
                 })
-                    .then(res => res.text())
-                    .then(resolve)
-                    .catch(reject);
+                    .then(response => {
+                        console.log('Sign response status:', response.status);
+
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                throw new Error('Sign failed: ' + response.status + ' - ' + text);
+                            });
+                        }
+
+                        return response.text();
+                    })
+                    .then(signature => {
+                        console.log('✓ Signature received');
+                        console.log('Signature size:', signature.length, 'chars');
+                        console.log('Preview:', signature.substring(0, 50) + '...');
+
+                        // Validate base64
+                        if (!/^[A-Za-z0-9+/=]+$/.test(signature)) {
+                            throw new Error('Invalid signature format (not base64)');
+                        }
+
+                        resolve(signature);
+                    })
+                    .catch(error => {
+                        console.error('✗ Signature error:', error);
+                        reject(error);
+                    });
             };
         });
 
         function connectQZ() {
             if (!qz.websocket.isActive()) {
-                return qz.websocket.connect().catch(function(err) {
-                    console.error("QZ connect error:", err);
-                    alert("QZ Tray belum jalan di komputer kasir.");
-                });
+                console.log('→ Connecting to QZ Tray...');
+                return qz.websocket.connect()
+                    .then(() => {
+                        console.log('✓ QZ Tray connected');
+                    })
+                    .catch(err => {
+                        console.error('✗ QZ connect error:', err);
+                        alert("QZ Tray belum jalan. Pastikan QZ Tray sudah dijalankan.");
+                        throw err;
+                    });
             }
             return Promise.resolve();
         }
