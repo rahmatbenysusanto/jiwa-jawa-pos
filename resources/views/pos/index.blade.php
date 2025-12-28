@@ -552,7 +552,12 @@
 
     <script>
         qz.security.setCertificatePromise(() => {
-            return fetch('/qz/cert.pem').then(res => res.text());
+            return fetch('/qz/cert.pem')
+                .then(res => res.text())
+                .then(cert => {
+                    console.log('CERTIFICATE:', cert);
+                    return cert;
+                });
         });
 
         qz.security.setSignaturePromise((toSign) => {
@@ -560,7 +565,12 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain' },
                 body: toSign
-            }).then(res => res.text());
+            })
+                .then(res => res.text())
+                .then(signature => {
+                    console.log('SIGNATURE RESULT:', signature);
+                    return signature;
+                });
         });
 
         function connectQZ() {

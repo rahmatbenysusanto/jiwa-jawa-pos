@@ -13,9 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // WAJIB: web & api dulu
         $middleware->web();
         $middleware->api();
+
+        // BARU exclude CSRF
+        $middleware->validateCsrfTokens(except: [
+            '/sign',
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();
