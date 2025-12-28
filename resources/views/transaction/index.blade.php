@@ -305,24 +305,29 @@
             });
         }
 
-        // Set certificate - Modern Promise style
-        qz.security.setCertificatePromise(() => {
-            return fetch('/qz/cert.pem').then(res => res.text());
+        qz.security.setCertificatePromise(function(resolve, reject) {
+            fetch('/qz/digital-certificate.txt')
+                .then(res => res.text())
+                .then(resolve)
+                .catch(reject);
         });
 
-        // Set signature - Modern Promise style
-        qz.security.setSignaturePromise((toSign) => {
-            return fetch('/sign', {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: toSign
-            }).then(res => res.text());
+        qz.security.setSignaturePromise(function(toSign) {
+            return function(resolve, reject) {
+                fetch('/sign', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: toSign
+                })
+                    .then(res => res.text())
+                    .then(resolve)
+                    .catch(reject);
+            };
         });
 
-        // Connect function
         function connectQZ() {
             if (!qz.websocket.isActive()) {
-                return qz.websocket.connect().catch(err => {
+                return qz.websocket.connect().catch(function(err) {
                     console.error("QZ connect error:", err);
                     alert("QZ Tray belum jalan di komputer kasir.");
                 });

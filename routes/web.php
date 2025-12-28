@@ -214,16 +214,13 @@ Route::middleware(LoginMiddleware::class)->group(function () {
     });
 });
 
-Route::post('/sign', function (Request $request) {
-    $data = $request->getContent();
+Route::post('/sign', function(Request $request) {
+    $toSign = $request->getContent();
+    $privateKeyPath = storage_path('app/qz/private-key.pem');
+    $privateKey = openssl_pkey_get_private(file_get_contents($privateKeyPath));
+    openssl_sign($toSign, $signature, $privateKey, OPENSSL_ALGO_SHA512);
+    $signatureBase64 = base64_encode($signature);
 
-    $privateKey = openssl_pkey_get_private(
-        file_get_contents(storage_path('app/qz/private-key.pem'))
-    );
-
-    openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
-
-    return response(base64_encode($signature))
-        ->header('Content-Type', 'text/plain');
+    return response($signatureBase64, 200)->header('Content-Type', 'text/plain');
 });
 
