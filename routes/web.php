@@ -13,6 +13,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\LoginMiddleware;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 use Pusher\Pusher;
 
 Route::controller(AuthController::class)->group(function () {
@@ -216,8 +217,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 Route::post('/sign', function (Request $request) {
     $data = $request->getContent();
 
-    $privateKey = file_get_contents(storage_path('app/qz/private-key.pem'));
-    $privateKey = openssl_pkey_get_private($privateKey);
+    $privateKey = openssl_pkey_get_private(
+        file_get_contents(storage_path('app/qz/private-key.pem'))
+    );
 
     openssl_sign($data, $signature, $privateKey, OPENSSL_ALGO_SHA256);
 
