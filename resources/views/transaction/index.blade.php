@@ -358,7 +358,7 @@
                         const BOLD_ON      = ESC + "E" + "\x01";
                         const BOLD_OFF     = ESC + "E" + "\x00";
 
-                        const LINE_WIDTH = 32;
+                        const LINE_WIDTH = 32; // kira-kira lebar karakter kertas 58mm
 
                         // ================== HELPER FUNCTION ==================
 
@@ -391,6 +391,7 @@
                                 } else {
                                     if (line) lines.push(line);
                                     if (w.length > width) {
+                                        // hard-split very long word
                                         let start = 0;
                                         while (start < w.length) {
                                             lines.push(w.slice(start, start + width));
@@ -408,16 +409,19 @@
 
                         function itemLine(name, qty = 1, price = 0, addon = [], variant = [], note = null) {
                             const qtyStr = `x${qty}`;
-                            const priceStr = formatMoney(price);
+                            const totalPrice = qty * price;
+                            const priceStr = formatMoney(totalPrice);
 
+                            // Baris utama (nama + qty) — ini yang akan dipasangkan dengan price di baris pertama
                             const main = `${name} ${qtyStr}`;
 
+                            // Kumpulkan blok tambahan (tanpa menambahkan newline ke main)
                             const extraBlocks = [];
                             if (Array.isArray(addon) && addon.length) {
                                 extraBlocks.push("Addon:");
                                 addon.forEach(a => {
                                     const aPrice = a.addon_price ?? 0;
-                                    extraBlocks.push(`  ${a.addon_name} ${aPrice.toLocaleString("id-ID")} x${a.qty}`);
+                                    extraBlocks.push(`${a.addon_name} ${aPrice.toLocaleString("id-ID")} x${a.qty}`);
                                 });
                             }
 
@@ -425,49 +429,59 @@
                                 extraBlocks.push("Variant:");
                                 variant.forEach(v => {
                                     const vPrice = v.variant_price ?? 0;
-                                    extraBlocks.push(`  ${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
+                                    extraBlocks.push(`${v.variant_name}: ${v.variant_value} ${vPrice.toLocaleString("id-ID")}`);
                                 });
-                            }
-
-                            if (note) {
-                                extraBlocks.push(`Note: ${note}`);
                             }
 
                             const outputLines = [];
 
+                            // Baris pertama: main (wrapped jika perlu) + price di kanan
                             const availForFirst = LINE_WIDTH - priceStr.length;
                             const mainWrapped = wrapText(main, Math.max(1, availForFirst));
 
+                            // gunakan baris pertama dari mainWrapped sebagai baris dengan price
                             const firstMainLine = mainWrapped.length ? mainWrapped.shift() : "";
                             const pad = Math.max(1, availForFirst - firstMainLine.length);
                             outputLines.push(firstMainLine + " ".repeat(pad) + priceStr);
 
+                            // sisa dari mainWrapped menjadi baris biasa
                             mainWrapped.forEach(l => outputLines.push(l));
 
+                            // lalu tambahkan extraBlocks (wrap per baris)
                             extraBlocks.forEach(block => {
                                 const wrapped = wrapText(block, LINE_WIDTH);
                                 wrapped.forEach(l => outputLines.push(l));
                             });
 
+                            // akhiri setiap baris dengan newline
                             return outputLines.map(l => l + "\n").join("");
                         }
 
+                        // ESC/POS QR Code
                         function buildQrCommands(qrData) {
+                            // Model 2
                             const model = GS + "(k" + String.fromCharCode(4, 0, 49, 65, 50, 0);
+                            // Size (1-16)
                             const size  = GS + "(k" + String.fromCharCode(3, 0, 49, 67, 6);
+                            // Error correction level L
                             const ecc   = GS + "(k" + String.fromCharCode(3, 0, 49, 69, 48);
 
+                            // Store data
                             const storeLen = qrData.length + 3;
                             const pL = storeLen & 0xFF;
                             const pH = (storeLen >> 8) & 0xFF;
                             const store = GS + "(k" + String.fromCharCode(pL, pH, 49, 80, 48) + qrData;
 
+                            // Print QR
                             const print = GS + "(k" + String.fromCharCode(3, 0, 49, 81, 48);
 
                             return [model, size, ecc, store, print];
                         }
 
                         function buildReceipt(items, meta) {
+                            const total = items.reduce((sum, i) => sum + i.qty * i.price, 0);
+                            const totalStr = `Rp ${total.toLocaleString("id-ID")}`;
+
                             let data = [
                                 INIT,
 
@@ -492,31 +506,33 @@
 
                             // LIST ITEM
                             items.forEach(it => {
-                                data.push(itemLine(it.name, it.qty, it.price, it.addon, it.variant, it.note));
+                                data.push(itemLine(it.name, it.qty, it.price, it.addon, it.variant));
                             });
 
                             data.push("\n");
 
                             // PEMBAYARAN
+                            const payStr = `Rp ${total.toLocaleString("id-ID")}`;
                             data.push(
                                 padRight(meta.paymentName || "PAYMENT", 24) + "\n"
                             );
 
                             data.push(
                                 padRight("# ITEM SOLD", 24) + padLeft(String(items.length), 8) + "\n",
-                                padRight("SUB TOTAL", 24) + padLeft(formatMoney(meta.subtotal), 8) + "\n",
-                                padRight("DISC", 24) + padLeft(formatMoney(meta.discount), 8) + "\n",
-                                padRight("TOTAL", 24) + padLeft(formatMoney(meta.total), 8) + "\n",
+                                padRight("SUB TOTAL", 24) + padLeft(formatMoney(transaction.subtotal), 8) + "\n",
+                                padRight("DISC", 24) + padLeft(formatMoney(transaction.discount), 8) + "\n",
+                                padRight("TAX", 24) + padLeft(formatMoney(transaction.tax), 8) + "\n",
+                                padRight("TOTAL", 24) + padLeft(formatMoney(transaction.total), 8) + "\n",
                             );
 
                             data.push("\n");
 
-                            // QR CODE
-                            const qrPayload = meta.orderNo;
+                            // QR CODE + NOMOR ORDER
+                            const qrPayload = meta.orderNo; // bisa diganti URL / payload lain
                             data.push(ALIGN_CENTER);
                             buildQrCommands(qrPayload).forEach(cmd => data.push(cmd));
                             data.push("\n");
-                            data.push("Scan QR untuk detail pesanan" + "\n\n");
+                            data.push("Scan QR untuk login ke wifi" + "\n\n");
 
                             // FOOTER
                             data.push(
@@ -527,14 +543,15 @@
                                 "Nomor Antrian Anda\n",
                                 "\n",
 
-                                // ANGKA BESAR BOLD TENGAH
+                                // ================== ANGKA 58 BESAR BOLD TENGAH ==================
                                 "\x1B\x61\x01",     // center
                                 "\x1B\x45\x01",     // bold on
-                                "\x1D\x21\x11",     // double width & height
-                                `${meta.orderNumber}\n`,
-                                "\x1D\x21\x00",     // reset size
+                                "\x1D\x21\x11",     // text double width & double height (besar)
+                                `${transaction.order_number}`+'\n',
+                                "\x1D\x21\x00",     // reset size normal
                                 "\x1B\x45\x00",     // bold off
-                                "\x1B\x61\x00",     // left align
+                                "\x1B\x61\x00",     // left alignment kembali normal
+                                // ===============================================================
 
                                 "\n\n\n",
                                 GS + "V" + "\x00"    // cutter
@@ -543,7 +560,12 @@
                             return data;
                         }
 
-                        // Siapkan items
+                        // ================== DUMMY DATA TEST ==================
+                        // const items = [
+                        //     { name: "ICE KSK LARGE", qty: 1, price: 19000 },
+                        //     { name: "ROTI COKLAT",   qty: 2, price: 8000  }
+                        // ];
+
                         let items = [];
                         transactionDetail.forEach((detail) => {
                             items.push({
@@ -558,11 +580,13 @@
 
                         function formatDateTime(dateString) {
                             const d = new Date(dateString);
+
                             const day    = String(d.getDate()).padStart(2, '0');
                             const month  = String(d.getMonth() + 1).padStart(2, '0');
                             const year   = d.getFullYear();
                             const hour   = String(d.getHours()).padStart(2, '0');
                             const minute = String(d.getMinutes()).padStart(2, '0');
+
                             return `${day}/${month}/${year} ${hour}:${minute}`;
                         }
 
@@ -572,14 +596,10 @@
                             cashierName: transaction.users.name,
                             dateTime:    formatDateTime(transaction.created_at),
                             paymentName: transaction.payment_method.name,
-                            orderNo:     transaction.invoice_number,
-                            orderNumber: transaction.order_number,
-                            subtotal:    transaction.subtotal,
-                            discount:    transaction.discount,
-                            total:       transaction.total
+                            orderNo:     transaction.invoice_number
                         };
 
-                        // Build receipt
+                        // build data ESC/POS untuk dikirim ke printer
                         let data = buildReceipt(items, meta);
 
                         // Cash Drawer
@@ -600,7 +620,10 @@
                                 console.error(err);
                                 alert("Gagal print: " + err);
                             });
+
+
                     });
+
                 }
             });
         }
