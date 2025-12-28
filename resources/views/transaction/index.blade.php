@@ -305,10 +305,12 @@
             });
         }
 
+        // Set certificate - Modern Promise style
         qz.security.setCertificatePromise(() => {
             return fetch('/qz/cert.pem').then(res => res.text());
         });
 
+        // Set signature - Modern Promise style
         qz.security.setSignaturePromise((toSign) => {
             return fetch('/sign', {
                 method: 'POST',
@@ -317,9 +319,10 @@
             }).then(res => res.text());
         });
 
+        // Connect function
         function connectQZ() {
             if (!qz.websocket.isActive()) {
-                return qz.websocket.connect().catch(function(err) {
+                return qz.websocket.connect().catch(err => {
                     console.error("QZ connect error:", err);
                     alert("QZ Tray belum jalan di komputer kasir.");
                 });
