@@ -291,8 +291,7 @@ class PosController extends Controller
             ];
         }
 
-
-        Http::baseUrl('http://localhost:8080')
+        Http::baseUrl('https://print-selvin.my.id')
             ->asJson()
             ->post($url, [
                 'printer_name'  => $printName,

@@ -195,10 +195,6 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         });
     });
 
-    Route::prefix('/customer-display')->controller(CustomerDisplayController::class)->group(function () {
-        Route::get('/', 'index')->name('customer.display');
-    });
-
     Route::prefix('/report')->controller(ReportController::class)->group(function () {
         Route::get('/sales', 'sales')->name('report.sales');
         Route::get('/sales-monthly', 'salesMonthly')->name('report.sales.monthly');
@@ -215,4 +211,8 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::post('/kas-konsolidasi', 'kasKonsolidasiStore')->name('report.kas.konsolidasi.store');
         Route::get('/kas-konsolidasi/detail', 'kasKonsolidasiDetail')->name('report.kas.konsolidasi.detail');
     });
+});
+
+Route::prefix('/customer-display')->controller(CustomerDisplayController::class)->group(function () {
+    Route::get('/', 'index')->name('customer.display');
 });

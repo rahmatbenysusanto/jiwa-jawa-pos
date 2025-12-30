@@ -11,7 +11,7 @@ class CustomerDisplayController extends Controller
 {
     public function index(): View
     {
-        $slider = SliderCustomer::where('outlet_id', Auth::user()->outlet_id)->get();
+        $slider = SliderCustomer::where('outlet_id', 1)->get();
 
         $title = 'Customer Display';
         return view('customer-display.index', compact('title', 'slider'));
