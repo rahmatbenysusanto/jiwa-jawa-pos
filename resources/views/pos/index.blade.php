@@ -49,7 +49,7 @@
 @section('content')
     <div class="row align-items-start pos-wrapper">
 
-        <div class="col-md-12 col-lg-7 col-xl-8">
+        <div class="col-md-12 col-lg-7 col-xl-7">
             <div class="pos-categories tabs_wrapper">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
                     <div>
@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <div class="col-md-12 col-lg-5 col-xl-4 ps-0 theiaStickySidebar">
+        <div class="col-md-12 col-lg-5 col-xl-5 ps-0 theiaStickySidebar">
             <aside class="product-order-list">
                 <div class="customer-info">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
@@ -1188,15 +1188,15 @@
                                 ${discountProductHtml}
                             </td>
                             <td>
-                                <div class="qty-item m-0">
-                                    <a onclick="changeQtyProductCart(${index}, 'kurang')" class="dec d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="minus" data-bs-original-title="minus">
+                                <div class="qty-item m-0 d-flex">
+                                    <a onclick="changeQtyProductCart(${index}, 'kurang')" class="d-flex justify-content-center align-items-center btn btn-primary btn-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-minus-circle feather-14">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="8" y1="12" x2="16" y2="12"></line>
                                         </svg>
                                     </a>
                                     <input type="text" class="form-control text-center" value="${item.qty}" readonly>
-                                    <a onclick="changeQtyProductCart(${index}, 'tambah')" class="inc d-flex justify-content-center align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="plus" data-bs-original-title="plus">
+                                    <a onclick="changeQtyProductCart(${index}, 'tambah')" class="d-flex justify-content-center align-items-center btn btn-primary btn-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-circle feather-14">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="12" y1="8" x2="12" y2="16"></line>
@@ -1209,7 +1209,7 @@
                                 ${price}
                             </td>
                             <td class="text-end">
-                                <a class="btn-icon delete-icon" onclick="deleteCart(${index})">
+                                <a class="btn btn-danger" onclick="deleteCart(${index})">
                                     <i class="ti ti-trash"></i>
                                 </a>
                             </td>
