@@ -303,9 +303,9 @@ class PosController extends Controller
                 ],
                 'items'         => $items,
                 'payment' => [
-                    'sub_total' => $transaction->sub_total,
-                    'discount'  => $transaction->discount,
-                    'total'     => $transaction->total,
+                    'sub_total' => (int) $transaction->sub_total,
+                    'discount'  => (int) $transaction->discount,
+                    'total'     => (int) $transaction->total,
                     'method'    => $paymentMethod->name,
                 ],
                 'wifi' => $outlet->wifi
