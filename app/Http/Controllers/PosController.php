@@ -298,7 +298,7 @@ class PosController extends Controller
                 'order' => [
                     'number'    => $invoiceNumber,
                     'kasir'     => $user->name,
-                    'tanggal'   => $transaction->order_date,
+                    'tanggal'   => $transaction->transaction_date,
                     'antrian'   => $transaction->order_number
                 ],
                 'items'         => $items,
