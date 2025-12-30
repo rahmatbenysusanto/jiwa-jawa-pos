@@ -204,10 +204,10 @@
         function printNota(invoiceNumber) {
             document.getElementById('buttonPrintNota').innerHTML = `
                 <div class="col-6">
-                    <a class="btn btn-info w-100" onclick="printNotaProcess('kasir')">Print POS</a>
+                    <a class="btn btn-info w-100" onclick="printNotaProcess('kasir', '${invoiceNumber}')">Print POS</a>
                 </div>
                 <div class="col-6">
-                    <a class="btn btn-secondary w-100" onclick="printNotaProcess('dapur')">Print Kitchen</a>
+                    <a class="btn btn-secondary w-100" onclick="printNotaProcess('dapur', '${invoiceNumber}')">Print Kitchen</a>
                 </div>
             `;
 
@@ -306,13 +306,13 @@
             });
         }
 
-        function printNotaProcess(type) {
+        function printNotaProcess(type, invoiceNumber) {
             $.ajax({
                 url: '{{ route('pos.print.nota') }}',
                 method: 'GET',
                 data: {
                     type: type,
-                    invoiceNumber: '{{ $invoiceNumber }}'
+                    invoiceNumber: invoiceNumber
                 },
                 success: (res) => {
 

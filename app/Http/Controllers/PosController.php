@@ -292,7 +292,7 @@ class PosController extends Controller
         }
 
 
-        Http::baseUrl('http://localhost:8000')
+        Http::baseUrl('http://localhost:8080')
             ->asJson()
             ->post($url, [
                 'printer_name'  => $printName,
