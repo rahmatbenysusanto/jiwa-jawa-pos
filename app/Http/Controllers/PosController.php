@@ -303,7 +303,7 @@ class PosController extends Controller
                 ],
                 'items'         => $items,
                 'payment' => [
-                    'sub_total' => (int) $transaction->sub_total,
+                    'sub_total' => (int) $transaction->subtotal,
                     'discount'  => (int) $transaction->discount,
                     'total'     => (int) $transaction->total,
                     'method'    => $paymentMethod->name,
