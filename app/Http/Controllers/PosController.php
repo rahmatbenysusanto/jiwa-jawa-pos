@@ -10,14 +10,19 @@ use App\Models\Material;
 use App\Models\Menu;
 use App\Models\MenuCategory;
 use App\Models\MenuRecipeMaterial;
+use App\Models\Outlet;
 use App\Models\PaymentMethod;
 use App\Models\Transaction;
+use App\Models\TransactionData;
 use App\Models\TransactionDetail;
 use App\Models\TransactionPayment;
+use App\Models\User;
 use App\Services\MidtransService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -219,6 +224,96 @@ class PosController extends Controller
                 'transaction'       => $transaction,
                 'transactionDetail' => $transactionDetail
             ]
+        ]);
+    }
+
+    /**
+     * @throws ConnectionException
+     */
+    public function printNotaKasir(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $invoiceNumber = $request->get('invoiceNumber');
+
+        $transaction = Transaction::where('invoice_number', $invoiceNumber)->first();
+        $user = User::find($transaction->created_by);
+        $paymentMethod = PaymentMethod::find($transaction->payment_method_id);
+        $outlet = Outlet::find($transaction->outlet_id);
+        $transactionData = TransactionData::where('invoice_number', $invoiceNumber)->first();
+        $dataCart = json_decode($transactionData->cart, true);
+
+        if ($request->get('type') == 'kasir') {
+            $url = '/kasir';
+            $printName = 'POS-58-KASIR';
+        } else {
+            $url = '/dapur';
+            $printName = 'POS-58-DAPUR';
+        }
+
+        // Item
+        $items = [];
+
+        foreach ($dataCart as $menu) {
+
+            // Variant
+            $variant = [];
+            foreach ($menu['data']['variant'] ?? [] as $varGroup) {
+                foreach ($varGroup['option'] ?? [] as $var) {
+                    if ($var['select'] == 1) {
+                        $variant[] = [
+                            'name'  => $varGroup['name'],
+                            'value' => $var['name'],
+                            'price' => $var['price'],
+                        ];
+                    }
+                }
+            }
+
+            // Addon
+            $addon = [];
+            foreach ($menu['data']['addon'] ?? [] as $add) {
+                $addon[] = [
+                    'name'  => $add['name'],
+                    'qty'   => $add['qty'],
+                    'price' => $add['price']
+                ];
+            }
+
+            // Discount
+            $discount = [];
+
+            $items[] = [
+                'name'      => $menu['name'],
+                'qty'       => $menu['qty'],
+                'price'     => $menu['basePrice'],
+                'variant'   => $variant,
+                'addon'     => $addon,
+                'discount'  => $discount,
+            ];
+        }
+
+
+        Http::baseUrl('http://localhost:8000')
+            ->asJson()
+            ->post($url, [
+                'printer_name'  => $printName,
+                'order' => [
+                    'number'    => $invoiceNumber,
+                    'kasir'     => $user->name,
+                    'tanggal'   => $transaction->order_date,
+                    'antrian'   => $transaction->order_number
+                ],
+                'items'         => $items,
+                'payment' => [
+                    'sub_total' => $transaction->sub_total,
+                    'discount'  => $transaction->discount,
+                    'total'     => $transaction->total,
+                    'method'    => $paymentMethod->name,
+                ],
+                'wifi' => $outlet->wifi
+            ]);
+
+        return response()->json([
+            'status' => true
         ]);
     }
 }

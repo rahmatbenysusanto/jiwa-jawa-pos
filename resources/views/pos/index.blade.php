@@ -543,6 +543,93 @@
             </div>
         </div>
     </div>
+
+    <div id="paymentCashModal" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg rounded-4">
+                <div class="modal-header py-3">
+                    <h3 class="modal-title fw-bold">💵 Payment Cash</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body px-4 py-4">
+
+                    <!-- Cash Customer -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Cash Customer
+                        </label>
+                        <input
+                                type="number"
+                                class="form-control form-control-lg fw-bold text-end"
+                                id="paymentCash_cashCustomer"
+                                oninput="cashCustomer(this.value)"
+                                placeholder="Rp 0"
+                                autofocus
+                        >
+                    </div>
+
+                    <!-- Total Transaction -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Total Transaction
+                        </label>
+                        <input
+                                type="text"
+                                class="form-control form-control-lg fw-bold text-end bg-light"
+                                id="paymentCash_total"
+                                readonly
+                        >
+                    </div>
+
+                    <!-- Change -->
+                    <div class="mb-3">
+                        <label class="form-label text-success">
+                            Change
+                        </label>
+                        <input
+                                type="text"
+                                class="form-control form-control-lg fw-bold text-end text-success bg-light"
+                                id="paymentCash_change"
+                                readonly
+                        >
+                    </div>
+
+                    <a class="btn btn-primary w-100" onclick="processPaymentCash()">Process</a>
+
+                    <div class="row g-3 mt-3">
+                        <div class="col-8">
+                            <div class="row g-3">
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(7)">7</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(8)">8</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(9)">9</button></div>
+
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(4)">4</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(5)">5</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(6)">6</button></div>
+
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(1)">1</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(2)">2</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(3)">3</button></div>
+
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum(0)">0</button></div>
+                                <div class="col-4"><button class="btn btn-outline-dark w-100 py-4 fs-4" onclick="pressNum('000')">000</button></div>
+                                <div class="col-4"><button class="btn btn-warning w-100 py-4 fs-4" onclick="clearCash()">C</button></div>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <button class="btn btn-danger w-100 h-100 fs-3 fw-bold" onclick="backspaceCash()">
+                                ⌫
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('js')
@@ -2601,7 +2688,8 @@
                             if (res.status) {
 
                                 // Print Nota
-                                printInvoicePOS('{{ $invoiceNumber }}');
+                                printNota('kasir');
+                                printNota('dapur');
 
                                 if (paymentMethod === 'Debit') {
                                     Swal.fire({
@@ -2639,11 +2727,13 @@
                                             <i class="ti ti-printer me-2"></i>Print Invoice
                                         </a>
                                     `;
-                                    Swal.fire({
-                                        title: 'Success!',
-                                        text: 'Transaction has been created successfully.',
-                                        icon: 'success',
-                                    });
+
+                                    document.getElementById('paymentCash_total').value = rupiah(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
+                                    document.getElementById('paymentCash_change').value = rupiah(0);
+
+                                    $('#paymentCashModal').modal('show');
+
+                                    document.getElementById('paymentCash_cashCustomer').focus();
                                 }
 
                                 document.getElementById('changePayment').innerHTML = `
@@ -2669,6 +2759,63 @@
                     });
                 }
             });
+        }
+
+        function cashCustomer(cash) {
+            const cashCustomer = parseInt(cash);
+            const grandTotal = parseInt(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
+            const change = cashCustomer - grandTotal;
+
+            document.getElementById('paymentCash_change').value = 'Rp ' + rupiah(change);
+        }
+
+        function processPaymentCash() {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Process this order",
+                icon: "warning",
+                showCancelButton: true,
+                customClass: {
+                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
+                    cancelButton: "btn btn-danger w-xs mt-2"
+                },
+                confirmButtonText: "Yes, Process it!",
+                buttonsStyling: false,
+                showCloseButton: true
+            }).then((i) => {
+                if (i.value) {
+
+                    window.location.reload();
+
+                }
+            });
+        }
+
+        function pressNum(num) {
+            const input = document.getElementById('paymentCash_cashCustomer');
+
+            let current = input.value ? input.value.toString() : '';
+            if (current === '' && num === '000') {
+                return;
+            }
+
+            input.value = current + num;
+            input.dispatchEvent(new Event('input'));
+            input.focus();
+        }
+
+        function clearCash() {
+            const input = document.getElementById('paymentCash_cashCustomer');
+            input.value = '';
+            input.dispatchEvent(new Event('input'));
+            input.focus();
+        }
+
+        function backspaceCash() {
+            const input = document.getElementById('paymentCash_cashCustomer');
+            input.value = input.value.slice(0, -1);
+            input.dispatchEvent(new Event('input'));
+            input.focus();
         }
 
         function changePayment() {
@@ -2840,49 +2987,18 @@
             });
         }
 
-        async function printNota() {
-            try {
-                if (!qz.websocket.isActive()) {
-                    await qz.websocket.connect({host: 'localhost', usingSecure: false});
+        function printNota(type) {
+            $.ajax({
+                url: '{{ route('pos.print.nota') }}',
+                method: 'GET',
+                data: {
+                    type: type,
+                    invoiceNumber: '{{ $invoiceNumber }}'
+                },
+                success: (res) => {
+
                 }
-
-                // Pakai nama printer hasil find() atau default
-                const matches = await qz.printers.find("HaoYin"); // atau "CX588"/"POS"/"58"
-                const printerName = matches[0] || await qz.printers.getDefault();
-
-                // PENTING: altPrinting:true untuk macOS (raw pass-through)
-                const cfg = qz.configs.create(printerName, {
-                    altPrinting: true,     // <-- ini kuncinya di Mac
-                    // encoding: 'CP437',  // opsional; CX588 default-nya CP437/GBK
-                });
-
-                const ESC = '\x1B', GS = '\x1D';
-                const lines = [
-                    ESC + "@", ESC + "a" + "\x01", "KEDAI SELVIN\n", "Solo\n\n",
-                    ESC + "a" + "\x00",
-                    "Americano  x1      18.000\n",
-                    "Croissant  x1      12.000\n",
-                    "---------------------------\n",
-                    "Total               30.000\n",
-                    "Metode: DEBIT\n",
-                    "Approval: 749832\n",
-                    "Last4  : 1234\n",
-                    "\n\n\n" // feed beberapa baris (tanpa auto-cutter, kertas perlu didorong)
-                    // GS+"V"+"\x00" // cutter jika ada auto-cutter (banyak 58mm portable tidak)
-                ];
-
-                await qz.print(cfg, lines);
-                alert("Print dikirim (RAW)");
-            } catch (e) {
-                console.error(e);
-                alert("Print gagal: " + (e.message || e));
-            }
-        }
-
-        async function tesPrint() {
-            if (!qz.websocket.isActive()) await qz.websocket.connect();
-            const list = await qz.printers.find();
-            console.log('Printers:', list);
+            });
         }
     </script>
 

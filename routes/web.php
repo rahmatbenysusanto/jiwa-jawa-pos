@@ -130,6 +130,9 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         Route::get('/addon-all', 'listAddon')->name('pos.addon.all');
         Route::get('/find-transaction', 'findTransaction')->name('pos.find.transaction');
+
+        // Print Nota Kasir & Dapur
+        Route::get('/print-nota', 'printNotaKasir')->name('pos.print.nota');
     });
 
     Route::prefix('/transaction')->controller(TransactionController::class)->group(function () {
@@ -213,60 +216,3 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/kas-konsolidasi/detail', 'kasKonsolidasiDetail')->name('report.kas.konsolidasi.detail');
     });
 });
-
-Route::post('/sign', function(Request $request) {
-    try {
-        // Ambil data yang akan di-sign
-        $toSign = $request->getContent();
-
-        // Path ke private key
-        $privateKeyPath = storage_path('app/qz/private-key.pem');
-
-        // Cek file ada
-        if (!file_exists($privateKeyPath)) {
-            \Log::error('Private key not found at: ' . $privateKeyPath);
-            return response('Private key not found', 500)
-                ->header('Content-Type', 'text/plain');
-        }
-
-        // Baca private key
-        $privateKeyContent = file_get_contents($privateKeyPath);
-
-        // Load private key
-        $privateKey = openssl_pkey_get_private($privateKeyContent);
-
-        if (!$privateKey) {
-            \Log::error('Invalid private key: ' . openssl_error_string());
-            return response('Invalid private key', 500)
-                ->header('Content-Type', 'text/plain');
-        }
-
-        // Sign data dengan SHA512
-        $success = openssl_sign($toSign, $signature, $privateKey, OPENSSL_ALGO_SHA512);
-
-        if (!$success) {
-            \Log::error('Signing failed: ' . openssl_error_string());
-            return response('Signing failed', 500)
-                ->header('Content-Type', 'text/plain');
-        }
-
-        // Encode ke base64
-        $signatureBase64 = base64_encode($signature);
-
-        // Log untuk debug
-        \Log::info('Signature created successfully', [
-            'data_length' => strlen($toSign),
-            'signature_length' => strlen($signatureBase64)
-        ]);
-
-        // Return signature
-        return response($signatureBase64, 200)
-            ->header('Content-Type', 'text/plain');
-
-    } catch (\Exception $e) {
-        \Log::error('Sign endpoint error: ' . $e->getMessage());
-        return response('Server error: ' . $e->getMessage(), 500)
-            ->header('Content-Type', 'text/plain');
-    }
-});
-

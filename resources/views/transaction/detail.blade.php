@@ -30,7 +30,9 @@
                                 <tr>
                                     <td class="fw-bold">Transaction Date</td>
                                     <td class="fw-bold ps-2">:</td>
-                                    <td class="ps-1">{{ \Carbon\Carbon::parse($transaction->transaction_date)->translatedFormat('d F Y H:i') }}</td>
+                                    <td class="ps-1">
+                                        {{ \Carbon\Carbon::parse($transaction->transaction_date)->translatedFormat('d F Y H:i') }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="fw-bold">QTY Item</td>
@@ -74,7 +76,7 @@
                                     <td class="fw-bold">Status Payment</td>
                                     <td class="fw-bold ps-2">:</td>
                                     <td class="ps-1">
-                                        @if($transaction->payment_status == 'paid')
+                                        @if ($transaction->payment_status == 'paid')
                                             <span class="badge bg-success">Paid</span>
                                         @elseif($transaction->payment_status == 'pending')
                                             <span class="badge bg-warning">Pending</span>
@@ -111,37 +113,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach(json_decode($transactionData->cart) ?? [] as $data)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>
-                                    <div class="fw-bold">{{ $data->name }}</div>
-                                    <div>Base Price : Rp {{ number_format($data->basePrice) }}</div>
-                                    <div>Variant :</div>
-                                    @foreach($data->data->variant ?? [] as $variant)
-                                        <div>{{ $variant->name }} :
-                                            @foreach($variant->option as $option)
-                                                {{ $option->select == 1 ? $option->name.' - Rp '.number_format($option->price) : '' }}
-                                            @endforeach
-                                        </div>
-                                    @endforeach
-                                    @if(isset($data->data->addon))
-                                        <div>Addon : </div>
-                                        @foreach($data->data->addon ?? [] as $addon)
-                                            <div>{{ $addon->name }} : 1 : Rp {{ number_format($addon->total) }}</div>
+                            @foreach (json_decode($transactionData->cart) ?? [] as $data)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="fw-bold">{{ $data->name }}</div>
+                                        <div>Base Price : Rp {{ number_format($data->basePrice) }}</div>
+                                        <div>Variant :</div>
+                                        @foreach ($data->data->variant ?? [] as $variant)
+                                            <div>{{ $variant->name }} :
+                                                @foreach ($variant->option as $option)
+                                                    {{ $option->select == 1 ? $option->name . ' - Rp ' . number_format($option->price) : '' }}
+                                                @endforeach
+                                            </div>
                                         @endforeach
-                                    @endif
-                                    <div>Discount : </div>
-                                    @foreach($data->data->discountProduct ?? [] as $discount)
-                                        <div class="text-danger">{{ $discount->select ?? 0 == 1 ? $discount->name.' - Rp '.number_format($data->priceDiscount) : '' }}</div>
-                                    @endforeach
-                                </td>
-                                <td class="text-center fw-bold">{{ $data->qty }}</td>
-                                <td>
-                                    Rp {{ number_format($data->grandTotal) }}
-                                </td>
-                            </tr>
-                        @endforeach
+                                        @if (isset($data->data->addon))
+                                            <div>Addon : </div>
+                                            @foreach ($data->data->addon ?? [] as $addon)
+                                                <div>{{ $addon->name }} : 1 : Rp {{ number_format($addon->total) }}</div>
+                                            @endforeach
+                                        @endif
+                                        <div>Discount : </div>
+                                        @foreach ($data->data->discountProduct ?? [] as $discount)
+                                            <div class="text-danger">
+                                                {{ $discount->select ?? 0 == 1 ? $discount->name . ' - Rp ' . number_format($data->priceDiscount) : '' }}
+                                            </div>
+                                        @endforeach
+                                    </td>
+                                    <td class="text-center fw-bold">{{ $data->qty }}</td>
+                                    <td>
+                                        Rp {{ number_format($data->grandTotal) }}
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
