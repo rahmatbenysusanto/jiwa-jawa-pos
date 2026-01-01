@@ -280,6 +280,7 @@
     // Pusher
     Pusher.logToConsole=false; const pusher=new Pusher('e4ffb7304b4636918b68',{cluster:'ap1'}); const channel=pusher.subscribe('selvin-pos');
     channel.bind('transaction-data',function(data){
+        console.info(data);
         localStorage.setItem('invoice', JSON.stringify(data.invoice));
         document.getElementById('invoiceNumber').innerText=data.invoice;
         switch(data.type){
@@ -295,7 +296,19 @@
         }
     });
 
-    function cartData(invoiceNumber){ $.ajax({ url:'{{ route('transaction.data.find') }}', method:'GET', data:{ invoiceNumber }, success:(res)=>{ const d=res.data||{}; localStorage.setItem('cart', JSON.stringify(JSON.parse(d.cart||'[]'))); localStorage.setItem('discountTransaction', JSON.stringify(JSON.parse(d.discountTransaction||'[]'))); viewChartList(); } }); }
+    function cartData(invoiceNumber){
+        $.ajax({
+            url:'{{ route('transaction.data.find') }}',
+            method:'GET',
+            data:{ invoiceNumber },
+            success:(res)=>{
+                const d=res.data ||{};
+                localStorage.setItem('cart', JSON.stringify(JSON.parse(d.cart||'[]')));
+                localStorage.setItem('discountTransaction', JSON.stringify(JSON.parse(d.discountTransaction||'[]')));
+                viewChartList();
+            }
+        });
+    }
 
     // Init
     viewChartList();

@@ -140,7 +140,6 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/detail', 'detail')->name('transaction.detail');
         Route::post('/', 'store')->name('transaction.store');
         Route::post('/data', 'dataStore')->name('transaction.data.store');
-        Route::get('/data', 'findDataCart')->name('transaction.data.find');
         Route::post('/create/transaction-payment', 'createTransactionPayment')->name('transaction.create.payment');
 
         Route::post('/cancel', 'cancelTransaction')->name('transaction.cancel');
@@ -216,3 +215,5 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 Route::prefix('/customer-display')->controller(CustomerDisplayController::class)->group(function () {
     Route::get('/', 'index')->name('customer.display');
 });
+
+Route::get('/data', [TransactionController::class, 'findDataCart'])->name('transaction.data.find');
