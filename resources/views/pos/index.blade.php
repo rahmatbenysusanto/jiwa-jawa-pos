@@ -565,6 +565,7 @@
                                 id="paymentCash_cashCustomer"
                                 oninput="cashCustomer(this.value)"
                                 placeholder="Rp 0"
+                                value=""
                                 autofocus
                         >
                     </div>
