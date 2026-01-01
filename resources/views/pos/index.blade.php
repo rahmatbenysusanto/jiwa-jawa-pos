@@ -2103,6 +2103,7 @@
                                         </a>
                                     `;
 
+                                    document.getElementById('paymentCash_cashCustomer').value = "";
                                     document.getElementById('paymentCash_total').value = rupiah(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
                                     document.getElementById('paymentCash_change').value = rupiah(0);
 
