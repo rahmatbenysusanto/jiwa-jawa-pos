@@ -635,6 +635,7 @@
 
 @section('js')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://js.pusher.com/8.4.0/pusher.min.js"></script>
 
     <script>
         localStorage.clear();
@@ -2400,6 +2401,25 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             document.body.classList.add('mini-sidebar');
+        });
+    </script>
+
+    <script>
+        let pusher = new Pusher('e4ffb7304b4636918b68', {
+            cluster: 'ap1'
+        });
+
+        let channel = pusher.subscribe('selvin-pos');
+        channel.bind('paymentQrisSuccess', function(data) {
+            $('#modalQris').modal('hide');
+
+            Swal.fire({
+                title: 'Success',
+                text: 'Pembayaran QRIS Berhasil DiBayarkan Oleh Customer',
+                icon: 'success'
+            }).then((i) => {
+                window.location.reload();
+            });
         });
     </script>
 @endsection

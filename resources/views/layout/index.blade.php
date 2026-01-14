@@ -264,14 +264,14 @@
                                     </li>
                                     @endif
 
-                                    @if(collect(Session::get('menu', []))->contains('Customer Display'))
-                                    <li class="{{ $title == 'Customer Display' ? 'active' : '' }}">
-                                        <a href="{{ route('customer.display') }}">
-                                            <i class="ti ti-shopping-bag fs-16 me-2"></i>
-                                            <span>Customer Display</span>
-                                        </a>
-                                    </li>
-                                    @endif
+{{--                                    @if(collect(Session::get('menu', []))->contains('Customer Display'))--}}
+{{--                                    <li class="{{ $title == 'Customer Display' ? 'active' : '' }}">--}}
+{{--                                        <a href="{{ route('customer.display') }}">--}}
+{{--                                            <i class="ti ti-shopping-bag fs-16 me-2"></i>--}}
+{{--                                            <span>Customer Display</span>--}}
+{{--                                        </a>--}}
+{{--                                    </li>--}}
+{{--                                    @endif--}}
 
                                     @if(collect(Session::get('menu', []))->contains('List Transaction'))
                                     <li class="{{ $title == 'Transaction' ? 'active' : '' }}">

@@ -409,6 +409,13 @@ class TransactionController extends Controller
             Transaction::where('invoice_number', $orderId)->update(['payment_status' => 'paid']);
         }
 
+        TransactionEvent::dispatch([
+            'username'  => Auth::user()->username,
+            'type'      => 'paymentQrisSuccess',
+            'invoice'   => $orderId,
+            'data'      => []
+        ]);
+
         return response()->json([
             'status' => true,
         ]);
