@@ -11,7 +11,7 @@
     <meta name="robots" content="index, follow">
     <title>Login - Kedai Selvin</title>
 
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.png') }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/img/favicon.ico') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/apple-touch-icon.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/plugins/fontawesome/css/fontawesome.min.css') }}">
@@ -35,7 +35,7 @@
                     @csrf
                     <div class="login-userset">
                         <div class="d-flex justify-content-center">
-                            <img src="{{ asset('assets/img/authentication/login-logo.png') }}" alt="img" width="350">
+                            <img src="{{ asset('assets/img/login-logo.png') }}" alt="img" width="350">
                         </div>
                         <div class="login-userheading">
                             <h3>Sign In</h3>
