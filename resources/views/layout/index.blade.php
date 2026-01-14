@@ -42,7 +42,7 @@
         <div class="main-header">
             <div class="header-left active">
                 <a href="{{ route('dashboard') }}" class="logo logo-normal">
-                    <img src="{{ asset('assets/img/logo.svg') }}" alt="Img">
+                    <img src="{{ asset('assets/img/logo.png') }}" alt="Img">
                 </a>
                 <a href="{{ route('dashboard') }}" class="logo logo-white">
                     <img src="assets/img/logo-white.svg" alt="Img">
@@ -109,7 +109,7 @@
         <!-- Logo -->
         <div class="sidebar-logo active">
             <a href="{{ route('dashboard') }}" class="logo logo-normal">
-                <img src="{{ asset('assets/img/logo.svg') }}" alt="Img">
+                <img src="{{ asset('assets/img/logo.png') }}" alt="Img">
             </a>
             <a href="{{ route('dashboard') }}" class="logo logo-white">
                 <img src="assets/img/logo-white.svg" alt="Img">
