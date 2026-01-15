@@ -410,7 +410,7 @@ class TransactionController extends Controller
         }
 
         TransactionEvent::dispatch([
-            'username'  => Auth::user()->username,
+            'username'  => null,
             'type'      => 'paymentQrisSuccess',
             'invoice'   => $orderId,
             'data'      => []
