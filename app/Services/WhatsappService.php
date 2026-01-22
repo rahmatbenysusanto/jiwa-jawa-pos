@@ -4,7 +4,7 @@ namespace App\Services;
 
 class WhatsappService
 {
-    public function sendMessage($message): void
+    public function sendMessageDefault($message): void
     {
         $ch = curl_init("https://whatsapp.venusverse.me/api/session/Kedai%20Selvin/send");
 
@@ -32,5 +32,58 @@ class WhatsappService
         }
 
         curl_close($ch);
+    }
+
+    public function sendMessage($message): void
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://gowa-lgzsmb7bsgvi.sgp-ramaparasu.sumopod.my.id/send/message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode([
+                'phone'     => env('WA'),
+                'message'   => $message
+            ]),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Basic OFJHczVWQWw6WFp5NUNwcEU2M1RDU2lBRDU3S0tTbURz',
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://gowa-lgzsmb7bsgvi.sgp-ramaparasu.sumopod.my.id/send/message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode([
+                'phone'     => env('WA_2'),
+                'message'   => $message
+            ]),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Basic OFJHczVWQWw6WFp5NUNwcEU2M1RDU2lBRDU3S0tTbURz',
+                'Content-Type: application/json'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        echo $response;
     }
 }
