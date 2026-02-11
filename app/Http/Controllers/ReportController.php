@@ -68,7 +68,7 @@ class ReportController extends Controller
         $topSelling = TransactionDetail::query()
             ->join('transaction as t', 't.id', '=', 'transaction_detail.transaction_id')
             ->whereBetween('t.transaction_date', [$request->query('start', date('Y-m-01')), $request->query('end', date('Y-m-d'))])
-//            ->where('t.payment_status', '=', 'paid')
+            //            ->where('t.payment_status', '=', 'paid')
             ->groupBy('transaction_detail.menu_id')
             ->select([
                 'transaction_detail.menu_id',
@@ -79,7 +79,7 @@ class ReportController extends Controller
             ->orderByDesc('sold_quantity')
             ->orderByDesc('total_sales')
             ->with(['menu', 'menu.category'])
-//            ->limit(10)
+            //            ->limit(10)
             ->get();
 
         $title = 'Top Selling Report';
@@ -92,7 +92,7 @@ class ReportController extends Controller
             ->from('transaction_detail as td')
             ->join('transaction as t', 't.id', '=', 'td.transaction_id')
             ->whereBetween('t.transaction_date', [$request->query('start', date('Y-m-01')), $request->query('end', date('Y-m-d'))])
-//            ->where('t.payment_status', '=', 'paid')
+            //            ->where('t.payment_status', '=', 'paid')
             ->groupBy('td.menu_id')
             ->selectRaw('td.menu_id,
                  SUM(td.qty) as sold_quantity,
@@ -164,7 +164,7 @@ class ReportController extends Controller
     {
         $kasKonsolidasi = KasRekonsiliasi::with('user')
             ->when($request->query('tanggal'), function ($q) use ($request) {
-                $q->whereBetween('tanggal', [$request->query('tanggal'). '00:00:00', $request->query('tanggal'). ' 23:59:59']);
+                $q->whereBetween('tanggal', [$request->query('tanggal') . '00:00:00', $request->query('tanggal') . ' 23:59:59']);
             })
             ->latest()
             ->paginate(10);
@@ -182,12 +182,15 @@ class ReportController extends Controller
     public function kasKonsolidasiDataTransaction(Request $request)
     {
         $transaction = Transaction::whereBetween('transaction_date', [
-                $request->tanggal.' 00:00:00',
-                $request->tanggal.' 23:59:59'
-            ])
+            $request->tanggal . ' 00:00:00',
+            $request->tanggal . ' 23:59:59'
+        ])
             ->select([
                 // grand total
                 DB::raw('COALESCE(SUM(total), 0) AS total'),
+                DB::raw('COALESCE(SUM(subtotal), 0) AS subtotal'),
+                DB::raw('COALESCE(SUM(tax), 0) AS tax'),
+                DB::raw('COALESCE(SUM(discount), 0) AS discount'),
                 DB::raw('COALESCE(SUM(hpp), 0) AS hpp'),
 
                 // breakdown total per payment method
