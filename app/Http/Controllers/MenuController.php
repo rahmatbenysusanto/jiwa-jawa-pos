@@ -30,6 +30,10 @@ class MenuController extends Controller
 
     public function categoryAdd(Request $request): \Illuminate\Http\RedirectResponse
     {
+        $request->validate([
+            'category' => 'required|string|max:255'
+        ]);
+
         MenuCategory::create([
             'outlet_id' => Auth::user()->outlet_id,
             'name'      => $request->post('category')
@@ -40,7 +44,9 @@ class MenuController extends Controller
 
     public function findCategory(Request $request): \Illuminate\Http\JsonResponse
     {
-        $category = MenuCategory::find($request->get('id'));
+        $category = MenuCategory::where('id', $request->get('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->first();
 
         return response()->json([
             'data' => $category
@@ -49,25 +55,41 @@ class MenuController extends Controller
 
     public function categoryEdit(Request $request): \Illuminate\Http\RedirectResponse
     {
-        MenuCategory::where('id', $request->post('id'))->update([
-            'name' => $request->post('category')
+        $request->validate([
+            'id' => 'required|integer',
+            'category' => 'required|string|max:255'
         ]);
+
+        MenuCategory::where('id', $request->post('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->update([
+                'name' => $request->post('category')
+            ]);
 
         return back()->with('success', 'Edit Category successfully!');
     }
 
-    public function categoryDelete(Request $request): \Illuminate\Http\RedirectResponse
+    public function categoryDelete(Request $request): \Illuminate\Http\JsonResponse
     {
-        MenuCategory::where('id', $request->get('id'))->update([
-            'deleted_at' => date('Y-m-d H:i:s')
+        $request->validate([
+            'id' => 'required|integer'
         ]);
 
-        return back()->with('success', 'Delete Category successfully!');
+        MenuCategory::where('id', $request->get('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->update([
+                'deleted_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => true
+        ]);
     }
 
     public function list(Request $request): View
     {
         $menu = Menu::with('category')
+            ->where('outlet_id', Auth::user()->outlet_id)
             ->when($request->query('sku'), function ($query) use ($request) {
                 return $query->where('sku', 'like', '%' . $request->query('sku') . '%');
             })
@@ -75,7 +97,7 @@ class MenuController extends Controller
                 return $query->where('name', 'like', '%' . $request->query('name') . '%');
             })
             ->when($request->query('combo'), function ($query) use ($request) {
-                return $query->where('combo', $request->query('combo'));
+                return $query->where('is_combo', $request->query('combo'));
             })
             ->when($request->query('status'), function ($query) use ($request) {
                 return $query->where('status', $request->query('status'));
@@ -84,6 +106,7 @@ class MenuController extends Controller
                 return $query->where('category_id', $request->query('category'));
             })
             ->where('deleted_at', null)
+            ->orderBy('id', 'desc')
             ->paginate(10)
             ->appends([
                 'sku'       => $request->query('sku'),
@@ -118,7 +141,7 @@ class MenuController extends Controller
                 File::ensureDirectoryExists($dir);
 
                 $ext = strtolower($request->file('image')->getClientOriginalExtension() ?: 'jpg');
-                $filename = Str::uuid()->toString().'.'.$ext;
+                $filename = Str::uuid()->toString() . '.' . $ext;
                 $request->file('image')->move($dir, $filename);
                 $imageRelPath = "images/menu/{$filename}";
             }
@@ -130,22 +153,23 @@ class MenuController extends Controller
                 'name'          => $request->post('name'),
                 'price'         => $request->post('price'),
                 'hpp'           => $request->post('hpp'),
-                'description'   => $request->post('description'),
+                'description'   => $request->post('desc'),
                 'image'         => $imageRelPath,
             ]);
 
-            foreach ($request->post('variants') ?? [] as $variant) {
+            $variants = json_decode($request->post('variants'), true) ?? [];
+            foreach ($variants as $variant) {
                 $menuVariant = MenuVariant::create([
                     'menu_id'   => $menu->id,
                     'name'      => $variant['name'],
-                    'required'  => $variant['required'] == 'true' ? Auth::user()->outlet_id : 0,
+                    'required'  => filter_var($variant['required'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                 ]);
 
                 foreach ($variant['options'] ?? [] as $option) {
                     MenuVariantOption::create([
                         'menu_variant_id'   => $menuVariant->id,
                         'name'              => $option['name'],
-                        'is_default'        => $option['default'] == 'true' ? Auth::user()->outlet_id : 0,
+                        'is_default'        => filter_var($option['default'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0,
                         'price_delta'       => $option['price'],
                         'hpp'               => $option['hpp'],
                     ]);
@@ -248,7 +272,7 @@ class MenuController extends Controller
                 File::ensureDirectoryExists($dir);
 
                 $ext = strtolower($request->file('image')->getClientOriginalExtension() ?: 'jpg');
-                $filename = Str::uuid()->toString().'.'.$ext;
+                $filename = Str::uuid()->toString() . '.' . $ext;
                 $request->file('image')->move($dir, $filename);
                 $imageRelPath = "images/menu/{$filename}";
 
@@ -319,9 +343,22 @@ class MenuController extends Controller
         return back()->with('success', 'Create Addon variant successfully!');
     }
 
+    public function addonDelete(Request $request): \Illuminate\Http\JsonResponse
+    {
+        Addon::where('id', $request->get('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->update([
+                'deleted_at' => now()
+            ]);
+
+        return response()->json([
+            'status' => true
+        ]);
+    }
+
     public function addonDetailDelete(Request $request): \Illuminate\Http\JsonResponse
     {
-        AddonVariant::where('id', $request->post('id'))->delete();
+        AddonVariant::where('id', $request->get('id'))->delete();
 
         return response()->json([
             'status' => true
@@ -401,8 +438,10 @@ class MenuController extends Controller
 
     public function recipeStore(Request $request): \Illuminate\Http\JsonResponse
     {
-        foreach ($request->post('variantAddon') as $variant) {
-            foreach ($variant['material'] as $material) {
+        $variantAddons = $request->post('variantAddon') ?? [];
+        foreach ($variantAddons as $variant) {
+            $materials = $variant['material'] ?? [];
+            foreach ($materials as $material) {
                 MenuRecipeMaterial::create([
                     'addon_id'      => $variant['id'],
                     'material_id'   => $material['id'],
@@ -435,13 +474,13 @@ class MenuController extends Controller
             DB::beginTransaction();
 
             $menu = $request->post('menu');
-            $materialBasicMenu = $request->post('materialBasicMenu');
-            $variant = $request->post('variant');
+            $materialBasicMenu = $request->post('materialBasicMenu') ?? [];
+            $variant = $request->post('variant') ?? [];
 
             // Material Basic Menu
             foreach ($materialBasicMenu as $material) {
                 MenuRecipeMaterial::create([
-                    'menu_id'       => $menu['id'],
+                    'menu_id'       => $menu['id'] ?? null,
                     'material_id'   => $material['id'],
                     'qty'           => $material['qty'],
                     'unit'          => $material['unit'],
@@ -450,7 +489,8 @@ class MenuController extends Controller
 
             // Variant
             foreach ($variant as $item) {
-                foreach ($item['material'] ?? [] as $material) {
+                $materials = $item['material'] ?? [];
+                foreach ($materials as $material) {
                     MenuRecipeMaterial::create([
                         'variant_id'    => $item['optionId'],
                         'material_id'   => $material['id'],
@@ -511,6 +551,166 @@ class MenuController extends Controller
         return view('menu.recipe.addon', compact('title', 'addon'));
     }
 
+    public function recipeMenuDetail(Request $request, $id): View
+    {
+        $menu = Menu::with('category')->findOrFail($id);
+
+        $basicMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name')
+            ->where('menu_recipe_material.menu_id', $id)
+            ->get();
+
+        $variantMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->join('menu_variant_option', 'menu_variant_option.id', '=', 'menu_recipe_material.variant_id')
+            ->join('menu_variant', 'menu_variant.id', '=', 'menu_variant_option.menu_variant_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name', 'menu_variant_option.name as option_name', 'menu_variant.name as variant_name')
+            ->where('menu_variant.menu_id', $id)
+            ->get();
+
+        $title = 'Recipe Menu Detail';
+        return view('menu.recipe.detail-menu', compact('title', 'menu', 'basicMaterials', 'variantMaterials'));
+    }
+
+    public function recipeMenuEdit(Request $request, $id): View
+    {
+        $menu = Menu::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $material = Material::with('baseUnit')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->whereNull('deleted_at')
+            ->get();
+
+        $recipeMenu = Menu::with('category')->findOrFail($id);
+
+        $basicMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->join('material_unit', 'material_unit.id', '=', 'material.base_unit_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name', 'material_unit.symbol as material_unit_symbol')
+            ->where('menu_recipe_material.menu_id', $id)
+            ->get();
+
+        $variantMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->join('material_unit', 'material_unit.id', '=', 'material.base_unit_id')
+            ->join('menu_variant_option', 'menu_variant_option.id', '=', 'menu_recipe_material.variant_id')
+            ->join('menu_variant', 'menu_variant.id', '=', 'menu_variant_option.menu_variant_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name', 'material_unit.symbol as material_unit_symbol', 'menu_variant_option.name as option_name', 'menu_variant.name as variant_name', 'menu_variant.id as v_id', 'menu_variant_option.id as o_id')
+            ->where('menu_variant.menu_id', $id)
+            ->get();
+
+        $title = 'Edit Recipe Menu';
+        return view('menu.recipe.edit-menu', compact('title', 'menu', 'material', 'recipeMenu', 'basicMaterials', 'variantMaterials'));
+    }
+
+    public function recipeMenuUpdate(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $menuData = $request->post('menu');
+            $materialBasicMenu = $request->post('materialBasicMenu') ?? [];
+            $variant = $request->post('variant') ?? [];
+
+            // Delete old data
+            MenuRecipeMaterial::where('menu_id', $menuData['id'])->delete();
+            $variantIds = MenuVariant::where('menu_id', $menuData['id'])
+                ->join('menu_variant_option', 'menu_variant_option.menu_variant_id', '=', 'menu_variant.id')
+                ->pluck('menu_variant_option.id');
+            MenuRecipeMaterial::whereIn('variant_id', $variantIds)->delete();
+
+            // Insert new Material Basic Menu
+            foreach ($materialBasicMenu as $material) {
+                MenuRecipeMaterial::create([
+                    'menu_id'       => $menuData['id'] ?? null,
+                    'material_id'   => $material['id'],
+                    'qty'           => $material['qty'],
+                    'unit'          => $material['unit'],
+                ]);
+            }
+
+            // Insert new Variant
+            foreach ($variant as $item) {
+                $materials = $item['material'] ?? [];
+                foreach ($materials as $material) {
+                    MenuRecipeMaterial::create([
+                        'variant_id'    => $item['optionId'],
+                        'material_id'   => $material['id'],
+                        'qty'           => $material['qty'],
+                        'unit'          => $material['unit'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
+    }
+
+    public function recipeAddonDetail(Request $request, $id): View
+    {
+        $addon = AddonVariant::with('addon')->findOrFail($id);
+        $materials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name')
+            ->where('menu_recipe_material.addon_id', $id)
+            ->get();
+
+        $title = 'Recipe Addon Detail';
+        return view('menu.recipe.detail-addon', compact('title', 'addon', 'materials'));
+    }
+
+    public function recipeAddonEdit(Request $request, $id): View
+    {
+        $addonVariant = AddonVariant::with('addon')->findOrFail($id);
+        $addonList = Addon::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
+        $materialList = Material::with('baseUnit')->where('outlet_id', Auth::user()->outlet_id)->get();
+
+        $materials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
+            ->join('material_unit', 'material_unit.id', '=', 'material.base_unit_id')
+            ->select('menu_recipe_material.*', 'material.name as material_name', 'material_unit.symbol as material_unit_symbol')
+            ->where('menu_recipe_material.addon_id', $id)
+            ->get();
+
+        $title = 'Edit Recipe Addon';
+        return view('menu.recipe.edit-addon', compact('title', 'addonVariant', 'addonList', 'materialList', 'materials'));
+    }
+
+    public function recipeAddonUpdate(Request $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            $variantAddons = $request->post('variantAddon') ?? [];
+            foreach ($variantAddons as $variant) {
+                MenuRecipeMaterial::where('addon_id', $variant['id'])->delete();
+                $materials = $variant['material'] ?? [];
+                foreach ($materials as $material) {
+                    MenuRecipeMaterial::create([
+                        'addon_id'      => $variant['id'],
+                        'material_id'   => $material['id'],
+                        'qty'           => $material['qty'],
+                        'unit'          => $material['unit'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+            ]);
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return response()->json([
+                'status' => false,
+            ]);
+        }
+    }
+
     // JSON Response
 
     public function findAllMenu(Request $request): \Illuminate\Http\JsonResponse
@@ -553,34 +753,3 @@ class MenuController extends Controller
         ]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

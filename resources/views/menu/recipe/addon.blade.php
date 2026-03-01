@@ -9,7 +9,8 @@
             </div>
         </div>
         <div class="page-btn">
-            <a href="{{ route('menu.create.recipe.addon') }}" class="btn btn-info"><i class="ti ti-circle-plus me-1"></i>Create Recipe Addon</a>
+            <a href="{{ route('menu.create.recipe.addon') }}" class="btn btn-info"><i class="ti ti-circle-plus me-1"></i>Create
+                Recipe Addon</a>
         </div>
     </div>
 
@@ -32,24 +33,26 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($addon as $index => $item)
-                                <tr>
-                                    <td>{{ $addon->firstItem() + $index }}</td>
-                                    <td>{{ $item->addon->addon->name }}</td>
-                                    <td>{{ $item->addon->name }}</td>
-                                    <td class="text-center fw-bold">{{ $item->total }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a class="btn btn-secondary btn-sm">
-                                                <i class="fa fa-eye"></i>
-                                            </a>
-                                            <a class="btn btn-info btn-sm">
-                                                <i class="fa fa-pencil"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                                @foreach ($addon as $index => $item)
+                                    <tr>
+                                        <td>{{ $addon->firstItem() + $index }}</td>
+                                        <td>{{ $item->addon->addon->name }}</td>
+                                        <td>{{ $item->addon->name }}</td>
+                                        <td class="text-center fw-bold">{{ $item->total }}</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ route('menu.recipe.addon.detail', ['id' => $item->addon_id]) }}"
+                                                    class="btn btn-secondary btn-sm">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                                <a href="{{ route('menu.recipe.addon.edit', ['id' => $item->addon_id]) }}"
+                                                    class="btn btn-info btn-sm">
+                                                    <i class="fa fa-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

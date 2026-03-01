@@ -10,8 +10,8 @@
             </div>
         </div>
         <div class="page-btn">
-            @if(collect(Session::get('menu', []))->contains('Add Menu'))
-            <a href="{{ route('menu.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Menu</a>
+            @if (collect(Session::get('menu', []))->contains('Add Menu'))
+                <a href="{{ route('menu.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Add Menu</a>
             @endif
         </div>
     </div>
@@ -24,18 +24,22 @@
                         <div class="row">
                             <div class="col-2">
                                 <label for="sku" class="form-label">SKU</label>
-                                <input type="text" class="form-control" name="sku" id="sku" placeholder="SKU ..." value="{{ request()->get('sku', null) }}">
+                                <input type="text" class="form-control" name="sku" id="sku"
+                                    placeholder="SKU ..." value="{{ request()->get('sku', null) }}">
                             </div>
                             <div class="col-2">
                                 <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" id="name" placeholder="Coffee ..." value="{{ request()->get('name', null) }}">
+                                <input type="text" class="form-control" name="name" id="name"
+                                    placeholder="Coffee ..." value="{{ request()->get('name', null) }}">
                             </div>
                             <div class="col-2">
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-control" id="category" name="category">
                                     <option value="">Choose Category</option>
-                                    @foreach($category as $item)
-                                        <option value="{{ $item->id }}" {{ request()->get('category') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                    @foreach ($category as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{ request()->get('category') == $item->id ? 'selected' : '' }}>
+                                            {{ $item->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -43,16 +47,20 @@
                                 <label for="combo" class="form-label">Combo</label>
                                 <select class="form-control" id="combo" name="combo">
                                     <option value="">Choose Combo</option>
-                                    <option value="yes" {{ request()->get('combo') == 'Combo' ? 'selected' : '' }}>Combo</option>
-                                    <option value="no" {{ request()->get('combo') == 'Not Combo' ? 'selected' : '' }}>Not Combo</option>
+                                    <option value="yes" {{ request()->get('combo') == 'yes' ? 'selected' : '' }}>Combo
+                                    </option>
+                                    <option value="no" {{ request()->get('combo') == 'no' ? 'selected' : '' }}>Not Combo
+                                    </option>
                                 </select>
                             </div>
                             <div class="col-2">
                                 <label for="status" class="form-label">Status</label>
                                 <select class="form-control" id="status" name="status">
                                     <option value="">Choose Status</option>
-                                    <option value="active" {{ request()->get('status') == 'Active' ? 'selected' : '' }}>Active</option>
-                                    <option value="inactive" {{ request()->get('status') == 'InActive' ? 'selected' : '' }}>InActive</option>
+                                    <option value="active" {{ request()->get('status') == 'active' ? 'selected' : '' }}>
+                                        Active</option>
+                                    <option value="inactive" {{ request()->get('status') == 'inactive' ? 'selected' : '' }}>
+                                        InActive</option>
                                 </select>
                             </div>
                             <div class="col-2">
@@ -69,62 +77,65 @@
                     <div class="table-responsive">
                         <table class="table align-middle">
                             <thead>
-                            <tr>
-                                <th class="text-center">#</th>
-                                <th>SKU</th>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Base Price</th>
-                                <th class="text-center">Combo</th>
-                                <th class="text-center">Status</th>
-                                <th>Action</th>
-                            </tr>
+                                <tr>
+                                    <th class="text-center">#</th>
+                                    <th>SKU</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Base Price</th>
+                                    <th class="text-center">Combo</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                            @foreach($menu as $index => $item)
-                                <tr>
-                                    <td class="text-center">{{ $menu->firstItem() + $index }}</td>
-                                    <td>{{ $item->sku }}</td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>{{ $item->category->name }}</td>
-                                    <td>Rp {{ number_format($item->price) }}</td>
-                                    <td class="text-center">
-                                        @if($item->is_combo == 'no')
-                                            <span class="badge bg-soft-success">Not Combo</span>
-                                        @else
-                                            <span class="badge bg-soft-info">Combo</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($item->status == 'active')
-                                            <span class="badge bg-soft-success">Active</span>
-                                        @else
-                                            <span class="badge bg-soft-danger">InActive</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="hstack gap-2 fs-15">
-                                            <a href="{{ route('menu.detail', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-secondary">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
-                                            <a href="" class="btn btn-success btn-sm">
-                                                <i class="fa fa-book"></i>
-                                            </a>
-                                            @if(collect(Session::get('menu', []))->contains('Edit Menu'))
-                                            <a href="{{ route('menu.edit', ['id' => $item->id]) }}" class="btn btn-icon btn-sm btn-info">
-                                                <i class="fa-solid fa-pencil"></i>
-                                            </a>
+                                @foreach ($menu as $index => $item)
+                                    <tr>
+                                        <td class="text-center">{{ $menu->firstItem() + $index }}</td>
+                                        <td>{{ $item->sku }}</td>
+                                        <td>{{ $item->name }}</td>
+                                        <td>{{ $item->category->name }}</td>
+                                        <td>Rp {{ number_format($item->price) }}</td>
+                                        <td class="text-center">
+                                            @if ($item->is_combo == 'no')
+                                                <span class="badge bg-soft-success">Not Combo</span>
+                                            @else
+                                                <span class="badge bg-soft-info">Combo</span>
                                             @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if ($item->status == 'active')
+                                                <span class="badge bg-soft-success">Active</span>
+                                            @else
+                                                <span class="badge bg-soft-danger">InActive</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="hstack gap-2 fs-15">
+                                                <a href="{{ route('menu.detail', ['id' => $item->id]) }}"
+                                                    class="btn btn-icon btn-sm btn-secondary">
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
+                                                <a href="" class="btn btn-success btn-sm">
+                                                    <i class="fa fa-book"></i>
+                                                </a>
+                                                @if (collect(Session::get('menu', []))->contains('Edit Menu'))
+                                                    <a href="{{ route('menu.edit', ['id' => $item->id]) }}"
+                                                        class="btn btn-icon btn-sm btn-info">
+                                                        <i class="fa-solid fa-pencil"></i>
+                                                    </a>
+                                                @endif
 
-                                            @if(collect(Session::get('menu', []))->contains('Delete Menu'))
-                                            <a class="btn btn-icon btn-sm btn-danger" onclick="deleteMenu('{{ $item->id }}')">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                                                @if (collect(Session::get('menu', []))->contains('Delete Menu'))
+                                                    <a class="btn btn-icon btn-sm btn-danger"
+                                                        onclick="deleteMenu('{{ $item->id }}')">
+                                                        <i class="fa-solid fa-trash"></i>
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -134,7 +145,8 @@
                                 @if ($menu->onFirstPage())
                                     <li class="disabled"><span>&laquo; Previous</span></li>
                                 @else
-                                    <li><a href="{{ $menu->previousPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="prev">&laquo; Previous</a></li>
+                                    <li><a href="{{ $menu->previousPageUrl() }}&per_page={{ request('per_page', 10) }}"
+                                            rel="prev">&laquo; Previous</a></li>
                                 @endif
 
                                 @foreach ($menu->links()->elements as $element)
@@ -147,14 +159,17 @@
                                             @if ($page == $menu->currentPage())
                                                 <li class="active"><span>{{ $page }}</span></li>
                                             @else
-                                                <li><a href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a></li>
+                                                <li><a
+                                                        href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a>
+                                                </li>
                                             @endif
                                         @endforeach
                                     @endif
                                 @endforeach
 
                                 @if ($menu->hasMorePages())
-                                    <li><a href="{{ $menu->nextPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="next">Next &raquo;</a></li>
+                                    <li><a href="{{ $menu->nextPageUrl() }}&per_page={{ request('per_page', 10) }}"
+                                            rel="next">Next &raquo;</a></li>
                                 @else
                                     <li class="disabled"><span>Next &raquo;</span></li>
                                 @endif
@@ -183,13 +198,13 @@
                     cancelButton: "btn btn-danger ml-1"
                 },
                 buttonsStyling: false
-            }).then(function (result) {
+            }).then(function(result) {
                 if (result.isConfirmed) {
 
                     $.ajax({
                         url: '{{ route('menu.delete') }}',
                         method: 'GET',
-                        data:{
+                        data: {
                             id: id
                         },
                         success: (res) => {

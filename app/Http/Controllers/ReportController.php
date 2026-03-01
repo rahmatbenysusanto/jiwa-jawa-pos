@@ -164,13 +164,42 @@ class ReportController extends Controller
     {
         $kasKonsolidasi = KasRekonsiliasi::with('user')
             ->when($request->query('tanggal'), function ($q) use ($request) {
-                $q->whereBetween('tanggal', [$request->query('tanggal') . '00:00:00', $request->query('tanggal') . ' 23:59:59']);
+                $q->whereBetween('tanggal', [$request->query('tanggal') . ' 00:00:00', $request->query('tanggal') . ' 23:59:59']);
             })
             ->latest()
             ->paginate(10);
 
         $title = 'Kas';
         return view('report.kas-konsolidasi', compact('title', 'kasKonsolidasi'));
+    }
+
+    public function kasKonsolidasiMonthly(Request $request): View
+    {
+        $kasKonsolidasi = KasRekonsiliasi::selectRaw('
+                YEAR(tanggal) as year,
+                MONTH(tanggal) as month,
+                SUM(modal_awal) as total_modal_awal,
+                SUM(modal_akhir) as total_modal_akhir,
+                SUM(selisih) as total_selisih,
+                SUM(cash) as total_cash,
+                SUM(qris) as total_qris,
+                SUM(debit) as total_debit,
+                SUM(laba_kotor) as total_laba_kotor,
+                SUM(laba_bersih) as total_laba_bersih
+            ')
+            ->when($request->query('year'), function ($q) use ($request) {
+                $q->whereYear('tanggal', $request->query('year'));
+            })
+            ->when($request->query('month'), function ($q) use ($request) {
+                $q->whereMonth('tanggal', $request->query('month'));
+            })
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->paginate(10)->appends($request->all());
+
+        $title = 'Kas Bulanan';
+        return view('report.kas-konsolidasi-monthly', compact('title', 'kasKonsolidasi'));
     }
 
     public function kasKonsolidasiCreate(): View

@@ -24,7 +24,7 @@ class InventoryController extends Controller
     public function indexCategory(Request $request): View
     {
         $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)
-            ->where('name', 'LIKE', '%'.$request->query('name').'%')
+            ->where('name', 'LIKE', '%' . $request->query('name') . '%')
             ->whereNull('deleted_at')
             ->paginate(10);
 
@@ -44,7 +44,7 @@ class InventoryController extends Controller
 
     public function deleteCategory(Request $request): \Illuminate\Http\JsonResponse
     {
-        MaterialCategory::where('id', $request->get('id'))->update(['deleted_at' => now()]);
+        MaterialCategory::where('id', $request->get('id'))->where('outlet_id', Auth::user()->outlet_id)->update(['deleted_at' => now()]);
 
         return response()->json([
             'status' => true
@@ -53,7 +53,7 @@ class InventoryController extends Controller
 
     public function findCategory(Request $request): \Illuminate\Http\JsonResponse
     {
-        $result = MaterialCategory::find($request->get('id'));
+        $result = MaterialCategory::where('id', $request->get('id'))->where('outlet_id', Auth::user()->outlet_id)->first();
 
         return response()->json([
             'status' => true,
@@ -63,7 +63,7 @@ class InventoryController extends Controller
 
     public function editCategory(Request $request): \Illuminate\Http\RedirectResponse
     {
-        MaterialCategory::where('id', $request->get('id'))->update([
+        MaterialCategory::where('id', $request->get('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
             'name'      => $request->post('category'),
         ]);
 
@@ -159,7 +159,10 @@ class InventoryController extends Controller
 
     public function detailMaterial(Request $request): View
     {
-        $material = Material::with('category', 'unit', 'baseUnit')->where('id', $request->query('id'))->first();
+        $material = Material::with('category', 'unit', 'baseUnit')
+            ->where('id', $request->query('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->firstOrFail();
 
         $title = 'Material';
         return view('inventory.material.detail', compact('title', 'material'));
@@ -167,7 +170,10 @@ class InventoryController extends Controller
 
     public function editMaterial(Request $request): View
     {
-        $material = Material::with('category', 'unit', 'baseUnit')->where('id', $request->query('id'))->first();
+        $material = Material::with('category', 'unit', 'baseUnit')
+            ->where('id', $request->query('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->firstOrFail();
         $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
         $unit = MaterialUnit::all();
 
@@ -177,7 +183,7 @@ class InventoryController extends Controller
 
     public function updateMaterial(Request $request): \Illuminate\Http\RedirectResponse
     {
-        Material::where('id', $request->post('id'))->update([
+        Material::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
             'category_id'       => $request->post('category'),
             'sku'               => $request->post('sku'),
             'name'              => $request->post('name'),
@@ -214,7 +220,9 @@ class InventoryController extends Controller
 
     public function detailPurchaseOrder(Request $request): View
     {
-        $purchaseOrder = PurchaseOrder::where('id', $request->query('id'))->first();
+        $purchaseOrder = PurchaseOrder::where('id', $request->query('id'))
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->firstOrFail();
         $purchaseOrderDetail = PurchaseOrderDetail::with('material', 'material.unit')->where('purchase_order_id', $purchaseOrder->id)->get();
 
         $title = 'Purchase Order';
@@ -223,7 +231,7 @@ class InventoryController extends Controller
 
     public function cancelPurchaseOrder(Request $request): \Illuminate\Http\JsonResponse
     {
-        PurchaseOrder::where('id', $request->post('id'))->update([
+        PurchaseOrder::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
             'status' => 'cancel'
         ]);
 
@@ -242,7 +250,7 @@ class InventoryController extends Controller
 
     public function findMaterial(Request $request): \Illuminate\Http\JsonResponse
     {
-        $material = Material::with('unit')->where('id', $request->get('id'))->first();
+        $material = Material::with('unit')->where('id', $request->get('id'))->where('outlet_id', Auth::user()->outlet_id)->first();
 
         return response()->json([
             'status' => true,
@@ -255,19 +263,20 @@ class InventoryController extends Controller
         try {
             DB::beginTransaction();
 
-            $number = 'PO-'.date('Ymd').random_int(100, 999);
+            $number = 'PO-' . date('Ymd') . random_int(100, 999);
 
+            $materialsData = $request->post('material') ?? [];
             $purchaseOrder = PurchaseOrder::create([
                 'outlet_id'     => Auth::user()->outlet_id,
                 'number'        => $number,
-                'qty'           => count($request->post('material')),
+                'qty'           => count($materialsData),
                 'status'        => 'new',
                 'warehouse_id'  => 1,
-                'warehouse_name'=> 'Gudang 1',
+                'warehouse_name' => 'Gudang 1',
                 'order_date'    => date('Y-m-d H:i:s'),
             ]);
 
-            foreach ($request->post('material') as $material) {
+            foreach ($materialsData as $material) {
                 PurchaseOrderDetail::create([
                     'purchase_order_id' => $purchaseOrder->id,
                     'material_id'       => $material['id'],
@@ -332,7 +341,12 @@ class InventoryController extends Controller
         try {
             DB::beginTransaction();
 
-            PurchaseOrder::where('id', $request->post('id'))->update([
+            $poCheck = PurchaseOrder::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->first();
+            if (!$poCheck) {
+                return response()->json(['status' => false, 'message' => 'Unauthorized']);
+            }
+
+            PurchaseOrder::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
                 'status'        => 'completed',
                 'updated_at'    => date('Y-m-d H:i:s')
             ]);
@@ -509,38 +523,3 @@ class InventoryController extends Controller
         ]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

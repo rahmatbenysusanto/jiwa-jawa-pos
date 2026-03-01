@@ -10,8 +10,9 @@
             </div>
         </div>
         <div class="page-btn">
-            @if(collect(Session::get('menu', []))->contains('Create Addon Menu'))
-            <a href="{{ route('menu.addon.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Create Addon</a>
+            @if (collect(Session::get('menu', []))->contains('Create Addon Menu'))
+                <a href="{{ route('menu.addon.create') }}" class="btn btn-primary"><i class="ti ti-circle-plus me-1"></i>Create
+                    Addon</a>
             @endif
         </div>
     </div>
@@ -24,7 +25,8 @@
                         <div class="row">
                             <div class="col-6">
                                 <label for="name" class="form-label">Addon Name</label>
-                                <input type="text" class="form-control" name="name" id="name" value="{{ request()->get('name', null) }}" placeholder="Name addon ...">
+                                <input type="text" class="form-control" name="name" id="name"
+                                    value="{{ request()->get('name', null) }}" placeholder="Name addon ...">
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-white">-</label>
@@ -47,20 +49,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($addon as $index => $item)
-                                <tr>
-                                    <td>{{ $addon->firstItem() + $index }}</td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('menu.addon.detail', ['id' => $item->id]) }}" class="btn btn-info btn-sm">Detail</a>
-                                            @if(collect(Session::get('menu', []))->contains('Delete Addon Menu'))
-                                            <a class="btn btn-danger btn-sm">Delete</a>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                                @foreach ($addon as $index => $item)
+                                    <tr>
+                                        <td>{{ $addon->firstItem() + $index }}</td>
+                                        <td>{{ $item->name }}</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ route('menu.addon.detail', ['id' => $item->id]) }}"
+                                                    class="btn btn-info btn-sm">Detail</a>
+                                                @if (collect(Session::get('menu', []))->contains('Delete Addon Menu'))
+                                                    <a class="btn btn-danger btn-sm"
+                                                        onclick="deleteAddon('{{ $item->id }}')">Delete</a>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -70,7 +74,8 @@
                                 @if ($addon->onFirstPage())
                                     <li class="disabled"><span>&laquo; Previous</span></li>
                                 @else
-                                    <li><a href="{{ $addon->previousPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="prev">&laquo; Previous</a></li>
+                                    <li><a href="{{ $addon->previousPageUrl() }}&per_page={{ request('per_page', 10) }}"
+                                            rel="prev">&laquo; Previous</a></li>
                                 @endif
 
                                 @foreach ($addon->links()->elements as $element)
@@ -83,14 +88,17 @@
                                             @if ($page == $addon->currentPage())
                                                 <li class="active"><span>{{ $page }}</span></li>
                                             @else
-                                                <li><a href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a></li>
+                                                <li><a
+                                                        href="{{ $url }}&per_page={{ request('per_page', 10) }}">{{ $page }}</a>
+                                                </li>
                                             @endif
                                         @endforeach
                                     @endif
                                 @endforeach
 
                                 @if ($addon->hasMorePages())
-                                    <li><a href="{{ $addon->nextPageUrl() }}&per_page={{ request('per_page', 10) }}" rel="next">Next &raquo;</a></li>
+                                    <li><a href="{{ $addon->nextPageUrl() }}&per_page={{ request('per_page', 10) }}"
+                                            rel="next">Next &raquo;</a></li>
                                 @else
                                     <li class="disabled"><span>Next &raquo;</span></li>
                                 @endif
@@ -101,4 +109,50 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        function deleteAddon(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Delete this Addon menu?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1"
+                },
+                buttonsStyling: false
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{ route('menu.addon.delete') }}',
+                        method: 'GET',
+                        data: {
+                            id: id
+                        },
+                        success: (res) => {
+                            if (res.status) {
+                                Swal.fire({
+                                    title: "Deleted!",
+                                    text: "Addon has been deleted.",
+                                    icon: "success",
+                                    confirmButtonText: "Great!",
+                                    customClass: {
+                                        confirmButton: "btn btn-success"
+                                    },
+                                    buttonsStyling: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 @endsection

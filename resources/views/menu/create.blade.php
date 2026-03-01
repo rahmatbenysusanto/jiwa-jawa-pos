@@ -24,7 +24,7 @@
                         <label for="name" class="form-label">Category</label>
                         <select class="form-control" id="category" name="category">
                             <option value="">-- Choose Category --</option>
-                            @foreach($category as $item)
+                            @foreach ($category as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
                         </select>
@@ -35,7 +35,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="name" class="form-label">Menu Name</label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Menu Name ...">
+                        <input type="text" class="form-control" name="name" id="name"
+                            placeholder="Menu Name ...">
                     </div>
                     <div class="mb-3">
                         <label for="hpp" class="form-label">HPP (Harga Pokok Produksi)</label>
@@ -84,14 +85,12 @@
             variants.push({
                 name: '',
                 required: true,
-                options: [
-                    {
-                        name: '',
-                        price: 0,
-                        hpp: 0,
-                        default: true
-                    }
-                ]
+                options: [{
+                    name: '',
+                    price: 0,
+                    hpp: 0,
+                    default: true
+                }]
             });
 
             localStorage.setItem('variant', JSON.stringify(variants));
@@ -322,14 +321,14 @@
                     cancelButton: "btn btn-danger ml-1"
                 },
                 buttonsStyling: false
-            }).then(function (result) {
+            }).then(function(result) {
                 if (result.isConfirmed) {
 
                     const category = document.getElementById('category').value;
-                    const name     = document.getElementById('name').value;
-                    const price    = document.getElementById('price').value;
-                    const sku      = document.getElementById('sku').value;
-                    const desc      = document.getElementById('desc').value;
+                    const name = document.getElementById('name').value;
+                    const price = document.getElementById('price').value;
+                    const sku = document.getElementById('sku').value;
+                    const desc = document.getElementById('desc').value;
                     const variants = JSON.parse(localStorage.getItem('variant')) ?? [];
 
                     const fd = new FormData();
@@ -341,7 +340,7 @@
                     fd.append('desc', desc);
                     const img = document.getElementById('image').files[0];
                     if (img) fd.append('image', img);
-                    fd.append('variants', variants);
+                    fd.append('variants', JSON.stringify(variants));
 
                     $.ajax({
                         url: '{{ route('menu.store') }}',
@@ -372,36 +371,3 @@
         }
     </script>
 @endsection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

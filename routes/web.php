@@ -41,6 +41,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
 
         Route::prefix('/addon')->group(function () {
             Route::get('/', 'addon')->name('menu.addon');
+            Route::get('/delete', 'addonDelete')->name('menu.addon.delete');
             Route::get('/detail', 'addonDetail')->name('menu.addon.detail');
             Route::post('/detail/variant', 'addonDetailAddVariant')->name('menu.addon.detail.add.variant');
             Route::get('/detail/delete', 'addonDetailDelete')->name('menu.addon.detail.delete');
@@ -58,7 +59,14 @@ Route::middleware(LoginMiddleware::class)->group(function () {
             Route::post('/store', 'recipeMenuStore')->name('menu.recipe.menu.store');
 
             Route::get('/menu', 'recipeMenu')->name('menu.recipe.menu');
+            Route::get('/menu/detail/{id}', 'recipeMenuDetail')->name('menu.recipe.menu.detail');
+            Route::get('/menu/edit/{id}', 'recipeMenuEdit')->name('menu.recipe.menu.edit');
+            Route::post('/menu/update', 'recipeMenuUpdate')->name('menu.recipe.menu.update');
+
             Route::get('/addon', 'recipeAddon')->name('menu.recipe.addon');
+            Route::get('/addon/detail/{id}', 'recipeAddonDetail')->name('menu.recipe.addon.detail');
+            Route::get('/addon/edit/{id}', 'recipeAddonEdit')->name('menu.recipe.addon.edit');
+            Route::post('/addon/update', 'recipeAddonUpdate')->name('menu.recipe.addon.update');
         });
 
         Route::get('/list', 'list')->name('menu.list');
@@ -205,6 +213,7 @@ Route::middleware(LoginMiddleware::class)->group(function () {
         Route::get('/store-performance', 'storePerformance')->name('report.store.performance');
 
         Route::get('/kas-konsolidasi', 'kasKonsolidasi')->name('report.kas.konsolidasi');
+        Route::get('/kas-konsolidasi-monthly', 'kasKonsolidasiMonthly')->name('report.kas.konsolidasi.monthly');
         Route::get('/kas-konsolidasi/create', 'kasKonsolidasiCreate')->name('report.kas.konsolidasi.create');
         Route::get('/kas-konsolidasi/data-transaction', 'kasKonsolidasiDataTransaction')->name('report.kas.konsolidasi.data.transaction');
         Route::post('/kas-konsolidasi', 'kasKonsolidasiStore')->name('report.kas.konsolidasi.store');

@@ -17,12 +17,14 @@
                     <div class="row">
                         <div class="col-6">
                             <label class="form-label">Addon Name</label>
-                            <input type="text" class="form-control" name="name" value="{{ $addon->name }}" placeholder="Addon Name ..." oninput="changeAddonName(this.value)">
+                            <input type="text" class="form-control" name="name" value="{{ $addon->name }}"
+                                placeholder="Addon Name ..." oninput="changeAddonName(this.value)">
                         </div>
                         <div class="col-6">
                             <label class="form-label text-white">-</label>
                             <div class="d-flex justify-content-end">
-                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVariantModal">Add Variant Addon</a>
+                                <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVariantModal">Add
+                                    Variant Addon</a>
                             </div>
                         </div>
                     </div>
@@ -39,20 +41,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($addonVariant as $item)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $item->name }}</td>
-                                    <td>Rp {{ number_format($item->price) }}</td>
-                                    <td>
-                                        <div class="d-flex gap-2">
-                                            <a class="btn btn-success btn-sm">Recipe</a>
-                                            <a class="btn btn-info btn-sm" onclick="editVariant('{{ $item->id }}', '{{ $item->name }}', '{{ $item->price }}')">Edit</a>
-                                            <a class="btn btn-danger btn-sm" onclick="deleteVariant('{{ $item->id }}')">Delete</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                                @foreach ($addonVariant as $item)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $item->name }}</td>
+                                        <td>Rp {{ number_format($item->price) }}</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a class="btn btn-success btn-sm">Recipe</a>
+                                                <a class="btn btn-info btn-sm"
+                                                    onclick="editVariant('{{ $item->id }}', '{{ $item->name }}', '{{ $item->price }}')">Edit</a>
+                                                <a class="btn btn-danger btn-sm"
+                                                    onclick="deleteVariant('{{ $item->id }}')">Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -61,7 +65,8 @@
         </div>
     </div>
 
-    <div id="createVariantModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+    <div id="createVariantModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -74,7 +79,8 @@
                         <input type="hidden" name="addon_id" value="{{ $addon->id }}">
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" name="name" id="name" placeholder="Variant Name">
+                            <input type="text" class="form-control" name="name" id="name"
+                                placeholder="Variant Name">
                         </div>
                         <div class="mb-3">
                             <label for="hpp" class="form-label">Hpp</label>
@@ -94,7 +100,8 @@
         </div>
     </div>
 
-    <div id="editVariantModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel" aria-hidden="true">
+    <div id="editVariantModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="standard-modalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,15 +114,18 @@
                         <input type="hidden" name="id" id="variant-id">
                         <div class="mb-3">
                             <label for="name" class="form-label">Name</label>
-                            <input type="text" class="form-control" name="name" id="variant-name" placeholder="Variant Name">
+                            <input type="text" class="form-control" name="name" id="variant-name"
+                                placeholder="Variant Name">
                         </div>
                         <div class="mb-3">
                             <label for="hpp" class="form-label">Hpp</label>
-                            <input type="number" class="form-control" name="hpp" id="hpp-price" placeholder="Rp 0">
+                            <input type="number" class="form-control" name="hpp" id="hpp-price"
+                                placeholder="Rp 0">
                         </div>
                         <div class="mb-3">
                             <label for="price" class="form-label">Price</label>
-                            <input type="number" class="form-control" name="price" id="variant-price" placeholder="Rp 0">
+                            <input type="number" class="form-control" name="price" id="variant-price"
+                                placeholder="Rp 0">
                         </div>
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Close</button>
@@ -151,7 +161,7 @@
                     cancelButton: "btn btn-danger ml-1"
                 },
                 buttonsStyling: false
-            }).then(function (result) {
+            }).then(function(result) {
                 if (result.isConfirmed) {
 
                     $.ajax({
@@ -163,9 +173,11 @@
                         success: (res) => {
                             if (res.status) {
                                 Swal.fire({
-                                   title: 'Success!',
-                                   text: 'Variant Deleted Successfully!',
-                                   icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Variant Deleted Successfully!',
+                                    icon: 'success',
+                                }).then(() => {
+                                    window.location.reload();
                                 });
                             }
                         }
@@ -190,36 +202,3 @@
         }
     </script>
 @endsection
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -39,6 +39,8 @@ class MidtransService
 
         $response = CoreApi::charge($params);
 
+        Log::info(json_encode($response));
+
         $qrUrl = null;
         if (!empty($response->actions)) {
             foreach ($response->actions as $a) {

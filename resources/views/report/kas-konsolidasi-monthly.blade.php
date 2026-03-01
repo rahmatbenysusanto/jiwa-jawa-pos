@@ -1,11 +1,11 @@
 @extends('layout.index')
-@section('title', 'Kas Konsolidasi')
+@section('title', 'Kas Konsolidasi Bulanan')
 
 @section('content')
     <div class="page-header">
         <div class="add-item d-flex">
             <div class="page-title">
-                <h4 class="fw-bold">Kas Konsolidasi</h4>
+                <h4 class="fw-bold">Kas Konsolidasi Bulanan</h4>
             </div>
         </div>
     </div>
@@ -13,8 +13,6 @@
     <div class="d-flex justify-content-end mb-3 gap-2">
         <button class="btn btn-success"><i class="far fa-file-excel me-1"></i> Export Excel</button>
         <button class="btn btn-info text-white"><i class="fab fa-whatsapp me-1"></i> Share WA</button>
-        <a href="{{ route('report.kas.konsolidasi.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> Add
-            Kas Konsolidasi</a>
     </div>
 
     <div class="row">
@@ -23,9 +21,26 @@
                 <form action="{{ url()->current() }}" method="GET">
                     <div class="row">
                         <div class="col-2">
-                            <label class="form-label">Tanggal</label>
-                            <input type="date" class="form-control" value="{{ request()->get('tanggal') }}"
-                                name="tanggal">
+                            <label class="form-label">Tahun</label>
+                            <select name="year" class="form-control">
+                                <option value="">-- Pilih Tahun --</option>
+                                @for ($i = date('Y'); $i >= 2023; $i--)
+                                    <option value="{{ $i }}"
+                                        {{ request()->get('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <label class="form-label">Bulan</label>
+                            <select name="month" class="form-control">
+                                <option value="">-- Pilih Bulan --</option>
+                                @foreach (range(1, 12) as $m)
+                                    <option value="{{ $m }}"
+                                        {{ request()->get('month') == $m ? 'selected' : '' }}>
+                                        {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-2">
                             <label class="form-label text-white">-</label>
@@ -43,55 +58,38 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Tanggal</th>
-                                <th>Modal Awal</th>
-                                <th>Modal Akhir</th>
-                                <th>Selisih</th>
-                                <th>Cash</th>
-                                <th>QRIS</th>
-                                <th>Debit</th>
-                                <th>Laba Kotor</th>
-                                <th>Laba Bersih</th>
-                                <th class="text-center">Status</th>
-                                <th>Created By</th>
-                                <th>Action</th>
+                                <th>Bulan / Tahun</th>
+                                <th>Total Modal Awal</th>
+                                <th>Total Modal Akhir</th>
+                                <th>Total Selisih</th>
+                                <th>Total Cash</th>
+                                <th>Total QRIS</th>
+                                <th>Total Debit</th>
+                                <th>Total Laba Kotor</th>
+                                <th>Total Laba Bersih</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($kasKonsolidasi as $index => $item)
                                 <tr>
                                     <td>{{ $kasKonsolidasi->firstItem() + $index }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') }}</td>
-                                    <td>Rp {{ number_format($item->modal_awal) }}</td>
-                                    <td>Rp {{ number_format($item->modal_akhir) }}</td>
-                                    <td>Rp {{ number_format($item->selisih) }}</td>
-                                    <td>Rp {{ number_format($item->cash) }}</td>
-                                    <td>Rp {{ number_format($item->qris) }}</td>
-                                    <td>Rp {{ number_format($item->debit) }}</td>
-                                    <td>Rp {{ number_format($item->laba_kotor) }}</td>
-                                    <td>Rp {{ number_format($item->laba_bersih) }}</td>
-                                    <td class="text-center">
-                                        @switch($item->status)
-                                            @case('normal')
-                                                <span class="badge bg-success">Normal</span>
-                                            @break
-
-                                            @case('minus')
-                                                <span class="badge bg-danger">Minus</span>
-                                            @break
-
-                                            @case('berlebih')
-                                                <span class="badge bg-warning">Berlebih</span>
-                                            @break
-                                        @endswitch
-                                    </td>
-                                    <td>{{ $item->user->name }}</td>
+                                    <td>{{ date('F', mktime(0, 0, 0, $item->month, 1)) }} {{ $item->year }}</td>
+                                    <td>Rp {{ number_format($item->total_modal_awal) }}</td>
+                                    <td>Rp {{ number_format($item->total_modal_akhir) }}</td>
                                     <td>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('report.kas.konsolidasi.detail', ['id' => $item->id]) }}"
-                                                class="btn btn-secondary btn-sm">Detail</a>
-                                        </div>
+                                        @if ($item->total_selisih < 0)
+                                            <span class="text-danger">Rp {{ number_format($item->total_selisih) }}</span>
+                                        @elseif($item->total_selisih > 0)
+                                            <span class="text-warning">Rp {{ number_format($item->total_selisih) }}</span>
+                                        @else
+                                            Rp {{ number_format($item->total_selisih) }}
+                                        @endif
                                     </td>
+                                    <td>Rp {{ number_format($item->total_cash) }}</td>
+                                    <td>Rp {{ number_format($item->total_qris) }}</td>
+                                    <td>Rp {{ number_format($item->total_debit) }}</td>
+                                    <td>Rp {{ number_format($item->total_laba_kotor) }}</td>
+                                    <td>Rp {{ number_format($item->total_laba_bersih) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -133,7 +131,6 @@
                             @endif
                         </ul>
                     @endif
-
                 </div>
             </div>
         </div>
