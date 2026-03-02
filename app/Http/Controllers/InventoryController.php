@@ -286,7 +286,7 @@ class InventoryController extends Controller
             }
 
             // Create PO WMS
-            $this->createPoWMS($purchaseOrder->id, $number);
+            // $this->createPoWMS($purchaseOrder->id, $number);
 
             DB::commit();
             return response()->json([
