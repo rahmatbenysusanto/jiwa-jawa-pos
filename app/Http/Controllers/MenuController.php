@@ -492,6 +492,7 @@ class MenuController extends Controller
                 $materials = $item['material'] ?? [];
                 foreach ($materials as $material) {
                     MenuRecipeMaterial::create([
+                        'menu_id'       => $menu['id'] ?? null,
                         'variant_id'    => $item['optionId'],
                         'material_id'   => $material['id'],
                         'qty'           => $material['qty'],
@@ -558,6 +559,7 @@ class MenuController extends Controller
         $basicMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
             ->select('menu_recipe_material.*', 'material.name as material_name')
             ->where('menu_recipe_material.menu_id', $id)
+            ->whereNull('menu_recipe_material.variant_id')
             ->get();
 
         $variantMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
@@ -585,6 +587,7 @@ class MenuController extends Controller
             ->join('material_unit', 'material_unit.id', '=', 'material.base_unit_id')
             ->select('menu_recipe_material.*', 'material.name as material_name', 'material_unit.symbol as material_unit_symbol')
             ->where('menu_recipe_material.menu_id', $id)
+            ->whereNull('menu_recipe_material.variant_id')
             ->get();
 
         $variantMaterials = MenuRecipeMaterial::join('material', 'material.id', '=', 'menu_recipe_material.material_id')
@@ -630,6 +633,7 @@ class MenuController extends Controller
                 $materials = $item['material'] ?? [];
                 foreach ($materials as $material) {
                     MenuRecipeMaterial::create([
+                        'menu_id'       => $menuData['id'] ?? null,
                         'variant_id'    => $item['optionId'],
                         'material_id'   => $material['id'],
                         'qty'           => $material['qty'],

@@ -365,7 +365,7 @@ class InventoryController extends Controller
                     $inventory = Inventory::create([
                         'outlet_id'     => Auth::user()->outlet_id,
                         'material_id'   => $detail->material_id,
-                        'stock'         => $detail->qty * $material->conversion_value,
+                        'stock'         => 0,
                     ]);
                 }
 
@@ -482,6 +482,13 @@ class InventoryController extends Controller
                 ]);
 
                 $inventory = Inventory::where('outlet_id', Auth::user()->outlet_id)->where('material_id', $detail->material_id)->first();
+                if ($inventory == null) {
+                    $inventory = Inventory::create([
+                        'outlet_id'     => Auth::user()->outlet_id,
+                        'material_id'   => $detail->material_id,
+                        'stock'         => 0,
+                    ]);
+                }
 
                 $material = Material::find($detail->material_id);
 

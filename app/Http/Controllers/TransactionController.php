@@ -208,7 +208,7 @@ class TransactionController extends Controller
         // Base Menu
         $transactionDetail = TransactionDetail::where('transaction_id', $transactionId)->get();
         foreach ($transactionDetail as $detail) {
-            $recipe = MenuRecipeMaterial::where('menu_id', $detail->menu_id)->get();
+            $recipe = MenuRecipeMaterial::where('menu_id', $detail->menu_id)->whereNull('variant_id')->get();
             foreach ($recipe as $item) {
                 MaterialUsage::create([
                     'outlet_id'             => Auth::user()->outlet_id,
@@ -394,11 +394,12 @@ class TransactionController extends Controller
         $orderId = $payload['order_id'] ?? null;
         $status  = $payload['transaction_status'] ?? null;
 
-        $localSignature = hash('sha512',
+        $localSignature = hash(
+            'sha512',
             $payload['order_id'] .
-            $payload['status_code'] .
-            $payload['gross_amount'] .
-            env('MIDTRANS_SERVER_KEY')
+                $payload['status_code'] .
+                $payload['gross_amount'] .
+                env('MIDTRANS_SERVER_KEY')
         );
 
         if ($localSignature !== $payload['signature_key']) {
