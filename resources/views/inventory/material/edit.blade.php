@@ -55,6 +55,24 @@
                                     <label class="form-label">Min Stock</label>
                                     <input type="number" class="form-control" id="min_stock" name="min_stock" value="{{ (int)$material->min_stock }}" placeholder="Min Stock ..." required>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-control" name="status" required>
+                                        <option value="active" {{ $material->status == 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ $material->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    @if($material->image)
+                                        <div class="mb-2">
+                                            <img src="{{ asset('uploads/material/'.$material->image) }}" alt="Material Image" width="100" class="img-thumbnail">
+                                        </div>
+                                    @endif
+                                    <input type="file" class="form-control" name="image" accept="image/*">
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Description</label>

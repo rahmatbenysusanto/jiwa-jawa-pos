@@ -231,7 +231,7 @@
                         <div class="d-flex align-items-center justify-content-between border-bottom">
                             <div class="d-flex align-items-center">
                                 <a href="javascript:void(0);" class="avatar avatar-lg">
-                                    <img src="{{ asset('images/menu/'.$item->menu->image) }}" alt="img">
+                                    <img src="{{ ($item->menu && str_starts_with($item->menu->image, 'images/menu/')) ? asset($item->menu->image) : asset('images/menu/' . (($item->menu->image ?? null) ?: 'default.png')) }}" alt="img">
                                 </a>
                                 <div class="ms-2">
                                     <h6 class="fw-bold mb-1"><a href="javascript:void(0);">{{ $item->menu->name }}</a></h6>
@@ -263,7 +263,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div class="d-flex align-items-center">
                                 <a href="javascript:void(0);" class="avatar avatar-lg">
-                                    <img src="{{ asset('images/menu/default.png') }}" alt="img">
+                                    <img src="{{ $item->image ? asset('uploads/material/'.$item->image) : asset('images/menu/default.png') }}" alt="img">
                                 </a>
                                 <div class="ms-2">
                                     <h6 class="fw-bold mb-1"><a href="javascript:void(0);">{{ $item->name }}</a></h6>
@@ -295,7 +295,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div class="d-flex align-items-center">
                                 <a href="javascript:void(0);" class="avatar avatar-lg">
-                                    <img src="{{ asset('images/menu/'.$item->image) }}" alt="img">
+                                    <img src="{{ ($item->image && str_starts_with($item->image, 'images/menu/')) ? asset($item->image) : asset('images/menu/' . ($item->image ?? 'default.png')) }}" alt="img">
                                 </a>
                                 <div class="ms-2">
                                     <h6 class="fw-bold mb-1"><a href="javascript:void(0);">{{ $item->name }}</a></h6>

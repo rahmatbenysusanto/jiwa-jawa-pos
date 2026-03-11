@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class InventoryController extends Controller
 {
@@ -78,7 +79,7 @@ class InventoryController extends Controller
                 return $q->where('sku', $request->query('sku'));
             })
             ->when($request->query('name'), function ($q) use ($request) {
-                return $q->where('name', $request->query('name'));
+                return $q->where('name', 'LIKE', '%' . $request->query('name') . '%');
             })
             ->when($request->query('category'), function ($q) use ($request) {
                 return $q->where('category_id', $request->query('category'));
@@ -95,7 +96,7 @@ class InventoryController extends Controller
                 'status'    => $request->query('status'),
             ]);
 
-        $category = MaterialCategory::all();
+        $category = MaterialCategory::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
 
         $title = 'Material';
         return view('inventory.material.index', compact('title', 'material', 'category'));
@@ -128,7 +129,7 @@ class InventoryController extends Controller
             $material = Material::create([
                 'outlet_id'     => Auth::user()->outlet_id,
                 'category_id'   => $request->post('category'),
-                'sku'           => $request->post('sku'),
+                'sku'           => $request->post('sku') ?: 'MT-' . strtoupper(Str::random(6)),
                 'name'          => $request->post('name'),
                 'min_stock'     => $request->post('min_stock'),
                 'price'         => $request->post('price') ?? 0,
@@ -137,6 +138,7 @@ class InventoryController extends Controller
                 'unit_id'       => $request->post('unit'),
                 'base_unit_id'  => $request->post('base_unit'),
                 'conversion_value'  => $request->post('conversion'),
+                'status'        => $request->post('status') ?? 'active',
             ]);
 
             Inventory::create([
@@ -183,19 +185,57 @@ class InventoryController extends Controller
 
     public function updateMaterial(Request $request): \Illuminate\Http\RedirectResponse
     {
-        Material::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
-            'category_id'       => $request->post('category'),
-            'sku'               => $request->post('sku'),
-            'name'              => $request->post('name'),
-            'unit_id'           => $request->post('unit'),
-            'base_unit_id'      => $request->post('base_unit'),
-            'conversion_value'   => $request->post('conversion'),
-            'min_stock'         => $request->post('min_stock'),
-            'price'             => $request->post('price') ?? 0,
-            'description'       => $request->post('desc'),
+        try {
+            DB::beginTransaction();
+
+            $material = Material::where('id', $request->post('id'))->where('outlet_id', Auth::user()->outlet_id)->firstOrFail();
+
+            $request->validate([
+                'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            $fileName = $material->image;
+            if ($request->hasFile('image')) {
+                // Delete old image if exists
+                if ($material->image && file_exists(public_path('uploads/material/' . $material->image))) {
+                    unlink(public_path('uploads/material/' . $material->image));
+                }
+
+                $file = $request->file('image');
+                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('uploads/material'), $fileName);
+            }
+
+            $material->update([
+                'category_id'       => $request->post('category'),
+                'sku'               => $request->post('sku'),
+                'name'              => $request->post('name'),
+                'unit_id'           => $request->post('unit'),
+                'base_unit_id'      => $request->post('base_unit'),
+                'conversion_value'   => $request->post('conversion'),
+                'min_stock'         => $request->post('min_stock'),
+                'price'             => $request->post('price') ?? 0,
+                'image'             => $fileName,
+                'description'       => $request->post('desc'),
+                'status'            => $request->post('status'),
+            ]);
+
+            DB::commit();
+            return redirect()->route('inventory.material')->with('success', 'Material updated successfully');
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return back()->with('error', 'Something went wrong, please try again later');
+        }
+    }
+
+    public function deleteMaterial(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        Material::where('id', $request->query('id'))->where('outlet_id', Auth::user()->outlet_id)->update([
+            'deleted_at' => date('Y-m-d H:i:s')
         ]);
 
-        return back()->with('success', 'Material updated successfully');
+        return redirect()->route('inventory.material')->with('success', 'Material deleted successfully');
     }
 
     public function indexPurchaseOrder(Request $request): View

@@ -47,12 +47,25 @@
                             </div>
                             <div class="col-6">
                                 <div class="mb-3">
-                                    <label class="form-label">SKU</label>
-                                    <input type="text" class="form-control" id="sku" name="sku" placeholder="SKU ..." required>
+                                    <label class="form-label">SKU (Empty to Auto-generate)</label>
+                                    <input type="text" class="form-control" id="sku" name="sku" placeholder="SKU (Optional) ...">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Min Stock</label>
                                     <input type="number" class="form-control" id="min_stock" name="min_stock" placeholder="Min Stock ..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-control" name="status" required>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Image</label>
+                                    <input type="file" class="form-control" name="image" accept="image/*">
                                 </div>
                             </div>
                             <div class="col-12">

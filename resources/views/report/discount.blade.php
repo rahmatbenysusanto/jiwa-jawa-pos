@@ -36,20 +36,22 @@
                                 <tr>
                                     <td>{{ $discount->firstItem() + $index }}</td>
                                     <td>{{ $item->transaction->invoice_number }}</td>
-                                    <td>{{ $item->transaction_detail_id != null ? $item->transactionDetail->menu->name : '' }}</td>
-                                    <td>{{ $item->discount->name }}</td>
+                                    <td>{{ $item->transaction_detail_id != null ? ($item->transactionDetail->menu->name ?? 'Menu Deleted') : 'Global Discount' }}</td>
+                                    <td>{{ $item->discount->name ?? 'Discount Deleted' }}</td>
                                     <td class="text-center">
-                                        @if($item->discount->scope == 'product')
+                                        @if(($item->discount->scope ?? '') == 'product')
                                             <span class="badge bg-success">Product</span>
-                                        @else
+                                        @elseif(($item->discount->scope ?? '') == 'transaction')
                                             <span class="badge bg-info">Transaction</span>
+                                        @else
+                                            <span class="badge bg-secondary">Unknown</span>
                                         @endif
                                     </td>
                                     <td>
-                                        @if($item->discount->type == 'nominal')
+                                        @if(($item->discount->type ?? '') == 'nominal')
                                             <b>Rp {{ number_format($item->price) }}</b>
                                         @else
-                                            {{ number_format($item->price) }}% | <b>Rp {{ $item->transaction_detail_id == null ? number_format($item->transaction->discount) : number_format($item->transactionDetail->discount) }}</b>
+                                            {{ number_format($item->price) }}% | <b>Rp {{ $item->transaction_detail_id == null ? number_format($item->transaction->discount ?? 0) : number_format($item->transactionDetail->discount ?? 0) }}</b>
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->translatedFormat('d F Y H:i') }}</td>

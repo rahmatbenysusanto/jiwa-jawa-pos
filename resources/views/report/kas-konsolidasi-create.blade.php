@@ -89,45 +89,13 @@
 
         <div class="card">
             <div class="card-header">
-                <div class="row">
-                    <div class="col-3">
-                        <label class="form-label">Tanggal</label>
-                        <input type="date" class="form-control" id="tanggal">
-                    </div>
-                    <div class="col-3">
-                        <label class="form-label text-white">-</label>
-                        <div>
-                            <a class="btn btn-secondary" onclick="getDataTransaction()">Get Data Transaction</a>
-                        </div>
-                    </div>
-                </div>
+                <h4 class="card-title mb-0">Tanggal Transaksi</h4>
             </div>
             <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-4 mb-3">
-                        <label class="form-label">Cash</label>
-                        <input type="text" class="form-control" id="cash" value="Rp 0" readonly>
-                        <input type="hidden" id="cash_hidden">
-                    </div>
-                    <div class="col-4 mb-3">
-                        <label class="form-label">QRIS</label>
-                        <input type="text" class="form-control" id="qris" value="Rp 0" readonly>
-                        <input type="hidden" id="qris_hidden">
-                    </div>
-                    <div class="col-4 mb-3">
-                        <label class="form-label">Debit</label>
-                        <input type="text" class="form-control" id="debit" value="Rp 0" readonly>
-                        <input type="hidden" id="debit_hidden">
-                    </div>
-                    <div class="col-6 mb-3">
-                        <label class="form-label">Laba Kotor</label>
-                        <input type="text" class="form-control" id="laba_kotor" value="Rp 0" readonly>
-                        <input type="hidden" id="laba_kotor_hidden">
-                    </div>
-                    <div class="col-6 mb-3">
-                        <label class="form-label">Laba Bersih</label>
-                        <input type="text" class="form-control" id="laba_bersih" value="Rp 0" readonly>
-                        <input type="hidden" id="laba_bersih_hidden">
+                <div class="row">
+                    <div class="col-4">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" id="tanggal" value="{{ date('Y-m-d') }}">
                     </div>
                 </div>
             </div>
@@ -137,64 +105,20 @@
 
 @section('js')
     <script>
-        function getDataTransaction() {
-            const tanggal = document.getElementById('tanggal').value;
-
-            $.ajax({
-                url: '{{ route('report.kas.konsolidasi.data.transaction') }}',
-                method: 'GET',
-                data: {
-                    tanggal: tanggal
-                },
-                success: (res) => {
-                    const data = res.data;
-
-                    const revenue = data.total - data.tax;
-                    const profit = revenue - data.hpp;
-
-                    document.getElementById('cash_hidden').value = data.total_cash;
-                    document.getElementById('qris_hidden').value = data.total_qris;
-                    document.getElementById('debit_hidden').value = data.total_debit;
-                    document.getElementById('laba_kotor_hidden').value = profit;
-                    document.getElementById('laba_bersih_hidden').value = profit;
-
-                    document.getElementById('laba_kotor').value =
-                        new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(profit);
-
-                    document.getElementById('laba_bersih').value =
-                        new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(profit);
-
-                    document.getElementById('cash').value =
-                        new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(data.total_cash);
-
-
-                    document.getElementById('qris').value =
-                        new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(data.total_qris);
-
-
-                    document.getElementById('debit').value =
-                        new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                        }).format(data.total_debit);
-
-                }
-            });
-        }
-
         function createKasKonsolidasi() {
+            const tanggal = document.getElementById('tanggal').value;
+            const modalAwal = document.getElementById('modal_awal').value;
+
+            if (!tanggal) {
+                Swal.fire('Error', 'Silahkan pilih tanggal', 'error');
+                return;
+            }
+
+            if (!modalAwal) {
+                Swal.fire('Error', 'Silahkan isi modal awal', 'error');
+                return;
+            }
+
             Swal.fire({
                 title: 'Are you sure?',
                 text: "Create Kas Konsolidasi?",
@@ -248,14 +172,9 @@
                         method: 'POST',
                         data: {
                             _token: "{{ csrf_token() }}",
-                            tanggal: document.getElementById('tanggal').value,
-                            modalAwal: document.getElementById('modal_awal').value,
+                            tanggal: tanggal,
+                            modalAwal: modalAwal,
                             modalAkhir: modalAkhir,
-                            qris: document.getElementById('qris_hidden').value,
-                            cash: document.getElementById('cash_hidden').value,
-                            debit: document.getElementById('debit_hidden').value,
-                            labaKotor: document.getElementById('laba_kotor_hidden').value,
-                            labaBersih: document.getElementById('laba_bersih_hidden').value,
                             dataPecahan: dataPecahan
                         },
                         success: (res) => {

@@ -239,9 +239,32 @@ class ReportController extends Controller
 
     public function kasKonsolidasiStore(Request $request)
     {
+        $tanggal = $request->post('tanggal');
         $modalAwal  = (int) $request->post('modalAwal');
         $modalAkhir = (int) $request->post('modalAkhir');
-        $totalCash = (int) ($request->post('cash') ?? 0);
+
+        // Fetch transaction data for the specific date
+        $transaction = Transaction::whereBetween('transaction_date', [
+            $tanggal . ' 00:00:00',
+            $tanggal . ' 23:59:59'
+        ])
+            ->select([
+                DB::raw('COALESCE(SUM(total), 0) AS total'),
+                DB::raw('COALESCE(SUM(hpp), 0) AS hpp'),
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 1 THEN total END), 0) AS total_cash'),
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 2 THEN total END), 0) AS total_qris'),
+                DB::raw('COALESCE(SUM(CASE WHEN payment_method_id = 3 THEN total END), 0) AS total_debit'),
+            ])
+            ->where('transaction_status', 'normal')
+            ->where('payment_status', 'paid')
+            ->where('outlet_id', Auth::user()->outlet_id)
+            ->first();
+
+        $totalCash = (int)$transaction->total_cash;
+        $totalQris = (int)$transaction->total_qris;
+        $totalDebit = (int)$transaction->total_debit;
+        $labaKotor = (int)$transaction->total;
+        $labaBersih = (int)($transaction->total - $transaction->hpp);
 
         $selisih = $modalAkhir - ($modalAwal + $totalCash);
 
@@ -254,14 +277,14 @@ class ReportController extends Controller
         }
 
         $kasRekonsiliasi = KasRekonsiliasi::create([
-            'modal_awal'    => $request->post('modalAwal'),
-            'modal_akhir'   => $request->post('modalAkhir'),
-            'cash'          => $request->post('cash') ?? 0,
-            'qris'          => $request->post('qris') ?? 0,
-            'debit'         => $request->post('debit') ?? 0,
-            'laba_kotor'    => $request->post('labaKotor') ?? 0,
-            'laba_bersih'   => $request->post('labaBersih') ?? 0,
-            'tanggal'       => $request->post('tanggal'),
+            'modal_awal'    => $modalAwal,
+            'modal_akhir'   => $modalAkhir,
+            'cash'          => $totalCash,
+            'qris'          => $totalQris,
+            'debit'         => $totalDebit,
+            'laba_kotor'    => $labaKotor,
+            'laba_bersih'   => $labaBersih,
+            'tanggal'       => $tanggal,
             'created_by'    => Auth::id(),
             'selisih'       => $selisih,
             'status'        => $status

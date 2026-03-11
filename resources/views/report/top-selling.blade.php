@@ -46,9 +46,9 @@
                         @foreach($topSelling as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->menu->sku }}</td>
-                                <td>{{ $item->menu->name }}</td>
-                                <td>{{ $item->menu->category->name }}</td>
+                                <td>{{ $item->menu->sku ?? '-' }}</td>
+                                <td>{{ $item->menu->name ?? 'Menu Deleted' }}</td>
+                                <td>{{ $item->menu->category->name ?? '-' }}</td>
                                 <td class="text-center fw-bold">{{ number_format($item->sold_quantity) }}</td>
                             </tr>
                         @endforeach

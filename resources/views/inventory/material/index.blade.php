@@ -96,7 +96,7 @@
                                             <a href="{{ route('inventory.material.edit', ['id' => $item->id]) }}" class="btn btn-secondary btn-sm">
                                                 <i class="fa fa-pencil"></i>
                                             </a>
-                                            <a class="btn btn-danger btn-sm">
+                                            <a class="btn btn-danger btn-sm" onclick="deleteMaterial({{ $item->id }})">
                                                 <i class="fa fa-trash"></i>
                                             </a>
                                         </div>
@@ -144,4 +144,28 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        function deleteMaterial(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel",
+                customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-danger ml-1"
+                },
+                buttonsStyling: false
+            }).then(function (result) {
+                if (result.isConfirmed) {
+                    window.location.href = "{{ route('inventory.material.delete') }}?id=" + id;
+                }
+            });
+        }
+    </script>
 @endsection

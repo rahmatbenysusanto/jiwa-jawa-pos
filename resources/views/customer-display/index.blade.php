@@ -240,7 +240,7 @@
                         `${item.priceDiscount?`<div class=\"text-danger text-end\">- Rp ${rupiah(parseInt(item.priceDiscount)*parseInt(item.qty))}</div>`:''}`+
                         `<div class=\"text-end fw-semibold\">Rp ${rupiah(item.grandTotal)}</div>`;
                 }
-                html += `<tr><td><img src="${item.image === 'default.png' ? 'images/menu/'+item.image : item.image}" alt="Products" style="max-height: 50px"></td><td><div class=\"fw-semibold\">${item.name}</div><div class=\"small text-muted\">Base Price : Rp ${rupiah(item.basePrice)}</div>${variantHtml?`<div class=\"small\">${variantHtml}</div>`:''}${item.priceAddon?`<div class=\"small\">Addon:<br>${addonHtml}</div>`:''}${discountProductHtml}</td><td class=\"fw-bold text-center\">${item.qty}</td><td>${priceHtml}</td></tr>`;
+                html += `<tr><td><img src="{{ asset('') }}${ (item.image && item.image.includes('images/menu/')) ? item.image : 'images/menu/' + (item.image || 'default.png') }" alt="Products" style="max-height: 50px"></td><td><div class=\"fw-semibold\">${item.name}</div><div class=\"small text-muted\">Base Price : Rp ${rupiah(item.basePrice)}</div>${variantHtml?`<div class=\"small\">${variantHtml}</div>`:''}${item.priceAddon?`<div class=\"small\">Addon:<br>${addonHtml}</div>`:''}${discountProductHtml}</td><td class=\"fw-bold text-center\">${item.qty}</td><td>${priceHtml}</td></tr>`;
             });
             calculatePrice(); calculateJumlahCart();
         }

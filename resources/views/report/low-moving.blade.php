@@ -48,7 +48,7 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item->sku }}</td>
                                 <td>{{ $item->name }}</td>
-                                <td>{{ $item->category->name }}</td>
+                                <td>{{ $item->category->name ?? '-' }}</td>
                                 <td class="text-center fw-bold">{{ number_format($item->sold_quantity) }}</td>
                             </tr>
                         @endforeach

@@ -63,7 +63,7 @@
                     @if($menu->image == null)
 
                     @else
-                        <img src="{{ asset('images/menu/'.$menu->image) }}" alt="..." width="200" height="200">
+                        <img src="{{ Str::startsWith($menu->image, 'images/menu/') ? asset($menu->image) : asset('images/menu/' . ($menu->image ?: 'default.png')) }}" alt="..." width="200" height="200">
                     @endif
                 </div>
             </div>

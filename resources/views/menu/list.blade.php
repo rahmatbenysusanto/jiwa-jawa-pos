@@ -83,6 +83,7 @@
                                     <th>Name</th>
                                     <th>Category</th>
                                     <th>Base Price</th>
+                                    <th>HPP</th>
                                     <th class="text-center">Combo</th>
                                     <th class="text-center">Status</th>
                                     <th>Action</th>
@@ -96,6 +97,7 @@
                                         <td>{{ $item->name }}</td>
                                         <td>{{ $item->category->name }}</td>
                                         <td>Rp {{ number_format($item->price) }}</td>
+                                        <td>Rp {{ number_format($item->hpp) }}</td>
                                         <td class="text-center">
                                             @if ($item->is_combo == 'no')
                                                 <span class="badge bg-soft-success">Not Combo</span>
