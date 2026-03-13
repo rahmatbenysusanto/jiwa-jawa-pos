@@ -306,11 +306,11 @@ class ReportController extends Controller
             'input_by'    => $user->name,
             'modal_awal'  => $request->post('modalAwal'),
             'cash_akhir'  => $request->post('modalAkhir'),
-            'cash'        => $request->post('cash'),
-            'qris'        => $request->post('qris'),
-            'debit'       => $request->post('debit'),
-            'laba_kotor'  => $request->post('labaKotor'),
-            'laba_bersih' => $request->post('labaBersih'),
+            'cash'        => $totalCash,
+            'qris'        => $totalQris,
+            'debit'       => $totalDebit,
+            'laba_kotor'  => $labaKotor,
+            'laba_bersih' => $labaBersih,
         ];
 
         // Wa Notification
