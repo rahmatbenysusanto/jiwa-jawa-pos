@@ -53,8 +53,6 @@ class TransactionController extends Controller
             ->latest()
             ->paginate(10);
 
-        $this->calculateMaterialUsage(27);
-
         $title = 'Transaction';
         return view('transaction.index', compact('title', 'transaction'));
     }
@@ -64,43 +62,76 @@ class TransactionController extends Controller
         try {
             DB::beginTransaction();
 
-            $orderNumber = Transaction::where('outlet_id', Auth::user()->outlet_id)
+            // Baca dari JSON body (frontend kirim contentType: application/json)
+            // Fallback ke $request->post() untuk backward compatibility
+            $input             = $request->isJson() ? $request->json()->all() : $request->post();
+            $cartItems         = $input['cart']                ?? [];
+            $discountTrxIn     = $input['discountTransaction'] ?? [];
+            $splitPayIn        = $input['splitPayment']        ?? [];
+            $paymentMethodName = $input['paymentMethod']       ?? '';
+            $invoiceNumber     = $input['invoice']             ?? '';
+            $noteInput         = $input['note']                ?? '';
+            $subTotal          = $input['subTotal']            ?? 0;
+            $totalTax          = $input['totalTax']            ?? 0;
+            $discountAmt       = $input['discount']            ?? 0;
+            $grandTotal        = $input['grandTotal']          ?? 0;
+            $delivery          = $input['delivery']            ?? 'dine in';
+
+            // ── VALIDASI BACKEND ──
+            if (empty($cartItems) || !is_array($cartItems)) {
+                DB::rollBack();
+                Log::error('TRX STORE: cart kosong/bukan array', ['invoice' => $invoiceNumber]);
+                return response()->json(['status' => false, 'message' => 'Cart tidak boleh kosong.'], 422);
+            }
+
+            foreach ($cartItems as $idx => $item) {
+                if (empty($item['menuId']) || empty($item['qty'])) {
+                    DB::rollBack();
+                    Log::error('TRX STORE: item tidak valid', ['idx' => $idx, 'item' => $item]);
+                    return response()->json(['status' => false, 'message' => 'Item ke-' . ($idx + 1) . ' tidak valid.'], 422);
+                }
+            }
+
+            $orderNumber   = Transaction::where('outlet_id', Auth::user()->outlet_id)
                 ->whereDate('transaction_date', date('Y-m-d'))
                 ->count() + 1;
 
-            $paymentMethod = PaymentMethod::where('name', $request->post('paymentMethod'))->first();
+            $paymentMethod = PaymentMethod::where('name', $paymentMethodName)->first();
+            $totalQty      = array_sum(array_column($cartItems, 'qty'));
 
             $transaction = Transaction::create([
-                'outlet_id'         => Auth::user()->outlet_id,
-                'invoice_number'    => $request->post('invoice'),
-                'order_number'      => str_pad($orderNumber, 2, '0', STR_PAD_LEFT),
-                'qty'               => count($request->post('cart')),
-                'hpp'               => 0,
-                'subtotal'          => $request->post('subTotal'),
-                'discount'          => $request->post('discount'),
-                'tax'               => $request->post('totalTax'),
-                'total'             => $request->post('grandTotal'),
-                'payment_method_id' => $paymentMethod->id ?? 0,
-                'payment_status'    => $paymentMethod->id == 1 ? 'paid' : 'pending',
-                'transaction_type'  => 'sales',
-                'note'              => $request->post('note'),
-                'transaction_date'  => date('Y-m-d H:i:s'),
-                'created_by'        => Auth::id()
+                'outlet_id'            => Auth::user()->outlet_id,
+                'invoice_number'       => $invoiceNumber,
+                'order_number'         => str_pad($orderNumber, 2, '0', STR_PAD_LEFT),
+                'qty'                  => $totalQty,
+                'hpp'                  => 0,
+                'subtotal'             => $subTotal,
+                'discount'             => $discountAmt,
+                'tax'                  => $totalTax,
+                'total'                => $grandTotal,
+                'payment_method_id'    => $paymentMethod->id ?? 0,
+                'payment_status'       => ($paymentMethod->id ?? 0) == 1 ? 'paid' : 'pending',
+                'transaction_type'     => 'sales',
+                'transaction_delivery' => $delivery,
+                'note'                 => $noteInput,
+                'transaction_date'     => date('Y-m-d H:i:s'),
+                'created_by'           => Auth::id(),
             ]);
 
             $hppTransaction = 0;
+            $detailCount    = 0;
 
-            foreach ($request->post('cart') as $item) {
+            foreach ($cartItems as $item) {
                 $menu = Menu::find($item['menuId']);
-                $hppTransactionDetail = $menu->hpp;
+                $hppTransactionDetail = $menu ? $menu->hpp : 0;
 
                 $detail = TransactionDetail::create([
                     'transaction_id'   => $transaction->id,
                     'menu_id'          => $item['menuId'],
                     'qty'              => $item['qty'],
-                    'base_price'       => $item['basePrice'],
-                    'price'            => $item['totalPrice'],
-                    'discount'         => $item['priceDiscount'],
+                    'base_price'       => $item['basePrice']     ?? 0,
+                    'price'            => $item['totalPrice']    ?? 0,
+                    'discount'         => $item['priceDiscount'] ?? 0,
                     'total'            => $item['grandTotal'],
                     'note'             => $item['note'],
                 ]);
@@ -149,26 +180,50 @@ class TransactionController extends Controller
 
                 TransactionDetail::where('id', $detail->id)->update(['hpp' => $hppTransactionDetail]);
                 $hppTransaction += $hppTransactionDetail;
+                $detailCount++;
+            }
+
+            // ── VERIFIKASI POST-SAVE: pastikan semua item tersimpan ──
+            if ($detailCount !== count($cartItems)) {
+                DB::rollBack();
+                Log::error('TRX STORE: jumlah detail tidak sesuai cart!', [
+                    'invoice'       => $invoiceNumber,
+                    'cart_count'    => count($cartItems),
+                    'detail_count'  => $detailCount,
+                ]);
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Transaksi tidak lengkap: ' . $detailCount . ' dari ' . count($cartItems) . ' item tersimpan. Silakan coba lagi.',
+                ], 500);
             }
 
             Transaction::where('id', $transaction->id)->update(['hpp' => $hppTransaction]);
 
-            if ($request->post('discountTransaction') != null) {
-                $discountTransaction = $request->post('discountTransaction');
-                TransactionDiscount::create([
-                    'transaction_id'   => $transaction->id,
-                    'discount_id'      => $discountTransaction[0]['id'],
-                    'price'            => $discountTransaction[0]['value'],
-                ]);
+            // Filter discount yang benar-benar dipilih (select == 1)
+            foreach ($discountTrxIn as $discountItem) {
+                if (isset($discountItem['select']) && (int) $discountItem['select'] === 1) {
+                    if (($discountItem['type'] ?? '') === 'nominal') {
+                        $actualDiscountPrice = (float) $discountItem['value'];
+                    } else {
+                        $subTotalAfterProductDiscount = (float) $subTotal - array_sum(
+                            array_column($cartItems, 'priceDiscount')
+                        );
+                        $actualDiscountPrice = $subTotalAfterProductDiscount * ((float) $discountItem['value'] / 100);
+                    }
+                    TransactionDiscount::create([
+                        'transaction_id' => $transaction->id,
+                        'discount_id'    => $discountItem['id'],
+                        'price'          => $actualDiscountPrice,
+                    ]);
+                }
             }
 
-            if ($request->post('splitPayment') != null) {
-                foreach ($request->post('splitPayment') as $value) {
-                    $paymentMethod = PaymentMethod::where('name', $value['paymentMethod'])->first();
-
+            if (!empty($splitPayIn)) {
+                foreach ($splitPayIn as $value) {
+                    $pmSplit = PaymentMethod::where('name', $value['paymentMethod'])->first();
                     TransactionSplitPayment::create([
                         'transaction_id'    => $transaction->id,
-                        'payment_method_id' => $paymentMethod->id,
+                        'payment_method_id' => $pmSplit->id ?? 0,
                         'price'             => $value['amount'],
                     ]);
                 }
@@ -181,7 +236,7 @@ class TransactionController extends Controller
                 TransactionEvent::dispatch([
                     'username'  => Auth::user()->username,
                     'type'      => 'payment',
-                    'invoice'   => $request->post('invoice'),
+                    'invoice'   => $invoiceNumber,
                     'data'      => $midtrans
                 ]);
             }
@@ -195,10 +250,15 @@ class TransactionController extends Controller
             ]);
         } catch (\Exception $err) {
             DB::rollBack();
-            Log::error($err->getMessage());
-            Log::error($err->getLine());
+            Log::error('TRX STORE EXCEPTION: ' . $err->getMessage(), [
+                'line'    => $err->getLine(),
+                'file'    => $err->getFile(),
+                'invoice' => $invoiceNumber ?? '-',
+                'cart_count' => isset($cartItems) ? count($cartItems) : 'n/a',
+            ]);
             return response()->json([
-                'status' => false,
+                'status'  => false,
+                'message' => 'Terjadi kesalahan server: ' . $err->getMessage(),
             ]);
         }
     }
@@ -339,8 +399,13 @@ class TransactionController extends Controller
         $transaction = Transaction::with('paymentMethod', 'users')->where('invoice_number', $request->query('invoice'))->first();
         $transactionData = TransactionData::where('invoice_number', $request->query('invoice'))->first();
 
+        // Load detail dari DB yang real (bukan hanya dari JSON localStorage snapshot)
+        $transactionDetails = TransactionDetail::with('variants', 'addons', 'menu')
+            ->where('transaction_id', $transaction->id)
+            ->get();
+
         $title = 'Transaction';
-        return view('transaction.detail', compact('title', 'transaction', 'transactionData'));
+        return view('transaction.detail', compact('title', 'transaction', 'transactionData', 'transactionDetails'));
     }
 
     public function cancelTransaction(Request $request): JsonResponse

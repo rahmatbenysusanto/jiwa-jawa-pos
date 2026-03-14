@@ -240,7 +240,7 @@
 
                     <div class="mt-3">
                         <h4 class="modal-title mb-1">Note</h4>
-                        <textarea class="form-control" rows="2" id="note"></textarea>
+                        <textarea class="form-control" rows="2" id="noteProduct"></textarea>
                     </div>
 
                     <div class="mt-3">
@@ -692,7 +692,8 @@
                     <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                         <div class="product-info card mb-0">
                             <a onclick="selectProduct('${product.id}')" class="product-image d-flex justify-content-center">
-                                <img src="${product.image === 'default.png' ? 'images/menu/'+product.image : product.image}" alt="Products" style="max-height: 200px">
+                                @php $baseUrl = asset(''); @endphp
+                                <img src="{{ $baseUrl }}${ (product.image && product.image.includes('images/menu/')) ? product.image : 'images/menu/' + (product.image || 'default.png') }" alt="Products" style="max-height: 200px">
                             </a>
                             <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                             <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
@@ -722,7 +723,7 @@
                         <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                             <div class="product-info card mb-0">
                                 <a onclick="selectProduct('${product.id}')" class="product-image d-flex justify-content-center">
-                                    <img src="${product.image === 'default.png' ? 'images/menu/'+product.image : product.image}" alt="Products" style="max-height: 200px">
+                                    <img src="{{ asset('') }}${ (product.image && product.image.includes('images/menu/')) ? product.image : 'images/menu/' + (product.image || 'default.png') }" alt="Products" style="max-height: 200px">
                                 </a>
                                 <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
                                 <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
@@ -1090,7 +1091,7 @@
 
             const totalPrice = Number(product.price) + priceDelta + priceAddon - Number(priceDiscount);
 
-            const note = document.getElementById('note').value ?? '';
+            const note = document.getElementById('noteProduct').value ?? '';
 
             cart.push({
                 menuId: product.id,
@@ -1492,8 +1493,16 @@
             const variant = JSON.parse(localStorage.getItem('variant')) ?? [];
             const addon = JSON.parse(localStorage.getItem('addon')) ?? [];
             const discountProduct = JSON.parse(localStorage.getItem('discountProduct')) ?? [];
-            const productId = document.getElementById('product-edit-id').value;
-            const product = cart.find((item) => item.menuId === parseInt(productId));
+
+            // BUG FIX: Gunakan EDITING_CART_INDEX (index posisi di cart) bukan cart.find() by menuId
+            // cart.find() by menuId akan selalu mengambil item PERTAMA jika ada 2 menu yang sama
+            const editingIndex = window.EDITING_CART_INDEX;
+            const product = cart[editingIndex];
+
+            if (!product) {
+                console.error('editProduct: cart item not found at index', editingIndex);
+                return;
+            }
 
             let priceDelta = 0;
             variant.forEach((item) => {
@@ -1515,7 +1524,8 @@
                     if (item.type === 'nominal') {
                         priceDiscount = parseInt(item.value);
                     } else {
-                        priceDiscount = (parseInt(product.price) + priceDelta + priceAddon) * item.value / 100;
+                        // BUG FIX: product adalah cart item, tidak punya .price — seharusnya .basePrice
+                        priceDiscount = (parseInt(product.basePrice) + priceDelta + priceAddon) * item.value / 100;
                     }
                 }
             });
@@ -1960,94 +1970,127 @@
         }
 
         function paymentProcess() {
+            // Validation awal sebelum Swal
+            const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
+            if (cart.length === 0) {
+                Swal.fire({ title: 'Warning!', text: 'Cart kosong, silakan pilih produk terlebih dahulu.', icon: 'warning' });
+                return;
+            }
+
+            const paymentMethodData = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
+            let paymentMethod = '';
+            paymentMethodData.forEach((item) => {
+                if (parseInt(item.select) === 1) paymentMethod = item.name;
+            });
+            if (paymentMethod === '') {
+                Swal.fire({ title: 'Warning!', text: 'Metode pembayaran belum dipilih.', icon: 'warning' });
+                return;
+            }
+
+            const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
+            if (splitPayment.length !== 0) {
+                const grandTotal = parseInt(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
+                let totalSplit = 0;
+                splitPayment.forEach((item) => { totalSplit += item.amount; });
+                if (grandTotal !== totalSplit) {
+                    Swal.fire({ title: 'Warning!', text: 'Nominal split payment tidak sesuai total transaksi.', icon: 'warning' });
+                    return;
+                }
+            }
+
+            let delivery = '';
+            const dataDelivery = JSON.parse(localStorage.getItem('delivery')) ?? [];
+            dataDelivery.forEach((item) => {
+                if (parseInt(item.select) === 1) delivery = item.name;
+            });
+
+            // ── KONFIRMASI VISUAL: tampilkan semua item cart sebelum bayar ──
+            const grandTotalFinal = parseInt(localStorage.getItem('grandTotal') ?? '0');
+            const discountFinal   = parseInt(localStorage.getItem('discount')   ?? '0');
+            let cartSummaryHtml = `
+                <div style="text-align:left;font-size:13px;max-height:240px;overflow-y:auto;
+                            border:1px solid #e4e4e4;border-radius:8px;padding:10px;margin-bottom:8px;">`;
+            cart.forEach((item, idx) => {
+                const discBadge = item.priceDiscount > 0
+                    ? `<span style="color:#c62828;font-size:11px;"> (-Rp ${item.priceDiscount.toLocaleString('id-ID')})</span>` : '';
+                cartSummaryHtml += `
+                    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #f0f0f0;">
+                        <span><b>${idx + 1}. ${item.name}</b> × ${item.qty}${discBadge}</span>
+                        <span style="color:#2e7d32;font-weight:600;">Rp ${item.grandTotal.toLocaleString('id-ID')}</span>
+                    </div>`;
+            });
+            if (discountFinal > 0) {
+                cartSummaryHtml += `
+                    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed #f0f0f0;color:#c62828;">
+                        <span>Diskon Transaksi</span>
+                        <span>-Rp ${discountFinal.toLocaleString('id-ID')}</span>
+                    </div>`;
+            }
+            cartSummaryHtml += `
+                    <div style="display:flex;justify-content:space-between;padding:7px 0 2px;font-weight:700;font-size:14px;">
+                        <span>TOTAL (${cart.length} item)</span>
+                        <span style="color:#1565c0;">Rp ${grandTotalFinal.toLocaleString('id-ID')}</span>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:6px;color:#f57f17;font-size:12px;">
+                    <i class="ti ti-alert-triangle"></i>
+                    <span>Periksa kembali. Transaksi tidak bisa diubah setelah dikonfirmasi.</span>
+                </div>`;
+
             Swal.fire({
-                title: "Are you sure?",
-                text: "Process this order",
-                icon: "warning",
+                title: 'Konfirmasi Pembayaran',
+                html: cartSummaryHtml,
+                icon: 'question',
                 showCancelButton: true,
-                customClass: {
-                    confirmButton: "btn btn-primary w-xs me-2 mt-2",
-                    cancelButton: "btn btn-danger w-xs mt-2"
-                },
-                confirmButtonText: "Yes, Process it!",
+                confirmButtonText: '<i class="ti ti-cash"></i>&nbsp;Konfirmasi Bayar',
+                cancelButtonText: 'Batal',
+                customClass: { confirmButton: 'btn btn-success me-2', cancelButton: 'btn btn-danger' },
                 buttonsStyling: false,
-                showCloseButton: true
+                width: '500px',
             }).then((i) => {
                 if (i.value) {
 
-                    // Validation
-                    const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
-                    if (cart.length === 0) {
-                        Swal.fire({
-                           title: 'Warning!',
-                           text: 'Cart cannot be empty, please select the product',
-                           icon: 'warning',
-                        });
-                        return true;
+                    // Re-baca cart sesaat sebelum kirim — ambil state paling fresh
+                    const cartFinal = JSON.parse(localStorage.getItem('cart')) ?? [];
+                    if (cartFinal.length === 0) {
+                        Swal.fire({ title: 'Warning!', text: 'Cart kosong!', icon: 'warning' });
+                        return;
                     }
 
-                    const paymentMethodData = JSON.parse(localStorage.getItem('paymentMethod')) ?? [];
-                    let paymentMethod = '';
-                    paymentMethodData.forEach((item) => {
-                        if (parseInt(item.select) === 1) {
-                            paymentMethod = item.name;
-                        }
-                    });
-                    if (paymentMethod === '') {
-                        Swal.fire({
-                            title: 'Warning!',
-                            text: 'Payment method cannot be empty',
-                            icon: 'warning',
-                        });
-                        return true;
+                    // Validasi: semua item wajib punya grandTotal > 0
+                    const invalidItem = cartFinal.find(it => !(it.grandTotal > 0));
+                    if (invalidItem) {
+                        Swal.fire({ title: 'Data cart tidak valid!',
+                            text: `Item "${invalidItem.name}" punya total = 0. Hapus dan tambahkan ulang.`,
+                            icon: 'error' });
+                        return;
                     }
 
-                    const splitPayment = JSON.parse(localStorage.getItem('splitPayment')) ?? [];
-                    if (splitPayment.length !== 0) {
-                        // Split Payment
-                        const grandTotal = parseInt(JSON.parse(localStorage.getItem('grandTotal')) ?? 0);
-                        let totalSplit = 0;
-                        splitPayment.forEach((item) => {
-                            totalSplit += item.amount;
-                        });
-
-                        if (grandTotal !== totalSplit) {
-                            Swal.fire({
-                                title: 'Warning!',
-                                text: 'The nominal split payment does not match the total transaction.',
-                                icon: 'warning',
-                            });
-                            return true;
-                        }
-                    }
-
-                    let delivery = '';
-                    const dataDelivery = JSON.parse(localStorage.getItem('delivery')) ?? [];
-                    dataDelivery.forEach((item) => {
-                        if (parseInt(item.select) === 1) {
-                            delivery = item.name;
-                        }
-                    });
+                    // Lock UI — cegah race condition saat AJAX berlangsung
+                    document.querySelectorAll('.btn-process-payment, .btn-add-product, .product-card')
+                        .forEach(el => { el.style.pointerEvents = 'none'; el.style.opacity = '0.5'; });
 
                     saveTransactionData();
 
                     $.ajax({
                         url: '{{ route('transaction.store') }}',
                         method: 'POST',
-                        data: {
+                        // Kirim sebagai JSON agar nested object tidak corrupt oleh $.param()
+                        contentType: 'application/json; charset=utf-8',
+                        data: JSON.stringify({
                             _token: '{{ csrf_token() }}',
-                            cart: cart,
+                            cart: cartFinal,
                             discountTransaction: JSON.parse(localStorage.getItem('discountTransaction')) ?? [],
-                            note: JSON.parse(localStorage.getItem('note')) ?? '',
+                            note: localStorage.getItem('note') ?? '',
                             paymentMethod: paymentMethod,
                             splitPayment: splitPayment,
                             invoice: '{{ $invoiceNumber }}',
                             delivery: delivery,
-                            subTotal: JSON.parse(localStorage.getItem('subTotal')) ?? 0,
-                            totalTax: JSON.parse(localStorage.getItem('totalTax')) ?? 0,
-                            discount: JSON.parse(localStorage.getItem('discount')) ?? 0,
-                            grandTotal: JSON.parse(localStorage.getItem('grandTotal')) ?? 0,
-                        },
+                            subTotal: parseInt(localStorage.getItem('subTotal')  ?? '0'),
+                            totalTax: parseInt(localStorage.getItem('totalTax')  ?? '0'),
+                            discount: parseInt(localStorage.getItem('discount')  ?? '0'),
+                            grandTotal: parseInt(localStorage.getItem('grandTotal') ?? '0'),
+                        }),
                         beforeSend: function () {
                             Swal.fire({
                                 title: 'Processing Payment...',
@@ -2060,6 +2103,9 @@
                         },
                         success: (res) => {
                             Swal.close();
+                            // Unlock UI
+                            document.querySelectorAll('.btn-process-payment, .btn-add-product, .product-card')
+                                .forEach(el => { el.style.pointerEvents = ''; el.style.opacity = ''; });
 
                             if (res.status) {
 
@@ -2127,9 +2173,14 @@
                         },
                         error: (xhr, status, error) => {
                             Swal.close();
+                            // Unlock UI saat error agar bisa coba lagi
+                            document.querySelectorAll('.btn-process-payment, .btn-add-product, .product-card')
+                                .forEach(el => { el.style.pointerEvents = ''; el.style.opacity = ''; });
+                            const errMsg = xhr.responseJSON?.message || error || 'Server tidak merespons dengan benar.';
                             Swal.fire({
-                                title: 'Unexpected Error!',
-                                text: error || 'Server did not respond properly.',
+                                title: 'Error!',
+                                html: `<b>Transaksi GAGAL disimpan.</b><br><small style="color:#999">${errMsg}</small><br><br>` +
+                                      `<span style="color:#e53935">Silakan coba lagi. Jika terus gagal, hubungi admin.</span>`,
                                 icon: 'error',
                             });
                         }

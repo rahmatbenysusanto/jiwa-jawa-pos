@@ -23,4 +23,14 @@ class TransactionDetail extends Model
     {
         return $this->belongsTo(Menu::class, 'menu_id');
     }
+
+    public function variants(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TransactionDetailVariant::class, 'transaction_detail_id');
+    }
+
+    public function addons(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TransactionDetailVariantAddon::class, 'transaction_detail_id');
+    }
 }
