@@ -156,13 +156,6 @@ $(document).ready(function(){
 		readURL(this);
 	});
 
-	// Loader
-	setTimeout(function () {
-		$('#global-loader');
-		setTimeout(function () {
-			$("#global-loader").fadeOut("slow");
-		}, 100);
-	}, 500);
 
 
 	// Datetimepicker

@@ -22,9 +22,7 @@
 </head>
 <body class="account-page">
 
-<div id="global-loader" >
-    <div class="whirly-loader"> </div>
-</div>
+
 
 <!-- Main Wrapper -->
 <div class="main-wrapper">
@@ -67,11 +65,10 @@
     </div>
 </div>
 
-<script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}" type="7b291c6551d2dd756edd64cb-text/javascript"></script>
-<script src="{{ asset('assets/js/feather.min.js') }}" type="7b291c6551d2dd756edd64cb-text/javascript"></script>
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}" type="7b291c6551d2dd756edd64cb-text/javascript"></script>
-<script src="{{ asset('assets/js/script.js') }}" type="7b291c6551d2dd756edd64cb-text/javascript"></script>
-<script src="https://preadmin.dreamstechnologies.com/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="7b291c6551d2dd756edd64cb-|49" defer></script><script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"97f797f8a9a61dad","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}},"version":"2025.8.0","token":"3ca157e612a14eccbb30cf6db6691c29"}' crossorigin="anonymous"></script>
+<script src="{{ asset('assets/js/jquery-3.7.1.min.js') }}"></script>
+<script src="{{ asset('assets/js/feather.min.js') }}"></script>
+<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('assets/js/script.js') }}"></script>
 </body>
 
 </html>
