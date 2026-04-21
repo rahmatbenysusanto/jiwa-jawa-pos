@@ -1,11 +1,11 @@
 @extends('layout.index')
-@section('title', 'Detail Purchase Order')
+@section('title', 'Detail Inbound')
 
 @section('content')
     <div class="page-header">
         <div class="add-item d-flex">
             <div class="page-title">
-                <h4 class="fw-bold">Detail Purchase Order</h4>
+                <h4 class="fw-bold">Inbound Detail</h4>
             </div>
         </div>
     </div>

@@ -332,10 +332,10 @@
                                         @endif
 
                                         @if (collect(Session::get('menu', []))->contains('Purchase Order'))
-                                            <li class="{{ $title == 'Purchase Order' ? 'active' : '' }}">
+                                            <li class="{{ $title == 'Inbound' ? 'active' : '' }}">
                                                 <a href="{{ route('inventory.purchase.order') }}">
-                                                    <i class="ti ti-file-unknown fs-16 me-2"></i>
-                                                    <span>Purchase Order</span>
+                                                    <i class="ti ti-file-import fs-16 me-2"></i>
+                                                    <span>Inbound</span>
                                                 </a>
                                             </li>
                                         @endif

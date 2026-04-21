@@ -1,17 +1,17 @@
 @extends('layout.index')
-@section('title', 'Purchase Order')
+@section('title', 'Inbound')
 
 @section('content')
     <div class="page-header">
         <div class="add-item d-flex">
             <div class="page-title">
-                <h4 class="fw-bold">Purchase Order</h4>
+                <h4 class="fw-bold">Inbound Stock</h4>
             </div>
         </div>
         <div class="page-btn">
             <a class="btn btn-primary" href="{{ route('inventory.purchase.order.create') }}">
                 <i class="ti ti-circle-plus me-1"></i>
-                Create Purchase Order
+                Create Inbound
             </a>
         </div>
     </div>
@@ -23,8 +23,8 @@
                     <form action="{{ url()->current() }}" method="GET">
                         <div class="row">
                             <div class="col-2">
-                                <label class="form-label">PO Number</label>
-                                <input type="text" class="form-control" name="number" value="{{ request()->get('number', null) }}" placeholder="PO Number ...">
+                                <label class="form-label">Inbound Number</label>
+                                <input type="text" class="form-control" name="number" value="{{ request()->get('number', null) }}" placeholder="Inbound Number ...">
                             </div>
                             <div class="col-2">
                                 <label class="form-label">Warehouse</label>
@@ -46,10 +46,10 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>PO Number</th>
+                                    <th>Inbound Number</th>
                                     <th>Warehouse Name</th>
                                     <th class="text-center">QTY</th>
-                                    <th>PO Date</th>
+                                    <th>Date</th>
                                     <th class="text-center">Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -132,11 +132,11 @@
         function cancelPO(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Cancel Purchase Order?",
+                text: "Cancel this Inbound?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: "Yes, cancel po!",
-                cancelButtonText: "Cancel",
+                confirmButtonText: "Yes, cancel it!",
+                cancelButtonText: "No",
                 customClass: {
                     confirmButton: "btn btn-primary",
                     cancelButton: "btn btn-danger ml-1"
@@ -156,7 +156,7 @@
                             if (res.status) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: 'Cancel Purchase Order Success!',
+                                    text: 'Inbound cancelled successfully!',
                                     icon: 'success',
                                 }).then((i) => {
                                     window.location.reload();
@@ -172,10 +172,10 @@
         function processPO(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Approve Purchase Order?",
+                text: "Process this Inbound (Add to stock)?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: "Yes, approve po!",
+                confirmButtonText: "Yes, process it!",
                 cancelButtonText: "Cancel",
                 customClass: {
                     confirmButton: "btn btn-primary",
@@ -196,7 +196,7 @@
                             if (res.status) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: 'Approve Purchase Order Success!',
+                                    text: 'Inbound processed successfully!',
                                     icon: 'success',
                                 }).then((i) => {
                                     window.location.reload();

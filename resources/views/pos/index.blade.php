@@ -688,6 +688,7 @@
             `;
 
             allMenu.forEach((product) => {
+                const categoryName = (product.category && product.category.name) ? product.category.name : 'No Category';
                 html += `
                     <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                         <div class="product-info card mb-0">
@@ -695,7 +696,7 @@
                                 @php $baseUrl = asset(''); @endphp
                                 <img src="{{ $baseUrl }}${ (product.image && product.image.includes('images/menu/')) ? product.image : 'images/menu/' + (product.image || 'default.png') }" alt="Products" style="max-height: 200px">
                             </a>
-                            <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                            <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${categoryName}</a></h6>
                             <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
                             <div class="d-flex align-items-center justify-content-between price">
                                 <span>${product.stock} Pcs</span>
@@ -719,13 +720,14 @@
                 `;
 
                 (menuCategory.menu).forEach((product) => {
+                    const categoryName = (product.category && product.category.name) ? product.category.name : 'No Category';
                     html += `
                         <div class="col-3 cursor-pointer" onclick="selectProduct('${product.id}')">
                             <div class="product-info card mb-0">
                                 <a onclick="selectProduct('${product.id}')" class="product-image d-flex justify-content-center">
                                     <img src="{{ asset('') }}${ (product.image && product.image.includes('images/menu/')) ? product.image : 'images/menu/' + (product.image || 'default.png') }" alt="Products" style="max-height: 200px">
                                 </a>
-                                <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${product.category.name}</a></h6>
+                                <h6 class="cat-name"><a onclick="selectProduct('${product.id}')">${categoryName}</a></h6>
                                 <h6 class="product-name"><a onclick="selectProduct('${product.id}')">${product.name}</a></h6>
                                 <div class="d-flex align-items-center justify-content-between price">
                                     <span>${product.stock} Pcs</span>
@@ -793,12 +795,13 @@
                     const product  = res.data;
                     const discount = res.discount || [];
 
+                    const productCategoryName = (product.category && product.category.name) ? product.category.name : 'No Category';
                     localStorage.setItem('product', JSON.stringify({
                         id: product.id,
                         name: product.name,
                         price: Number(product.price),
                         sku: product.sku,
-                        category: product.category.name,
+                        category: productCategoryName,
                         combo: product.is_combo,
                         image: product.image
                     }));
@@ -807,9 +810,9 @@
                     localStorage.setItem('discountProduct', JSON.stringify(discountWithSelect));
 
                     const dataVariant = [];
-                    (product.menu_variant || []).forEach((variant, indexVariant) => {
+                    (product.menuVariant || []).forEach((variant, indexVariant) => {
                         const valueVariant = [];
-                        (variant.menu_variant_options || []).forEach((item) => {
+                        (variant.menuVariantOptions || []).forEach((item) => {
                             valueVariant.push({
                                 id: item.id,
                                 name: item.name,
@@ -839,7 +842,7 @@
                     document.getElementById('product-detail-name').value = product.name;
                     document.getElementById('product-detail-sku').value = product.sku;
                     document.getElementById('product-detail-base-price').value = 'Rp ' + rupiah(product.price);
-                    document.getElementById('product-detail-category').value = product.category.name;
+                    document.getElementById('product-detail-category').value = productCategoryName;
 
                     viewListAddon();
 
@@ -919,7 +922,7 @@
                     let html = '';
 
                     groups.forEach(g => {
-                        const variants = Array.isArray(g.addon_variant) ? g.addon_variant : [];
+                        const variants = Array.isArray(g.addonVariant) ? g.addonVariant : [];
                         let htmlVariant = '';
                         variants.forEach(variant => {
                             htmlVariant += `
@@ -1386,7 +1389,7 @@
                     let html = '';
 
                     groups.forEach(g => {
-                        const variants = Array.isArray(g.addon_variant) ? g.addon_variant : [];
+                        const variants = Array.isArray(g.addonVariant) ? g.addonVariant : [];
                         let htmlVariant = '';
                         variants.forEach(variant => {
                             htmlVariant += `

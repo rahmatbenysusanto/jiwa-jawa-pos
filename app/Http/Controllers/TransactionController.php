@@ -140,31 +140,35 @@ class TransactionController extends Controller
                     foreach ($variant['option'] as $option) {
                         if ($option['select'] == 1) {
                             $menuVariantOption = MenuVariantOption::find($option['id']);
-                            $hppTransactionDetail += $menuVariantOption->hpp;
+                            if ($menuVariantOption) {
+                                $hppTransactionDetail += $menuVariantOption->hpp;
 
-                            TransactionDetailVariant::create([
-                                'transaction_detail_id'     => $detail->id,
-                                'menu_variant_option_id'    => $option['id'],
-                                'variant_name'              => $variant['name'],
-                                'variant_value'             => $option['name'],
-                                'variant_price'             => $option['price'],
-                            ]);
+                                TransactionDetailVariant::create([
+                                    'transaction_detail_id'     => $detail->id,
+                                    'menu_variant_option_id'    => $option['id'],
+                                    'variant_name'              => $variant['name'],
+                                    'variant_value'             => $option['name'],
+                                    'variant_price'             => $option['price'],
+                                ]);
+                            }
                         }
                     }
                 }
 
                 foreach ($item['data']['addon'] ?? [] as $addon) {
                     $addonVariant = AddonVariant::find($addon['id']);
-                    $hppTransactionDetail += $addonVariant->hpp;
+                    if ($addonVariant) {
+                        $hppTransactionDetail += $addonVariant->hpp;
 
-                    TransactionDetailVariantAddon::create([
-                        'transaction_detail_id' => $detail->id,
-                        'addon_variant_id'      => $addon['id'],
-                        'addon_name'            => $addon['name'],
-                        'addon_price'           => $addon['price'],
-                        'qty'                   => $addon['qty'],
-                        'total_price'           => $addon['total'],
-                    ]);
+                        TransactionDetailVariantAddon::create([
+                            'transaction_detail_id' => $detail->id,
+                            'addon_variant_id'      => $addon['id'],
+                            'addon_name'            => $addon['name'],
+                            'addon_price'           => $addon['price'],
+                            'qty'                   => $addon['qty'],
+                            'total_price'           => $addon['total'],
+                        ]);
+                    }
                 }
 
                 if ($item['priceDiscount'] != 0) {

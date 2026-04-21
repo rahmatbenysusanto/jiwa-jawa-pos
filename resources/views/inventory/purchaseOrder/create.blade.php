@@ -1,17 +1,17 @@
 @extends('layout.index')
-@section('title', 'Create Purchase Order')
+@section('title', 'Create Inbound')
 
 @section('content')
     <div class="page-header">
         <div class="add-item d-flex">
             <div class="page-title">
-                <h4 class="fw-bold">Create Purchase Order</h4>
+                <h4 class="fw-bold">Create Inbound Stock</h4>
             </div>
         </div>
         <div class="page-btn">
             <a class="btn btn-primary" onclick="createPurchaseOrder()">
                 <i class="ti ti-circle-plus me-1"></i>
-                Create Purchase Order
+                Create Inbound
             </a>
         </div>
     </div>
@@ -42,7 +42,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title mb-0">List Material PO</h4>
+                    <h4 class="card-title mb-0">List Inbound Material</h4>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -99,7 +99,7 @@
                         name: data.name,
                         sku: data.sku,
                         qty: 1,
-                        unit: data.unit.symbol,
+                        unit: data.unit ? data.unit.symbol : '-',
                     });
 
                     localStorage.setItem('material', JSON.stringify(material));
@@ -145,7 +145,7 @@
         function createPurchaseOrder() {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "Create Purchase Order?",
+                text: "Create this Inbound Stock?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: "Yes, create it!",
@@ -169,7 +169,7 @@
                             if (res.status) {
                                 Swal.fire({
                                     title: 'Success!',
-                                    text: 'Purchase Order created successfully!',
+                                    text: 'Inbound Stock created successfully!',
                                     icon: 'success',
                                 }).then((i) => {
                                     window.location.href = '{{ route('inventory.purchase.order') }}';

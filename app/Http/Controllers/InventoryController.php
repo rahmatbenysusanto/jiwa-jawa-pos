@@ -254,7 +254,7 @@ class InventoryController extends Controller
                 'warehouse'   => $request->query('warehouse'),
             ]);
 
-        $title = 'Purchase Order';
+        $title = 'Inbound';
         return view('inventory.purchaseOrder.index', compact('title', 'purchaseOrder'));
     }
 
@@ -265,7 +265,7 @@ class InventoryController extends Controller
             ->firstOrFail();
         $purchaseOrderDetail = PurchaseOrderDetail::with('material', 'material.unit')->where('purchase_order_id', $purchaseOrder->id)->get();
 
-        $title = 'Purchase Order';
+        $title = 'Inbound';
         return view('inventory.purchaseOrder.detail', compact('title', 'purchaseOrder', 'purchaseOrderDetail'));
     }
 
@@ -284,7 +284,7 @@ class InventoryController extends Controller
     {
         $material = Material::where('outlet_id', Auth::user()->outlet_id)->whereNull('deleted_at')->get();
 
-        $title = 'Purchase Order';
+        $title = 'Inbound';
         return view('inventory.purchaseOrder.create', compact('title', 'material'));
     }
 
