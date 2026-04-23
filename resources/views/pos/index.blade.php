@@ -810,9 +810,11 @@
                     localStorage.setItem('discountProduct', JSON.stringify(discountWithSelect));
 
                     const dataVariant = [];
-                    (product.menuVariant || []).forEach((variant, indexVariant) => {
+                    const menuVariants = product.menu_variant || product.menuVariant || [];
+                    menuVariants.forEach((variant, indexVariant) => {
                         const valueVariant = [];
-                        (variant.menuVariantOptions || []).forEach((item) => {
+                        const options = variant.menu_variant_options || variant.menuVariantOptions || [];
+                        options.forEach((item) => {
                             valueVariant.push({
                                 id: item.id,
                                 name: item.name,
@@ -922,15 +924,20 @@
                     let html = '';
 
                     groups.forEach(g => {
-                        const variants = Array.isArray(g.addonVariant) ? g.addonVariant : [];
+                        const variants = g.addon_variant || g.addonVariant || [];
                         let htmlVariant = '';
                         variants.forEach(variant => {
                             htmlVariant += `
                                 <div class="col-3" onclick="addProductAddon(${variant.id})">
-                                    <div class="card border border-secondary">
-                                        <div class="card-body">
-                                            <div class="fw-semibold">${variant.name}</div>
-                                            <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                    <div class="card border border-secondary h-100 mb-0">
+                                        <div class="card-body p-2">
+                                            <div class="fw-semibold text-truncate" title="${variant.name}">${variant.name}</div>
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                                <span class="badge ${variant.stock > 0 ? 'bg-success-light text-success' : 'bg-danger-light text-danger'} fs-10">
+                                                    ${variant.stock} Pcs
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1389,15 +1396,20 @@
                     let html = '';
 
                     groups.forEach(g => {
-                        const variants = Array.isArray(g.addonVariant) ? g.addonVariant : [];
+                        const variants = g.addon_variant || g.addonVariant || [];
                         let htmlVariant = '';
                         variants.forEach(variant => {
                             htmlVariant += `
                                 <div class="col-3" onclick="addProductAddonEdit(${variant.id})">
-                                    <div class="card border border-secondary">
-                                        <div class="card-body">
-                                            <div class="fw-semibold">${variant.name}</div>
-                                            <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                    <div class="card border border-secondary h-100 mb-0">
+                                        <div class="card-body p-2">
+                                            <div class="fw-semibold text-truncate" title="${variant.name}">${variant.name}</div>
+                                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                                <div class="text-muted small">Rp ${rupiah(variant.price)}</div>
+                                                <span class="badge ${variant.stock > 0 ? 'bg-success-light text-success' : 'bg-danger-light text-danger'} fs-10">
+                                                    ${variant.stock} Pcs
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

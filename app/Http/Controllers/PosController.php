@@ -76,11 +76,16 @@ class PosController extends Controller
         ]);
     }
 
-    private function calculateStock($menuId): int
+    private function calculateStock($id, $type = 'menu'): int
     {
-        $menuRecipeMaterial = MenuRecipeMaterial::where('menu_id', $menuId)->get();
+        if ($type == 'menu') {
+            $menuRecipeMaterial = MenuRecipeMaterial::where('menu_id', $id)->whereNull('variant_id')->whereNull('addon_id')->get();
+        } else {
+            $menuRecipeMaterial = MenuRecipeMaterial::where('addon_id', $id)->get();
+        }
+
         if ($menuRecipeMaterial->isEmpty()) {
-            return 0; // Or return a high number like 999 if items without recipes are considered "unlimited"
+            return 999;
         }
 
         $dataStock = [];
@@ -96,14 +101,13 @@ class PosController extends Controller
             }
 
             $stockInventory = $inventory->stock;
-            // Avoid division by zero if recipe qty is somehow 0
             if ($recipe->qty <= 0) {
                 continue;
             }
             $dataStock[] = $stockInventory / $recipe->qty;
         }
 
-        return !empty($dataStock) ? (int) floor(min($dataStock)) : 0;
+        return !empty($dataStock) ? (int) floor(min($dataStock)) : 999;
     }
 
     public function findProduct(Request $request): \Illuminate\Http\JsonResponse
@@ -145,6 +149,12 @@ class PosController extends Controller
             ->where('outlet_id', Auth::user()->outlet_id)
             ->whereNull('deleted_at')
             ->get();
+
+        foreach ($addon as $a) {
+            foreach ($a->addonVariant as $variant) {
+                $variant->stock = $this->calculateStock($variant->id, 'addon');
+            }
+        }
 
         return response()->json([
             'data'  => $addon
