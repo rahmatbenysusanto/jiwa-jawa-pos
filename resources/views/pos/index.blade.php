@@ -837,7 +837,6 @@
                     localStorage.setItem('variant', JSON.stringify(dataVariant));
                     renderVariantCards();
 
-                    localStorage.setItem('discountProduct', JSON.stringify(discount));
                     viewDiscountProduct();
 
                     document.getElementById('product-detail-id').value = product.id;
@@ -1092,9 +1091,9 @@
             discountProduct.forEach((item) => {
                 if (parseInt(item.select) === 1) {
                     if (item.type === 'nominal') {
-                        priceDiscount = Number(item.value);
+                        priceDiscount += Number(item.value);
                     } else {
-                        priceDiscount = (Number(product.price) + priceDelta + priceAddon) * Number(item.value) / 100;
+                        priceDiscount += (Number(product.price) + priceDelta + priceAddon) * Number(item.value) / 100;
                     }
                 }
             });
@@ -1537,10 +1536,9 @@
             discountProduct.forEach((item) => {
                 if (parseInt(item.select) === 1) {
                     if (item.type === 'nominal') {
-                        priceDiscount = parseInt(item.value);
+                        priceDiscount += parseInt(item.value);
                     } else {
-                        // BUG FIX: product adalah cart item, tidak punya .price — seharusnya .basePrice
-                        priceDiscount = (parseInt(product.basePrice) + priceDelta + priceAddon) * item.value / 100;
+                        priceDiscount += (parseInt(product.basePrice) + priceDelta + priceAddon) * item.value / 100;
                     }
                 }
             });
@@ -1657,14 +1655,37 @@
                 discount += item.priceDiscount * item.qty;
             });
 
-            const findDiskonTrans = Array.isArray(discountTransaction) ? discountTransaction.find((item) => item.select === 1) : undefined;
+            // Subtotal setelah product discount (digunakan untuk validasi min_transaction_amount)
+            const subTotalAfterProductDiscount = subTotal - discount;
 
-            if (findDiskonTrans) {
-                if (findDiskonTrans.type === 'nominal') {
-                    discount += findDiskonTrans.value;
-                } else {
-                    discount += (subTotal - discount) * (findDiskonTrans.value / 100);
-                }
+            // Akumulasi SEMUA diskon transaksi yang dipilih (bukan hanya yang pertama)
+            if (Array.isArray(discountTransaction)) {
+                discountTransaction.forEach((item) => {
+                    if (item.select === 1) {
+                        // Validasi minimum transaction amount
+                        const minAmount = parseFloat(item.min_transaction_amount) || 0;
+                        if (minAmount > 0 && subTotalAfterProductDiscount < minAmount) {
+                            // Batalkan pilihan diskon jika tidak memenuhi minimum
+                            item.select = 0;
+                            return;
+                        }
+
+                        if (item.type === 'nominal') {
+                            discount += parseFloat(item.value);
+                        } else {
+                            let percentDiscount = subTotalAfterProductDiscount * (parseFloat(item.value) / 100);
+                            // Terapkan max_value jika ada
+                            const maxValue = parseFloat(item.max_value) || 0;
+                            if (maxValue > 0 && percentDiscount > maxValue) {
+                                percentDiscount = maxValue;
+                            }
+                            discount += percentDiscount;
+                        }
+                    }
+                });
+
+                // Simpan kembali discountTransaction yang mungkin sudah di-unselect
+                localStorage.setItem('discountTransaction', JSON.stringify(discountTransaction));
             }
 
             grandTotal = subTotal - discount + totalTax;
@@ -1954,13 +1975,23 @@
             let html = '';
 
             discount.forEach((item) => {
+                const minAmount = parseFloat(item.min_transaction_amount) || 0;
+                const maxValue = parseFloat(item.max_value) || 0;
+                let infoBadge = '';
+                if (minAmount > 0) {
+                    infoBadge += `<div class="text-muted small">Min: Rp ${rupiah(minAmount)}</div>`;
+                }
+                if (maxValue > 0) {
+                    infoBadge += `<div class="text-muted small">Max: Rp ${rupiah(maxValue)}</div>`;
+                }
                 html += `
                     <div class="col-3">
                         <a onclick="changeDiscountTransaction(${item.id})">
                             <div class="card p-3 ${item.select === 1 ? 'card-discount' : ''}">
                                 <div>${item.code}</div>
                                 <div class="fw-bold">${item.name}</div>
-                                <div class="fw-bold">${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : parseInt(item.value)+'%'}</div>
+                                <div class="fw-bold">${item.type === 'nominal' ? 'Rp '+rupiah(item.value) : parseFloat(item.value)+'%'}</div>
+                                ${infoBadge}
                             </div>
                         </a>
                     </div>
@@ -1971,14 +2002,46 @@
 
         function changeDiscountTransaction(value) {
             const discount = JSON.parse(localStorage.getItem('discountTransaction')) ?? [];
+            let targetItem = null;
+
             discount.forEach((item) => {
                 if (parseInt(item.id) === parseInt(value)) {
                     if (typeof item.select === 'undefined') {
                         item.select = 0;
                     }
-                    item.select = item.select === 1 ? 0 : 1;
+                    targetItem = item;
                 }
             });
+
+            if (!targetItem) return;
+
+            // Jika akan MENGATIFKAN diskon (dari 0 ke 1), cek minimum amount
+            if (targetItem.select === 0) {
+                const minAmount = parseFloat(targetItem.min_transaction_amount) || 0;
+                if (minAmount > 0) {
+                    const cart = JSON.parse(localStorage.getItem('cart')) ?? [];
+                    let subTotal = 0;
+                    let productDiscount = 0;
+                    cart.forEach((cartItem) => {
+                        subTotal += (cartItem.basePrice + cartItem.priceDelta + cartItem.priceAddon) * cartItem.qty;
+                        productDiscount += cartItem.priceDiscount * cartItem.qty;
+                    });
+                    const effectiveSubTotal = subTotal - productDiscount;
+
+                    if (effectiveSubTotal < minAmount) {
+                        Swal.fire({
+                            title: 'Cannot Apply Discount!',
+                            html: `<b>${targetItem.name}</b> requires a minimum transaction of <b>Rp ${rupiah(minAmount)}</b>.<br><br>
+                                   Current amount after product discounts: <b>Rp ${rupiah(effectiveSubTotal)}</b>.`,
+                            icon: 'warning',
+                        });
+                        return;
+                    }
+                }
+            }
+
+            targetItem.select = targetItem.select === 1 ? 0 : 1;
+
             localStorage.setItem('discountTransaction', JSON.stringify(discount));
             calculatePrice();
             viewDiscountTransaction();

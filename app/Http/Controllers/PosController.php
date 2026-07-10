@@ -118,6 +118,7 @@ class PosController extends Controller
             ->leftJoin('discount_menu', 'discount.id', '=', 'discount_menu.discount_id')
             ->where('discount_menu.menu_id', $request->get('id'))
             ->where('discount.status', 'active')
+            ->whereNull('discount.deleted_at')
             ->get();
 
         return response()->json([

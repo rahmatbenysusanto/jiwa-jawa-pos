@@ -63,8 +63,8 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" for="value_max">Discount Max</label>
-                                    <input type="number" class="form-control" id="value_max" name="value_max" placeholder="Rp 0">
+                                    <label class="form-label" for="max_value">Discount Max</label>
+                                    <input type="number" class="form-control" id="max_value" name="max_value" placeholder="Rp 0">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="end_date">End Date</label>

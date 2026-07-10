@@ -172,12 +172,29 @@ class TransactionController extends Controller
                 }
 
                 if ($item['priceDiscount'] != 0) {
+                    // Hitung total diskon per item untuk atribusi yang benar
+                    $totalProductDiscount = (float) $item['priceDiscount'];
+                    $selectedDiscounts = [];
                     foreach ($item['data']['discountProduct'] ?? [] as $discountProduct) {
+                        if (isset($discountProduct['select']) && (int) $discountProduct['select'] === 1) {
+                            $selectedDiscounts[] = $discountProduct;
+                        }
+                    }
+
+                    // Distribusikan harga diskon ke masing-masing diskon yang dipilih
+                    $discountCount = count($selectedDiscounts);
+                    foreach ($selectedDiscounts as $idx => $discountProduct) {
+                        // Bagi rata jika multiple discount (backend tidak tahu persis kontribusi masing-masing,
+                        // tapi setidaknya tidak menyimpan nilai total penuh untuk setiap record)
+                        $individualPrice = $discountCount > 1
+                            ? round($totalProductDiscount / $discountCount, 2)
+                            : $totalProductDiscount;
+
                         TransactionDiscount::create([
                             'transaction_id'        => $transaction->id,
                             'transaction_detail_id' => $detail->id,
                             'discount_id'           => $discountProduct['id'],
-                            'price'                 => $item['priceDiscount']
+                            'price'                 => $individualPrice,
                         ]);
                     }
                 }
@@ -204,15 +221,30 @@ class TransactionController extends Controller
             Transaction::where('id', $transaction->id)->update(['hpp' => $hppTransaction]);
 
             // Filter discount yang benar-benar dipilih (select == 1)
+            // dan validasi minimum transaction amount
+            $subTotalAfterProductDiscount = (float) $subTotal - array_sum(
+                array_column($cartItems, 'priceDiscount')
+            );
+
             foreach ($discountTrxIn as $discountItem) {
                 if (isset($discountItem['select']) && (int) $discountItem['select'] === 1) {
+                    // Validasi minimum transaction amount
+                    $minAmount = (float) ($discountItem['min_transaction_amount'] ?? 0);
+                    if ($minAmount > 0 && $subTotalAfterProductDiscount < $minAmount) {
+                        // Skip diskon yang tidak memenuhi minimum amount
+                        continue;
+                    }
+
                     if (($discountItem['type'] ?? '') === 'nominal') {
                         $actualDiscountPrice = (float) $discountItem['value'];
                     } else {
-                        $subTotalAfterProductDiscount = (float) $subTotal - array_sum(
-                            array_column($cartItems, 'priceDiscount')
-                        );
-                        $actualDiscountPrice = $subTotalAfterProductDiscount * ((float) $discountItem['value'] / 100);
+                        $percentDiscount = $subTotalAfterProductDiscount * ((float) $discountItem['value'] / 100);
+                        // Terapkan max_value jika ada
+                        $maxValue = (float) ($discountItem['max_value'] ?? 0);
+                        if ($maxValue > 0 && $percentDiscount > $maxValue) {
+                            $percentDiscount = $maxValue;
+                        }
+                        $actualDiscountPrice = $percentDiscount;
                     }
                     TransactionDiscount::create([
                         'transaction_id' => $transaction->id,

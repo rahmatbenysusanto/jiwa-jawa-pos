@@ -52,7 +52,7 @@ class WhatsappService
                 'message'   => $message
             ]),
             CURLOPT_HTTPHEADER => array(
-                'Authorization: Basic OFJHczVWQWw6WFp5NUNwcEU2M1RDU2lBRDU3S0tTbURz',
+                'Authorization: Basic cmFobWF0OnJhaG1hdA==',
                 'Content-Type: application/json'
             ),
         ));
@@ -63,7 +63,7 @@ class WhatsappService
         echo $response;
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://gowa-lgzsmb7bsgvi.sgp-ramaparasu.sumopod.my.id/send/message',
+            CURLOPT_URL => 'https://wa.nabungmas.my.id/send/message',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -76,7 +76,7 @@ class WhatsappService
                 'message'   => $message
             ]),
             CURLOPT_HTTPHEADER => array(
-                'Authorization: Basic OFJHczVWQWw6WFp5NUNwcEU2M1RDU2lBRDU3S0tTbURz',
+                'Authorization: Basic cmFobWF0OnJhaG1hdA==',
                 'Content-Type: application/json'
             ),
         ));

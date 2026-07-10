@@ -90,7 +90,11 @@ class DiscountController extends Controller
 
     public function findDiscountTransaction(): \Illuminate\Http\JsonResponse
     {
-        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)->where('scope', 'transaction')->whereNull('deleted_at')->get();
+        $discount = Discount::where('outlet_id', Auth::user()->outlet_id)
+            ->where('scope', 'transaction')
+            ->where('status', 'active')
+            ->whereNull('deleted_at')
+            ->get();
 
         return response()->json([
             'data' => $discount
@@ -123,34 +127,43 @@ class DiscountController extends Controller
 
     public function update(Request $request): \Illuminate\Http\RedirectResponse
     {
-        Discount::where('id', $request->post('id'))
-            ->where('outlet_id', Auth::user()->outlet_id)
-            ->update([
-                'name'          => $request->post('name'),
-                'code'          => empty($request->post('code')) ? 'DISC-' . strtoupper(Str::random(5)) : $request->post('code'),
-                'scope'         => $request->post('scope'),
-                'type'          => $request->post('type'),
-                'value'         => $request->post('value') ?: 0,
-                'max_value'     => $request->post('max_value') ?: 0,
-                'min_transaction_amount' => $request->post('min_transaction_amount') ?: 0,
-                'start_date'    => $request->post('start_date'),
-                'end_date'      => $request->post('end_date'),
-                'updated_at'    => date('Y-m-d H:i:s')
-            ]);
+        try {
+            DB::beginTransaction();
 
-        if (strtolower($request->post('scope')) == 'product' && $request->post('menu')) {
-            DiscountMenu::where('discount_id', $request->post('id'))->delete();
-            foreach ($request->post('menu') as $menu) {
-                DiscountMenu::create([
-                    'discount_id' => $request->post('id'),
-                    'menu_id'     => $menu,
+            Discount::where('id', $request->post('id'))
+                ->where('outlet_id', Auth::user()->outlet_id)
+                ->update([
+                    'name'          => $request->post('name'),
+                    'code'          => empty($request->post('code')) ? 'DISC-' . strtoupper(Str::random(5)) : $request->post('code'),
+                    'scope'         => $request->post('scope'),
+                    'type'          => $request->post('type'),
+                    'value'         => $request->post('value') ?: 0,
+                    'max_value'     => $request->post('max_value') ?: 0,
+                    'min_transaction_amount' => $request->post('min_transaction_amount') ?: 0,
+                    'start_date'    => $request->post('start_date'),
+                    'end_date'      => $request->post('end_date'),
+                    'updated_at'    => date('Y-m-d H:i:s')
                 ]);
-            }
-        } else if (strtolower($request->post('scope')) != 'product') {
-            DiscountMenu::where('discount_id', $request->post('id'))->delete();
-        }
 
-        return redirect()->route('discount')->with('success', 'Discount updated successfully.');
+            if (strtolower($request->post('scope')) == 'product' && $request->post('menu')) {
+                DiscountMenu::where('discount_id', $request->post('id'))->delete();
+                foreach ($request->post('menu') as $menu) {
+                    DiscountMenu::create([
+                        'discount_id' => $request->post('id'),
+                        'menu_id'     => $menu,
+                    ]);
+                }
+            } else if (strtolower($request->post('scope')) != 'product') {
+                DiscountMenu::where('discount_id', $request->post('id'))->delete();
+            }
+
+            DB::commit();
+            return redirect()->route('discount')->with('success', 'Discount updated successfully.');
+        } catch (\Exception $err) {
+            DB::rollBack();
+            Log::error($err->getMessage());
+            return back()->with('error', 'Discount update failed');
+        }
     }
 
     public function delete(Request $request): \Illuminate\Http\JsonResponse
